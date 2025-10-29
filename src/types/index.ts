@@ -41,10 +41,23 @@ export interface UserInfo {
 // 主题模式
 export type ThemeMode = 'light' | 'dark'
 
+// 主题色调
+export type ThemeColor = 'blue' | 'purple' | 'green' | 'orange' | 'pink'
+
 // 导航菜单项
 export interface MenuItem {
   name: string
   path: string
+  icon?: string
+}
+
+// 导航网站
+export interface NavigationSite {
+  id: number
+  name: string
+  description: string
+  url: string
+  category: string
   icon?: string
 }
 

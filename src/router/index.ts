@@ -19,6 +19,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '文章列表' }
       },
       {
+        path: '/navigation',
+        name: 'Navigation',
+        component: () => import('@/views/Navigation.vue'),
+        meta: { title: '网站导航' }
+      },
+      {
         path: '/article/:id',
         name: 'ArticleDetail',
         component: () => import('@/views/ArticleDetail.vue'),
