@@ -18,9 +18,10 @@
             v-for="item in menuItems"
             :key="item.path"
             :to="item.path"
-            class="nav-link text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+            class="nav-link text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
             exact-active-class="text-primary-600 bg-primary-50"
           >
+            <SvgIcon v-if="item.icon" :name="item.icon" size="18" />
             {{ item.name }}
           </router-link>
         </div>
@@ -108,10 +109,11 @@
           v-for="item in menuItems"
           :key="item.path"
           :to="item.path"
-          class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50"
+          class="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50"
           exact-active-class="text-primary-600 bg-primary-50"
           @click="mobileMenuOpen = false"
         >
+          <SvgIcon v-if="item.icon" :name="item.icon" size="20" />
           {{ item.name }}
         </router-link>
         
@@ -139,7 +141,7 @@ const appStore = useAppStore()
 const mobileMenuOpen = ref(false)
 
 const menuItems: MenuItem[] = [
-  { name: '首页', path: '/' },
+  { name: '首页', path: '/', icon: 'blogshouye' },
   { name: '文章', path: '/articles' },
   { name: '网站导航', path: '/navigation' },
   { name: '关于', path: '/about' }
