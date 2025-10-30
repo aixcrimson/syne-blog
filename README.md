@@ -1,4 +1,4 @@
-# 我的博客 - 前端项目
+# syne-blog
 
 一个基于 Vue 3 + TypeScript + Tailwind CSS 的现代化个人博客网站。
 

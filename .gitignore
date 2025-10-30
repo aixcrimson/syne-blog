@@ -28,3 +28,10 @@ dist-ssr
 .env.local
 .env.*.local
 
+# Cursor rules and generated docs
+.cursor/rules/
+
+# 忽略所有 md 文件（除了 README.md）
+*.md
+!README.md
+
