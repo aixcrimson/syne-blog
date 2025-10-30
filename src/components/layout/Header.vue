@@ -6,9 +6,9 @@
         <div class="flex items-center min-w-[200px]">
           <router-link to="/" class="flex items-center space-x-2">
             <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
-              <span class="text-white font-bold text-lg">博</span>
+              <span class="text-white font-bold text-lg">X</span>
             </div>
-            <span class="text-xl font-bold text-gray-900">博客航程</span>
+            <span class="text-xl font-bold text-gray-900">syne-blog</span>
           </router-link>
         </div>
         
@@ -19,7 +19,7 @@
             :key="item.path"
             :to="item.path"
             class="nav-link text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-            active-class="text-primary-600 bg-primary-50"
+            exact-active-class="text-primary-600 bg-primary-50"
           >
             {{ item.name }}
           </router-link>
@@ -109,7 +109,7 @@
           :key="item.path"
           :to="item.path"
           class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50"
-          active-class="text-primary-600 bg-primary-50"
+          exact-active-class="text-primary-600 bg-primary-50"
           @click="mobileMenuOpen = false"
         >
           {{ item.name }}
@@ -171,7 +171,7 @@ const handleThemeColorChange = (color: ThemeColor) => {
 }
 
 .nav-link:hover::after,
-.nav-link.router-link-active::after {
+.nav-link.router-link-exact-active::after {
   width: 80%;
 }
 
