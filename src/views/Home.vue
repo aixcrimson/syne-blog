@@ -5,7 +5,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div class="text-center">
           <h1 class="text-4xl md:text-5xl font-bold mb-4">
-            欢迎来到我的博客
+            Syne's Blog
           </h1>
           <p class="text-xl md:text-2xl mb-8 text-primary-100">
             分享技术，记录成长
