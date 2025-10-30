@@ -1,3 +1,5 @@
+import dayjs from './dayjs'
+
 /**
  * 格式化日期
  * @param dateString 日期字符串
@@ -5,46 +7,29 @@
  * @returns 格式化后的日期字符串
  */
 export function formatDate(dateString: string, format: 'full' | 'date' | 'relative' = 'date'): string {
-  const date = new Date(dateString)
+  const date = dayjs(dateString)
   
   if (format === 'full') {
-    return date.toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    })
+    // 完整日期时间：2024-03-15 14:30:25
+    return date.format('YYYY-MM-DD HH:mm:ss')
   }
   
   if (format === 'date') {
-    return date.toLocaleDateString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).replace(/\//g, '-')
+    // 只有日期：2024-03-15
+    return date.format('YYYY-MM-DD')
   }
   
   // 相对时间
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-  const seconds = Math.floor(diff / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const hours = Math.floor(minutes / 60)
-  const days = Math.floor(hours / 24)
+  const now = dayjs()
+  const days = now.diff(date, 'day')
   
+  // 超过30天显示具体日期
   if (days > 30) {
-    return formatDate(dateString, 'date')
-  } else if (days > 0) {
-    return `${days} 天前`
-  } else if (hours > 0) {
-    return `${hours} 小时前`
-  } else if (minutes > 0) {
-    return `${minutes} 分钟前`
-  } else {
-    return '刚刚'
+    return date.format('YYYY-MM-DD')
   }
+  
+  // 30天内显示相对时间
+  return date.fromNow()
 }
 
 /**
@@ -85,5 +70,75 @@ export function slugify(text: string): string {
     .toLowerCase()
     .replace(/[^\w\u4e00-\u9fa5]+/g, '-')
     .replace(/^-+|-+$/g, '')
+}
+
+/**
+ * 获取友好的时间描述
+ * @param dateString 日期字符串
+ * @returns 友好的时间描述，如 "今天 14:30"、"昨天 09:15"、"2024-03-15"
+ */
+export function formatFriendlyTime(dateString: string): string {
+  const date = dayjs(dateString)
+  const now = dayjs()
+  
+  const isToday = date.isSame(now, 'day')
+  const isYesterday = date.isSame(now.subtract(1, 'day'), 'day')
+  const isThisYear = date.isSame(now, 'year')
+  
+  if (isToday) {
+    return `今天 ${date.format('HH:mm')}`
+  } else if (isYesterday) {
+    return `昨天 ${date.format('HH:mm')}`
+  } else if (isThisYear) {
+    return date.format('MM-DD HH:mm')
+  } else {
+    return date.format('YYYY-MM-DD')
+  }
+}
+
+/**
+ * 计算阅读时长
+ * @param wordCount 字数
+ * @param wordsPerMinute 每分钟阅读字数（默认300）
+ * @returns 阅读时长描述，如 "5分钟阅读"
+ */
+export function formatReadingTime(wordCount: number, wordsPerMinute: number = 300): string {
+  const minutes = Math.ceil(wordCount / wordsPerMinute)
+  return `${minutes}分钟阅读`
+}
+
+/**
+ * 判断日期是否在指定天数内
+ * @param dateString 日期字符串
+ * @param days 天数
+ * @returns 是否在指定天数内
+ */
+export function isWithinDays(dateString: string, days: number): boolean {
+  const date = dayjs(dateString)
+  const now = dayjs()
+  return now.diff(date, 'day') <= days
+}
+
+/**
+ * 格式化时间段
+ * @param startDate 开始时间
+ * @param endDate 结束时间（可选，默认为当前时间）
+ * @returns 时间段描述，如 "2小时30分钟"
+ */
+export function formatDuration(startDate: string, endDate?: string): string {
+  const start = dayjs(startDate)
+  const end = endDate ? dayjs(endDate) : dayjs()
+  
+  const duration = dayjs.duration(end.diff(start))
+  const days = duration.days()
+  const hours = duration.hours()
+  const minutes = duration.minutes()
+  
+  const parts: string[] = []
+  if (days > 0) parts.push(`${days}天`)
+  if (hours > 0) parts.push(`${hours}小时`)
+  if (minutes > 0) parts.push(`${minutes}分钟`)
+  
+  return parts.length > 0 ? parts.join('') : '刚刚'
 }
 
