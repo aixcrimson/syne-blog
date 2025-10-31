@@ -18,7 +18,11 @@ const pinia = createPinia()
 
 app.use(pinia)
 app.use(router)
-app.use(ElementPlus)
+
+// 配置 Element Plus 使用 CSS 变量
+app.use(ElementPlus, {
+  // Element Plus 会自动读取 CSS 变量
+})
 
 // 注册全局组件
 app.component('SvgIcon', SvgIcon)

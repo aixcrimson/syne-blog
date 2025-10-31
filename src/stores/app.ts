@@ -1,15 +1,16 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { ThemeColor, UserInfo } from '@/types'
+import authorAvatar from '@/assets/images/avatar/author.jpg'
 
 export const useAppStore = defineStore('app', () => {
   // 状态
   const themeColor = ref<ThemeColor>('blue')
   const userInfo = ref<UserInfo>({
-    name: 'DutyZero',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=DutyZero',
-    bio: '热爱技术，专注于前端开发和用户体验',
-    email: 'contact@example.com',
+    name: 'Syne',
+    avatar: authorAvatar,
+    bio: '热爱技术，专注于软件开发',
+    email: 'hitori150221@outlook.com',
     github: 'https://github.com/aixcrimson',
     twitter: 'https://twitter.com'
   })

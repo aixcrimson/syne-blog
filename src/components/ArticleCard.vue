@@ -1,10 +1,10 @@
 <template>
   <div
-    class="article-card bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer"
+    class="article-card glass-card rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer"
     @click="handleClick"
   >
     <!-- 封面图 -->
-    <div v-if="article.coverImage" class="aspect-video overflow-hidden">
+    <div v-if="article.coverImage" class="h-72 overflow-hidden">
       <img
         :src="article.coverImage"
         :alt="article.title"
@@ -76,6 +76,13 @@ const handleClick = () => {
 </script>
 
 <style scoped>
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
 .article-card {
   @apply transform hover:-translate-y-1;
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class="article-list py-12">
+  <div class="article-list py-12 bg-transparent">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- 页面标题 -->
       <div class="mb-8">
@@ -8,7 +8,7 @@
       </div>
       
       <!-- 搜索和筛选 -->
-      <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+      <div class="glass-card rounded-lg shadow-sm p-6 mb-8">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <el-input
             v-model="searchKeyword"
@@ -164,4 +164,13 @@ watch([searchKeyword, selectedCategory, selectedTag], () => {
   currentPage.value = 1
 })
 </script>
+
+<style scoped>
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+</style>
 

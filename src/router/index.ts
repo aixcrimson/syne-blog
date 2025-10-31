@@ -56,7 +56,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const title = to.meta.title as string
   if (title) {
-    document.title = `${title} - 我的博客`
+    document.title = `${title} - syne's blog`
   }
   next()
 })

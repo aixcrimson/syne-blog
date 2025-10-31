@@ -1,7 +1,7 @@
 <template>
-  <div class="article-detail py-12">
+  <div class="article-detail py-12 bg-transparent">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div v-if="article" class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div v-if="article" class="glass-card rounded-lg shadow-sm overflow-hidden">
         <!-- 文章头部 -->
         <div class="article-header p-8 border-b">
           <div class="mb-4">
@@ -148,8 +148,15 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
 .article-header {
-  background: linear-gradient(to bottom, #f9fafb 0%, #ffffff 100%);
+  background: linear-gradient(to bottom, rgba(249, 250, 251, 0.5) 0%, rgba(255, 255, 255, 0.3) 100%);
 }
 </style>
 

@@ -1,5 +1,5 @@
 <template>
-  <footer class="bg-gray-900 text-gray-300 mt-auto">
+  <footer class="footer-glass text-gray-300 mt-auto">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <!-- 关于部分 -->
@@ -76,7 +76,18 @@ const currentYear = computed(() => new Date().getFullYear())
 const menuItems = [
   { name: '首页', path: '/' },
   { name: '文章', path: '/articles' },
+  { name: '网站导航', path: '/navigation' },
   { name: '关于', path: '/about' }
 ]
 </script>
+
+<style scoped>
+/* 毛玻璃效果 Footer */
+.footer-glass {
+  background: rgba(17, 24, 39, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+</style>
 

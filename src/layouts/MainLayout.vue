@@ -1,5 +1,8 @@
 <template>
   <div class="main-layout min-h-screen flex flex-col">
+    <!-- 背景图片 -->
+    <div class="background-image" :style="{ backgroundImage: `url(${bgImage})` }"></div>
+    
     <!-- 导航栏 -->
     <Header />
     
@@ -16,11 +19,33 @@
 <script setup lang="ts">
 import Header from '@/components/layout/Header.vue'
 import Footer from '@/components/layout/Footer.vue'
+import bgImage from '@/assets/images/common/lightTheme.jpg'
 </script>
 
 <style scoped>
 .main-layout {
-  background: linear-gradient(to bottom, #f9fafb 0%, #ffffff 100%);
+  position: relative;
+  background: transparent;
+}
+
+/* 背景图片层 */
+.background-image {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 确保内容在背景之上 */
+.main-layout > *:not(.background-image) {
+  position: relative;
+  z-index: 10;
 }
 </style>
 

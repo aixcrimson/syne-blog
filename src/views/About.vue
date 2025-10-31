@@ -1,8 +1,8 @@
 <template>
-  <div class="about py-12">
+  <div class="about py-12 bg-transparent">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- 个人信息卡片 -->
-      <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
+      <div class="glass-card rounded-lg shadow-sm overflow-hidden mb-8">
         <div class="bg-gradient-to-r from-primary-600 to-primary-800 h-32"></div>
         <div class="px-8 pb-8">
           <div class="flex flex-col items-center -mt-16 mb-6">
@@ -38,7 +38,7 @@
       </div>
       
       <!-- 技能栈 -->
-      <div class="bg-white rounded-lg shadow-sm p-8 mb-8">
+      <div class="glass-card rounded-lg shadow-sm p-8 mb-8">
         <h2 class="text-2xl font-bold text-gray-900 mb-6">技能栈</h2>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div
@@ -61,7 +61,7 @@
       </div>
       
       <!-- 关于博客 -->
-      <div class="bg-white rounded-lg shadow-sm p-8 mb-8">
+      <div class="glass-card rounded-lg shadow-sm p-8 mb-8">
         <h2 class="text-2xl font-bold text-gray-900 mb-6">关于博客</h2>
         <div class="text-gray-600 max-w-none">
           <p class="text-gray-600 leading-7 mb-4">
@@ -84,7 +84,7 @@
       </div>
       
       <!-- 时间线 -->
-      <div class="bg-white rounded-lg shadow-sm p-8">
+      <div class="glass-card rounded-lg shadow-sm p-8">
         <h2 class="text-2xl font-bold text-gray-900 mb-6">成长历程</h2>
         <el-timeline>
           <el-timeline-item
@@ -152,6 +152,13 @@ const openLink = (url: string) => {
 </script>
 
 <style scoped>
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
 .skill-card {
   transition: all 0.3s ease;
 }
