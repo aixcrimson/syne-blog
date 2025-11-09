@@ -1,0 +1,37 @@
+{
+  "id": "5053717",
+  "name": "syne-blog",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-blog",
+  "description": "syne的博客",
+  "glyphs": [
+    {
+      "icon_id": "17816853",
+      "name": "首页",
+      "font_class": "shouye",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "4320340",
+      "name": "关于",
+      "font_class": "guanyu",
+      "unicode": "e655",
+      "unicode_decimal": 58965
+    },
+    {
+      "icon_id": "16322929",
+      "name": "文章",
+      "font_class": "wenzhang",
+      "unicode": "e702",
+      "unicode_decimal": 59138
+    },
+    {
+      "icon_id": "42704235",
+      "name": "网页导航",
+      "font_class": "wangyedaohang",
+      "unicode": "e934",
+      "unicode_decimal": 59700
+    }
+  ]
+}

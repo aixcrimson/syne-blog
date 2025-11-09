@@ -1,0 +1,19 @@
+spring:
+  # 数据源配置（开发环境）
+  # ⚠️ 密码请在 application-dev-local.yml 中配置（该文件不会提交到 Git）
+  datasource:
+    url: jdbc:postgresql://localhost:5432/syne_blog?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: postgres
+    password: ${DB_PASSWORD:please_set_password_in_dev_local}
+
+# MyBatis-Plus SQL 日志（开发环境开启）
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# 日志级别（开发环境详细日志）
+logging:
+  level:
+    com.syne.server: debug
+    com.baomidou.mybatisplus: debug
+    org.springframework.security: debug

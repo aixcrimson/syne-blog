@@ -1,0 +1,131 @@
+# ============================================
+# Syne Blog - Monorepo .gitignore
+# ============================================
+
+# ============================================
+# 操作系统相关
+# ============================================
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+*~
+.directory
+
+# ============================================
+# IDE 相关
+# ============================================
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Eclipse
+.project
+.classpath
+.settings/
+.metadata
+
+# Cursor
+.cursor/
+
+# ============================================
+# 后端 (server/) - Java/Spring Boot
+# ============================================
+# Maven
+server/target/
+server/.mvn/wrapper/maven-wrapper.jar
+server/!**/src/main/**/target/
+server/!**/src/test/**/target/
+
+# Gradle
+server/build/
+server/.gradle/
+server/!**/src/main/**/build/
+server/!**/src/test/**/build/
+
+# Spring Boot
+server/*.log
+server/logs/
+
+# ============================================
+# 前端 (web/) - Vue/Node.js
+# ============================================
+# Dependencies
+web/node_modules/
+web/.pnp
+web/.pnp.js
+
+# Build output
+web/dist/
+web/dist-ssr/
+web/*.local
+
+# Testing
+web/coverage/
+web/.nyc_output
+
+# Cache
+web/.cache/
+web/.temp/
+web/.vite/
+web/.eslintcache
+
+# Logs
+web/npm-debug.log*
+web/yarn-debug.log*
+web/yarn-error.log*
+web/pnpm-debug.log*
+web/lerna-debug.log*
+
+# ============================================
+# 敏感信息和环境配置
+# ============================================
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+
+# 本地配置文件
+**/application-dev-local.yml
+**/application-prod-local.yml
+**/application-local.yml
+
+# ============================================
+# 数据库相关
+# ============================================
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================
+# 临时文件
+# ============================================
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.#*
+\#*#
+
+# 忽略所有 md 文件（除了 README.md）
+*.md
+!README.md
