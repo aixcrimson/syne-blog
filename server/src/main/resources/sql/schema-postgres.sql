@@ -117,7 +117,7 @@ CREATE TABLE articles (
   status SMALLINT NOT NULL DEFAULT 2 CHECK (status IN (1, 2, 3)),
   is_top SMALLINT NOT NULL DEFAULT 0 CHECK (is_top IN (0, 1)),
   is_recommend SMALLINT NOT NULL DEFAULT 0 CHECK (is_recommend IN (0, 1)),
-  published_at TIMESTAMP DEFAULT NULL,
+  published_time TIMESTAMP DEFAULT NULL,
   create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   deleted SMALLINT NOT NULL DEFAULT 0 CHECK (deleted IN (0, 1))
@@ -127,6 +127,7 @@ COMMENT ON TABLE articles IS '文章表';
 COMMENT ON COLUMN articles.status IS '文章状态: 1-已发布, 2-草稿, 3-已下架';
 COMMENT ON COLUMN articles.is_top IS '是否置顶: 0-否, 1-是';
 COMMENT ON COLUMN articles.is_recommend IS '是否推荐: 0-否, 1-是';
+COMMENT ON COLUMN articles.published_time IS '发布时间，NULL 表示未发布';
 COMMENT ON COLUMN articles.create_time IS '创建时间';
 COMMENT ON COLUMN articles.update_time IS '更新时间';
 COMMENT ON COLUMN articles.deleted IS '逻辑删除: 0-未删除, 1-已删除';
@@ -137,7 +138,7 @@ CREATE INDEX idx_articles_category_id ON articles(category_id);
 CREATE INDEX idx_articles_status ON articles(status);
 CREATE INDEX idx_articles_is_top ON articles(is_top);
 CREATE INDEX idx_articles_is_recommend ON articles(is_recommend);
-CREATE INDEX idx_articles_published_at ON articles(published_at);
+CREATE INDEX idx_articles_published_time ON articles(published_time);
 CREATE INDEX idx_articles_views ON articles(views);
 CREATE INDEX idx_articles_likes ON articles(likes);
 CREATE INDEX idx_articles_create_time ON articles(create_time);
@@ -377,7 +378,7 @@ INSERT INTO tags (name, slug, color) VALUES
 ('MyBatis', 'mybatis', '#E34F26');
 
 -- 插入测试文章
-INSERT INTO articles (user_id, category_id, title, summary, content, cover_image, status, is_top, is_recommend, published_at) VALUES
+INSERT INTO articles (user_id, category_id, title, summary, content, cover_image, status, is_top, is_recommend, published_time) VALUES
 (1, 1, 'Vue 3 Composition API 深度解析', '本文详细介绍了 Vue 3 Composition API 的核心概念和使用方法', '# Vue 3 Composition API 深度解析\n\nVue 3 引入了 Composition API，这是一种全新的组件逻辑组织方式...', '/covers/vue3.jpg', 1, 1, 1, CURRENT_TIMESTAMP),
 (1, 2, 'Spring Boot 微服务架构实践', '从零开始构建 Spring Boot 微服务应用', '# Spring Boot 微服务架构实践\n\n本文将介绍如何使用 Spring Boot 构建微服务架构...', '/covers/springboot.jpg', 1, 0, 1, CURRENT_TIMESTAMP),
 (1, 3, 'PostgreSQL 性能优化技巧', '深入探讨 PostgreSQL 数据库的性能优化方法', '# PostgreSQL 性能优化技巧\n\n本文总结了 PostgreSQL 性能优化的核心技巧...', '/covers/postgresql.jpg', 1, 0, 1, CURRENT_TIMESTAMP),
@@ -416,7 +417,7 @@ INSERT INTO navigation_sites (category_id, name, description, url, icon, sort_or
 /*
 SELECT 
   a.id, a.title, a.summary, a.cover_image, a.views, a.likes, 
-  a.published_at, a.create_time, a.is_top, a.is_recommend,
+  a.published_time, a.create_time, a.is_top, a.is_recommend,
   u.username AS author_name, u.avatar AS author_avatar,
   c.name AS category_name,
   string_agg(t.name, ',') AS tags
@@ -427,7 +428,7 @@ LEFT JOIN article_tags at ON a.id = at.article_id
 LEFT JOIN tags t ON at.tag_id = t.id
 WHERE a.status = 1 AND a.deleted = 0
 GROUP BY a.id, u.username, u.avatar, c.name
-ORDER BY a.is_top DESC, a.published_at DESC
+ORDER BY a.is_top DESC, a.published_time DESC
 LIMIT 10;
 */
 
@@ -447,7 +448,7 @@ LIMIT 10;
 
 -- 3. 查询热门文章
 /*
-SELECT id, title, summary, views, likes, published_at
+SELECT id, title, summary, views, likes, published_time
 FROM articles
 WHERE status = 1 AND deleted = 0
 ORDER BY views DESC
