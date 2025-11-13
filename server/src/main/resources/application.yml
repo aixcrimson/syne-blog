@@ -11,7 +11,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/syne_blog?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: postgres
-#    password: ${DB_PASSWORD:please_set_password_in_dev_local}
+    password: ${DB_PASSWORD}
     hikari:
       minimum-idle: 5
       maximum-pool-size: 20

@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/syne_blog?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: postgres
-#    password: ${DB_PASSWORD:please_set_password_in_dev_local}
+    password: ${DB_PASSWORD}
 
 # MyBatis-Plus SQL 日志（开发环境开启）
 mybatis-plus:
