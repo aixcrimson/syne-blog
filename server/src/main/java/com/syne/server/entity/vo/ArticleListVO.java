@@ -47,7 +47,7 @@ public class ArticleListVO implements Serializable {
     private Integer isRecommend;
 
     @Schema(description = "发布时间")
-    private LocalDateTime pubulishedTime;
+    private LocalDateTime publishedTime;
 
     @Schema(description = "作者名称")
     private String authorName;
