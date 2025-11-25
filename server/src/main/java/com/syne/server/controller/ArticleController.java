@@ -1,5 +1,6 @@
 package com.syne.server.controller;
 
+import com.syne.server.common.PageQuery;
 import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
 import com.syne.server.entity.vo.ArticleListVO;
@@ -39,6 +40,11 @@ public class ArticleController {
         @Parameter(description = "文章状态（1-已发布，2-草稿，3-已下架", example = "1")
         @RequestParam(required = false) Integer status
     ){
-        return null;
+        PageQuery pageQuery = new PageQuery();
+        pageQuery.setPage(page);
+        pageQuery.setPageSize(pageSize);
+
+        PageResult<ArticleListVO> result = articleService.getArticleList(pageQuery, status);
+        return Result.success(result);
     }
 }
