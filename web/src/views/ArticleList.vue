@@ -49,7 +49,7 @@
           <!-- 文章列表 - 一行一篇 -->
           <div class="space-y-6 mb-8">
             <ArticleCard
-              v-for="article in paginatedArticles.data"
+              v-for="article in articles"
               :key="article.id"
               :article="article"
             />
@@ -86,6 +86,8 @@ import { useArticleStore } from '@/stores/article'
 import { Search } from '@element-plus/icons-vue'
 import ArticleCard from '@/components/ArticleCard.vue'
 import Sidebar from '@/components/Sidebar.vue'
+import { articleApi } from '@/api/article'
+import type { Article } from '@/types'
 
 const route = useRoute()
 const articleStore = useArticleStore()
@@ -95,6 +97,8 @@ const pageSize = ref(6)
 const searchKeyword = ref('')
 const selectedCategory = ref('')
 const selectedTag = ref('')
+
+const articles = ref<Article[]>([])
 
 // 获取标签
 const tags = computed(() => articleStore.getAllTags)
@@ -140,6 +144,17 @@ const paginatedArticles = computed(() => {
   }
 })
 
+const loadArticles = async () => {
+  try{
+    const res = await articleApi.getList({
+      page: currentPage.value,
+      pageSize: pageSize.value,
+    })
+    articles.value = res.list
+  }catch(error){
+  }
+}
+
 const handleSearch = () => {
   currentPage.value = 1
 }
@@ -170,6 +185,7 @@ onMounted(() => {
   if (route.query.category) {
     selectedCategory.value = route.query.category as string
   }
+  loadArticles()
 })
 </script>
 
