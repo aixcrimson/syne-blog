@@ -30,6 +30,7 @@
     <select id="selectArticleList" resultMap="ArticleListVOMap">
         SELECT
         a.id,
+        a.title,
         a.summary,
         a.cover_image,
         a.views,
