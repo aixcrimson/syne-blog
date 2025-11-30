@@ -26,7 +26,7 @@
       
       <!-- 标签 -->
       <div class="flex flex-wrap gap-2 mb-4">
-        <el-tag type="primary" size="small">{{ article.category }}</el-tag>
+        <el-tag type="primary" size="small">{{ article.categoryName }}</el-tag>
         <el-tag
           v-for="tag in article.tags.slice(0, 2)"
           :key="tag"
@@ -42,7 +42,7 @@
         <div class="flex items-center space-x-4">
           <span class="flex items-center">
             <el-icon class="mr-1"><Calendar /></el-icon>
-            {{ formatDate(article.createdAt) }}
+            {{ formatDate(article.publishedTime) }}
           </span>
           <span class="flex items-center">
             <el-icon class="mr-1"><View /></el-icon>
