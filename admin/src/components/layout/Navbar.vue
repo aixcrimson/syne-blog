@@ -1,3 +1,100 @@
+<template>
+  <header 
+    class="navbar fixed top-0 right-0 h-16 z-40 glass-navbar transition-all duration-300"
+    :class="collapsed ? 'left-16' : 'left-60'"
+  >
+    <div class="h-full flex items-center justify-between px-6">
+      <!-- 左侧：折叠按钮 + 面包屑 -->
+      <div class="flex items-center gap-4">
+        <!-- 折叠按钮 -->
+        <el-icon 
+          class="text-xl text-gray-600 cursor-pointer hover:text-primary-500 transition-colors"
+          @click="emit('toggle')"
+        >
+          <Fold v-if="!collapsed" />
+          <Expand v-else />
+        </el-icon>
+        
+        <!-- 面包屑（可选，后续扩展） -->
+        <el-breadcrumb separator="/">
+          <el-breadcrumb-item :to="{ path: '/dashboard' }">首页</el-breadcrumb-item>
+        </el-breadcrumb>
+      </div>
+
+      <!-- 右侧：主题切换 + 用户信息 -->
+      <div class="flex items-center gap-4">
+        <!-- 主题色切换 -->
+        <el-dropdown trigger="click" @command="handleThemeChange">
+          <div class="theme-btn flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+            <div 
+              class="w-4 h-4 rounded-full"
+              :style="{ backgroundColor: currentThemeColor }"
+            ></div>
+            <span class="text-sm text-gray-600">主题</span>
+            <el-icon class="text-gray-400">
+              <ArrowDown />
+            </el-icon>
+          </div>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item 
+                v-for="theme in themes" 
+                :key="theme.value"
+                :command="theme.value"
+              >
+                <div class="flex items-center gap-2">
+                  <div 
+                    class="w-4 h-4 rounded-full"
+                    :style="{ backgroundColor: theme.color }"
+                  ></div>
+                  <span>{{ theme.name }}</span>
+                  <el-icon v-if="currentTheme === theme.value" class="ml-2 text-primary-500">
+                    <Check />
+                  </el-icon>
+                </div>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+
+        <!-- 分隔线 -->
+        <div class="h-6 w-px bg-gray-200"></div>
+
+        <!-- 用户信息下拉菜单 -->
+        <el-dropdown trigger="click">
+          <div class="user-info flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+            <!-- 头像 -->
+            <el-avatar 
+              :size="32" 
+              :src="userInfo.avatar"
+              class="bg-primary-500"
+            >
+              <el-icon><UserFilled /></el-icon>
+            </el-avatar>
+            <!-- 用户名 -->
+            <span class="text-sm font-medium text-gray-700">{{ userInfo.username }}</span>
+            <el-icon class="text-gray-400">
+              <ArrowDown />
+            </el-icon>
+          </div>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item @click="router.push('/settings')">
+                <el-icon><Setting /></el-icon>
+                <span class="ml-2">个人设置</span>
+              </el-dropdown-item>
+              <el-dropdown-item divided @click="handleLogout">
+                <el-icon class="text-red-500"><SwitchButton /></el-icon>
+                <span class="ml-2 text-red-500">退出登录</span>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
+    </div>
+  </header>
+</template>
+
 <script setup lang="ts">
 /**
  * 顶部导航栏组件
@@ -111,102 +208,6 @@ const initTheme = () => {
 initTheme()
 </script>
 
-<template>
-  <header 
-    class="navbar fixed top-0 right-0 h-16 z-40 glass-navbar transition-all duration-300"
-    :class="collapsed ? 'left-16' : 'left-60'"
-  >
-    <div class="h-full flex items-center justify-between px-6">
-      <!-- 左侧：折叠按钮 + 面包屑 -->
-      <div class="flex items-center gap-4">
-        <!-- 折叠按钮 -->
-        <el-icon 
-          class="text-xl text-gray-600 cursor-pointer hover:text-primary-500 transition-colors"
-          @click="emit('toggle')"
-        >
-          <Fold v-if="!collapsed" />
-          <Expand v-else />
-        </el-icon>
-        
-        <!-- 面包屑（可选，后续扩展） -->
-        <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ path: '/dashboard' }">首页</el-breadcrumb-item>
-        </el-breadcrumb>
-      </div>
-
-      <!-- 右侧：主题切换 + 用户信息 -->
-      <div class="flex items-center gap-4">
-        <!-- 主题色切换 -->
-        <el-dropdown trigger="click" @command="handleThemeChange">
-          <div class="theme-btn flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-            <div 
-              class="w-4 h-4 rounded-full"
-              :style="{ backgroundColor: currentThemeColor }"
-            ></div>
-            <span class="text-sm text-gray-600">主题</span>
-            <el-icon class="text-gray-400">
-              <ArrowDown />
-            </el-icon>
-          </div>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item 
-                v-for="theme in themes" 
-                :key="theme.value"
-                :command="theme.value"
-              >
-                <div class="flex items-center gap-2">
-                  <div 
-                    class="w-4 h-4 rounded-full"
-                    :style="{ backgroundColor: theme.color }"
-                  ></div>
-                  <span>{{ theme.name }}</span>
-                  <el-icon v-if="currentTheme === theme.value" class="ml-2 text-primary-500">
-                    <Check />
-                  </el-icon>
-                </div>
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-
-        <!-- 分隔线 -->
-        <div class="h-6 w-px bg-gray-200"></div>
-
-        <!-- 用户信息下拉菜单 -->
-        <el-dropdown trigger="click">
-          <div class="user-info flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-            <!-- 头像 -->
-            <el-avatar 
-              :size="32" 
-              :src="userInfo.avatar"
-              class="bg-primary-500"
-            >
-              <el-icon><UserFilled /></el-icon>
-            </el-avatar>
-            <!-- 用户名 -->
-            <span class="text-sm font-medium text-gray-700">{{ userInfo.username }}</span>
-            <el-icon class="text-gray-400">
-              <ArrowDown />
-            </el-icon>
-          </div>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item @click="router.push('/settings')">
-                <el-icon><Setting /></el-icon>
-                <span class="ml-2">个人设置</span>
-              </el-dropdown-item>
-              <el-dropdown-item divided @click="handleLogout">
-                <el-icon class="text-red-500"><SwitchButton /></el-icon>
-                <span class="ml-2 text-red-500">退出登录</span>
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-      </div>
-    </div>
-  </header>
-</template>
 
 <style scoped>
 /* 毛玻璃顶部导航栏 */

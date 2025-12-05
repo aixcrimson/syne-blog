@@ -1,3 +1,228 @@
+<template>
+  <div class="article-list p-6">
+    <!-- 页面标题 -->
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">文章管理</h1>
+      <p class="text-gray-500 mt-1">管理博客文章内容</p>
+    </div>
+
+    <!-- 搜索和筛选区域 -->
+    <div class="glass-card p-4 mb-6 rounded-lg">
+      <div class="flex flex-wrap items-center gap-4">
+        <!-- 关键词搜索 -->
+        <el-input
+          v-model="searchParams.keyword"
+          placeholder="搜索文章标题"
+          clearable
+          class="w-64"
+          :prefix-icon="Search"
+          @keyup.enter="handleSearch"
+          @clear="handleSearch"
+        />
+        
+        <!-- 分类筛选 -->
+        <el-select
+          v-model="searchParams.categoryId"
+          placeholder="选择分类"
+          clearable
+          class="w-40"
+          @change="handleSearch"
+        >
+          <el-option
+            v-for="category in categoryList"
+            :key="category.id"
+            :label="category.name"
+            :value="category.id"
+          />
+        </el-select>
+        
+        <!-- 状态筛选 -->
+        <el-select
+          v-model="searchParams.status"
+          placeholder="选择状态"
+          clearable
+          class="w-32"
+          @change="handleSearch"
+        >
+          <el-option
+            v-for="option in statusOptions"
+            :key="option.value"
+            :label="option.label"
+            :value="option.value"
+          />
+        </el-select>
+        
+        <!-- 搜索按钮 -->
+        <el-button type="primary" :icon="Search" @click="handleSearch">
+          搜索
+        </el-button>
+        
+        <!-- 重置按钮 -->
+        <el-button @click="handleReset">重置</el-button>
+        
+        <!-- 新建按钮 -->
+        <el-button 
+          type="primary" 
+          :icon="Plus" 
+          class="ml-auto"
+          @click="handleCreate"
+        >
+          新建文章
+        </el-button>
+      </div>
+    </div>
+
+    <!-- 文章列表表格 -->
+    <div class="glass-card rounded-lg overflow-hidden">
+      <el-table
+        v-loading="loading"
+        :data="articleList"
+        stripe
+        style="width: 100%"
+      >
+        <!-- 标题列 -->
+        <el-table-column label="标题" min-width="280">
+          <template #default="{ row }">
+            <div class="flex items-center gap-2">
+              <!-- 置顶标记 -->
+              <el-tag v-if="row.isTop === 1" type="danger" size="small">
+                置顶
+              </el-tag>
+              <!-- 推荐标记 -->
+              <el-tag v-if="row.isRecommend === 1" type="warning" size="small">
+                推荐
+              </el-tag>
+              <!-- 标题文本 -->
+              <span 
+                class="text-gray-800 hover:text-primary-500 cursor-pointer truncate"
+                :title="row.title"
+                @click="handleEdit(row)"
+              >
+                {{ row.title }}
+              </span>
+            </div>
+          </template>
+        </el-table-column>
+        
+        <!-- 分类列 -->
+        <el-table-column label="分类" width="120">
+          <template #default="{ row }">
+            <el-tag type="info" size="small">
+              {{ row.categoryName || '未分类' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        
+        <!-- 状态列 -->
+        <el-table-column label="状态" width="100" align="center">
+          <template #default="{ row }">
+            <el-dropdown trigger="click" @command="(cmd: ArticleStatus) => handleStatusChange(row, cmd)">
+              <el-tag 
+                :type="getStatusType(row.status)" 
+                class="cursor-pointer"
+              >
+                {{ getStatusLabel(row.status) }}
+              </el-tag>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item 
+                    v-for="option in statusOptions"
+                    :key="option.value"
+                    :command="option.value"
+                    :disabled="row.status === option.value"
+                  >
+                    {{ option.label }}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </template>
+        </el-table-column>
+        
+        <!-- 浏览量列 -->
+        <el-table-column label="浏览量" width="100" align="center">
+          <template #default="{ row }">
+            <span class="text-gray-600">{{ row.views || 0 }}</span>
+          </template>
+        </el-table-column>
+        
+        <!-- 发布时间列 -->
+        <el-table-column label="发布时间" width="170">
+          <template #default="{ row }">
+            <span class="text-gray-500 text-sm">
+              {{ formatDate(row.publishedTime) }}
+            </span>
+          </template>
+        </el-table-column>
+        
+        <!-- 操作列 -->
+        <el-table-column label="操作" width="220" fixed="right">
+          <template #default="{ row }">
+            <div class="flex items-center gap-1">
+              <!-- 置顶按钮 -->
+              <el-tooltip :content="row.isTop === 1 ? '取消置顶' : '置顶'">
+                <el-button
+                  :type="row.isTop === 1 ? 'warning' : 'default'"
+                  :icon="Top"
+                  size="small"
+                  circle
+                  @click="handleToggleTop(row)"
+                />
+              </el-tooltip>
+              
+              <!-- 推荐按钮 -->
+              <el-tooltip :content="row.isRecommend === 1 ? '取消推荐' : '推荐'">
+                <el-button
+                  :type="row.isRecommend === 1 ? 'warning' : 'default'"
+                  :icon="row.isRecommend === 1 ? StarFilled : Star"
+                  size="small"
+                  circle
+                  @click="handleToggleRecommend(row)"
+                />
+              </el-tooltip>
+              
+              <!-- 编辑按钮 -->
+              <el-tooltip content="编辑">
+                <el-button
+                  type="primary"
+                  :icon="Edit"
+                  size="small"
+                  circle
+                  @click="handleEdit(row)"
+                />
+              </el-tooltip>
+              
+              <!-- 删除按钮 -->
+              <el-tooltip content="删除">
+                <el-button
+                  type="danger"
+                  :icon="Delete"
+                  size="small"
+                  circle
+                  @click="handleDelete(row)"
+                />
+              </el-tooltip>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+      
+      <!-- 分页 -->
+      <div class="flex justify-end p-4 border-t border-gray-100">
+        <el-pagination
+          v-model:current-page="pagination.page"
+          v-model:page-size="pagination.pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="pagination.total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handlePageChange"
+        />
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 /**
  * 文章列表页面
@@ -239,230 +464,6 @@ onMounted(() => {
 })
 </script>
 
-<template>
-  <div class="article-list p-6">
-    <!-- 页面标题 -->
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">文章管理</h1>
-      <p class="text-gray-500 mt-1">管理博客文章内容</p>
-    </div>
-
-    <!-- 搜索和筛选区域 -->
-    <div class="glass-card p-4 mb-6 rounded-lg">
-      <div class="flex flex-wrap items-center gap-4">
-        <!-- 关键词搜索 -->
-        <el-input
-          v-model="searchParams.keyword"
-          placeholder="搜索文章标题"
-          clearable
-          class="w-64"
-          :prefix-icon="Search"
-          @keyup.enter="handleSearch"
-          @clear="handleSearch"
-        />
-        
-        <!-- 分类筛选 -->
-        <el-select
-          v-model="searchParams.categoryId"
-          placeholder="选择分类"
-          clearable
-          class="w-40"
-          @change="handleSearch"
-        >
-          <el-option
-            v-for="category in categoryList"
-            :key="category.id"
-            :label="category.name"
-            :value="category.id"
-          />
-        </el-select>
-        
-        <!-- 状态筛选 -->
-        <el-select
-          v-model="searchParams.status"
-          placeholder="选择状态"
-          clearable
-          class="w-32"
-          @change="handleSearch"
-        >
-          <el-option
-            v-for="option in statusOptions"
-            :key="option.value"
-            :label="option.label"
-            :value="option.value"
-          />
-        </el-select>
-        
-        <!-- 搜索按钮 -->
-        <el-button type="primary" :icon="Search" @click="handleSearch">
-          搜索
-        </el-button>
-        
-        <!-- 重置按钮 -->
-        <el-button @click="handleReset">重置</el-button>
-        
-        <!-- 新建按钮 -->
-        <el-button 
-          type="primary" 
-          :icon="Plus" 
-          class="ml-auto"
-          @click="handleCreate"
-        >
-          新建文章
-        </el-button>
-      </div>
-    </div>
-
-    <!-- 文章列表表格 -->
-    <div class="glass-card rounded-lg overflow-hidden">
-      <el-table
-        v-loading="loading"
-        :data="articleList"
-        stripe
-        style="width: 100%"
-      >
-        <!-- 标题列 -->
-        <el-table-column label="标题" min-width="280">
-          <template #default="{ row }">
-            <div class="flex items-center gap-2">
-              <!-- 置顶标记 -->
-              <el-tag v-if="row.isTop === 1" type="danger" size="small">
-                置顶
-              </el-tag>
-              <!-- 推荐标记 -->
-              <el-tag v-if="row.isRecommend === 1" type="warning" size="small">
-                推荐
-              </el-tag>
-              <!-- 标题文本 -->
-              <span 
-                class="text-gray-800 hover:text-primary-500 cursor-pointer truncate"
-                :title="row.title"
-                @click="handleEdit(row)"
-              >
-                {{ row.title }}
-              </span>
-            </div>
-          </template>
-        </el-table-column>
-        
-        <!-- 分类列 -->
-        <el-table-column label="分类" width="120">
-          <template #default="{ row }">
-            <el-tag type="info" size="small">
-              {{ row.categoryName || '未分类' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        
-        <!-- 状态列 -->
-        <el-table-column label="状态" width="100" align="center">
-          <template #default="{ row }">
-            <el-dropdown trigger="click" @command="(cmd: ArticleStatus) => handleStatusChange(row, cmd)">
-              <el-tag 
-                :type="getStatusType(row.status)" 
-                class="cursor-pointer"
-              >
-                {{ getStatusLabel(row.status) }}
-              </el-tag>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item 
-                    v-for="option in statusOptions"
-                    :key="option.value"
-                    :command="option.value"
-                    :disabled="row.status === option.value"
-                  >
-                    {{ option.label }}
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </template>
-        </el-table-column>
-        
-        <!-- 浏览量列 -->
-        <el-table-column label="浏览量" width="100" align="center">
-          <template #default="{ row }">
-            <span class="text-gray-600">{{ row.views || 0 }}</span>
-          </template>
-        </el-table-column>
-        
-        <!-- 发布时间列 -->
-        <el-table-column label="发布时间" width="170">
-          <template #default="{ row }">
-            <span class="text-gray-500 text-sm">
-              {{ formatDate(row.publishedTime) }}
-            </span>
-          </template>
-        </el-table-column>
-        
-        <!-- 操作列 -->
-        <el-table-column label="操作" width="220" fixed="right">
-          <template #default="{ row }">
-            <div class="flex items-center gap-1">
-              <!-- 置顶按钮 -->
-              <el-tooltip :content="row.isTop === 1 ? '取消置顶' : '置顶'">
-                <el-button
-                  :type="row.isTop === 1 ? 'warning' : 'default'"
-                  :icon="Top"
-                  size="small"
-                  circle
-                  @click="handleToggleTop(row)"
-                />
-              </el-tooltip>
-              
-              <!-- 推荐按钮 -->
-              <el-tooltip :content="row.isRecommend === 1 ? '取消推荐' : '推荐'">
-                <el-button
-                  :type="row.isRecommend === 1 ? 'warning' : 'default'"
-                  :icon="row.isRecommend === 1 ? StarFilled : Star"
-                  size="small"
-                  circle
-                  @click="handleToggleRecommend(row)"
-                />
-              </el-tooltip>
-              
-              <!-- 编辑按钮 -->
-              <el-tooltip content="编辑">
-                <el-button
-                  type="primary"
-                  :icon="Edit"
-                  size="small"
-                  circle
-                  @click="handleEdit(row)"
-                />
-              </el-tooltip>
-              
-              <!-- 删除按钮 -->
-              <el-tooltip content="删除">
-                <el-button
-                  type="danger"
-                  :icon="Delete"
-                  size="small"
-                  circle
-                  @click="handleDelete(row)"
-                />
-              </el-tooltip>
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
-      
-      <!-- 分页 -->
-      <div class="flex justify-end p-4 border-t border-gray-100">
-        <el-pagination
-          v-model:current-page="pagination.page"
-          v-model:page-size="pagination.pageSize"
-          :page-sizes="[10, 20, 50, 100]"
-          :total="pagination.total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handlePageChange"
-        />
-      </div>
-    </div>
-  </div>
-</template>
 
 <style scoped>
 /* 主题色悬停效果 */

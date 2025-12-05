@@ -1,96 +1,3 @@
-<script setup lang="ts">
-/**
- * 仪表盘首页
- * 展示博客统计数据、最近文章和最近评论
- */
-import { ref, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import { 
-  Document, 
-  Folder, 
-  PriceTag, 
-  ChatDotRound, 
-  View, 
-  Star 
-} from '@element-plus/icons-vue'
-import { dashboardApi } from '@/api/dashboard'
-import type { DashboardStats, RecentArticle, RecentComment } from '@/types'
-import dayjs from 'dayjs'
-
-/** 加载状态 */
-const loading = ref(true)
-
-/** 统计数据 */
-const stats = ref<DashboardStats>({
-  articleCount: 0,
-  categoryCount: 0,
-  tagCount: 0,
-  commentCount: 0,
-  totalViews: 0,
-  totalLikes: 0
-})
-
-/** 最近文章列表 */
-const recentArticles = ref<RecentArticle[]>([])
-
-/** 最近评论列表 */
-const recentComments = ref<RecentComment[]>([])
-
-/**
- * 统计卡片配置
- */
-const statCards = [
-  { key: 'articleCount', label: '文章总数', icon: Document, color: 'text-blue-500' },
-  { key: 'categoryCount', label: '分类总数', icon: Folder, color: 'text-purple-500' },
-  { key: 'tagCount', label: '标签总数', icon: PriceTag, color: 'text-green-500' },
-  { key: 'commentCount', label: '评论总数', icon: ChatDotRound, color: 'text-orange-500' },
-  { key: 'totalViews', label: '总浏览量', icon: View, color: 'text-cyan-500' },
-  { key: 'totalLikes', label: '总点赞数', icon: Star, color: 'text-pink-500' }
-]
-
-/**
- * 格式化日期
- */
-const formatDate = (date: string) => {
-  return dayjs(date).format('YYYY-MM-DD HH:mm')
-}
-
-/**
- * 格式化数字（大数字显示为 K/M）
- */
-const formatNumber = (num: number): string => {
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1) + 'M'
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'K'
-  }
-  return num.toString()
-}
-
-/**
- * 加载仪表盘数据
- */
-const loadDashboardData = async () => {
-  loading.value = true
-  try {
-    const data = await dashboardApi.getDashboardData()
-    stats.value = data.stats
-    recentArticles.value = data.recentArticles
-    recentComments.value = data.recentComments
-  } catch (error) {
-    console.error('加载仪表盘数据失败:', error)
-    ElMessage.error('加载数据失败，请刷新重试')
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(() => {
-  loadDashboardData()
-})
-</script>
-
 <template>
   <div class="dashboard p-6">
     <!-- 页面标题 -->
@@ -255,6 +162,101 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+/**
+ * 仪表盘首页
+ * 展示博客统计数据、最近文章和最近评论
+ */
+import { ref, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import { 
+  Document, 
+  Folder, 
+  PriceTag, 
+  ChatDotRound, 
+  View, 
+  Star 
+} from '@element-plus/icons-vue'
+import { dashboardApi } from '@/api/dashboard'
+import type { DashboardStats, RecentArticle, RecentComment } from '@/types'
+import dayjs from 'dayjs'
+
+/** 加载状态 */
+const loading = ref(true)
+
+/** 统计数据 */
+const stats = ref<DashboardStats>({
+  articleCount: 0,
+  categoryCount: 0,
+  tagCount: 0,
+  commentCount: 0,
+  totalViews: 0,
+  totalLikes: 0
+})
+
+/** 最近文章列表 */
+const recentArticles = ref<RecentArticle[]>([])
+
+/** 最近评论列表 */
+const recentComments = ref<RecentComment[]>([])
+
+/**
+ * 统计卡片配置
+ */
+const statCards = [
+  { key: 'articleCount', label: '文章总数', icon: Document, color: 'text-blue-500' },
+  { key: 'categoryCount', label: '分类总数', icon: Folder, color: 'text-purple-500' },
+  { key: 'tagCount', label: '标签总数', icon: PriceTag, color: 'text-green-500' },
+  { key: 'commentCount', label: '评论总数', icon: ChatDotRound, color: 'text-orange-500' },
+  { key: 'totalViews', label: '总浏览量', icon: View, color: 'text-cyan-500' },
+  { key: 'totalLikes', label: '总点赞数', icon: Star, color: 'text-pink-500' }
+]
+
+/**
+ * 格式化日期
+ */
+const formatDate = (date: string) => {
+  return dayjs(date).format('YYYY-MM-DD HH:mm')
+}
+
+/**
+ * 格式化数字（大数字显示为 K/M）
+ */
+const formatNumber = (num: number): string => {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + 'M'
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'K'
+  }
+  return num.toString()
+}
+
+/**
+ * 加载仪表盘数据
+ */
+const loadDashboardData = async () => {
+  loading.value = true
+  try {
+    const data = await dashboardApi.getDashboardData()
+    stats.value = data.stats
+    recentArticles.value = data.recentArticles
+    recentComments.value = data.recentComments
+  } catch (error) {
+    console.error('加载仪表盘数据失败:', error)
+    ElMessage.error('加载数据失败，请刷新重试')
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  loadDashboardData()
+})
+</script>
+
+
 
 <style scoped>
 /* 主题色背景 */

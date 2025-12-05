@@ -1,63 +1,3 @@
-<script setup lang="ts">
-/**
- * 侧边栏导航组件
- * 实现 Logo 显示、菜单项渲染、高亮和展开/收起功能
- */
-import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import type { MenuItem } from '@/types'
-
-/**
- * 组件属性
- */
-interface Props {
-  /** 是否收起状态 */
-  collapsed: boolean
-}
-
-defineProps<Props>()
-
-/**
- * 组件事件
- */
-const emit = defineEmits<{
-  (e: 'toggle'): void
-}>()
-
-const route = useRoute()
-const router = useRouter()
-
-/**
- * 菜单配置列表
- */
-const menuItems: MenuItem[] = [
-  { path: '/dashboard', name: '仪表盘', icon: 'Odometer' },
-  { path: '/article', name: '文章管理', icon: 'Document' },
-  { path: '/category', name: '分类管理', icon: 'Folder' },
-  { path: '/tag', name: '标签管理', icon: 'PriceTag' },
-  { path: '/comment', name: '评论管理', icon: 'ChatDotRound' },
-  { path: '/navigation', name: '导航管理', icon: 'Link' },
-  { path: '/user', name: '用户管理', icon: 'User' },
-  { path: '/settings', name: '个人设置', icon: 'Setting' }
-]
-
-/**
- * 当前激活的菜单路径
- */
-const activeMenu = computed(() => {
-  // 匹配一级路径
-  const path = '/' + route.path.split('/')[1]
-  return path
-})
-
-/**
- * 处理菜单点击
- */
-const handleMenuClick = (item: MenuItem) => {
-  router.push(item.path)
-}
-</script>
-
 <template>
   <aside 
     class="sidebar fixed left-0 top-0 h-screen z-50 transition-all duration-300 glass-sidebar"
@@ -135,6 +75,67 @@ const handleMenuClick = (item: MenuItem) => {
     </div>
   </aside>
 </template>
+
+<script setup lang="ts">
+/**
+ * 侧边栏导航组件
+ * 实现 Logo 显示、菜单项渲染、高亮和展开/收起功能
+ */
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import type { MenuItem } from '@/types'
+
+/**
+ * 组件属性
+ */
+interface Props {
+  /** 是否收起状态 */
+  collapsed: boolean
+}
+
+defineProps<Props>()
+
+/**
+ * 组件事件
+ */
+const emit = defineEmits<{
+  (e: 'toggle'): void
+}>()
+
+const route = useRoute()
+const router = useRouter()
+
+/**
+ * 菜单配置列表
+ */
+const menuItems: MenuItem[] = [
+  { path: '/dashboard', name: '仪表盘', icon: 'Odometer' },
+  { path: '/article', name: '文章管理', icon: 'Document' },
+  { path: '/category', name: '分类管理', icon: 'Folder' },
+  { path: '/tag', name: '标签管理', icon: 'PriceTag' },
+  { path: '/comment', name: '评论管理', icon: 'ChatDotRound' },
+  { path: '/navigation', name: '导航管理', icon: 'Link' },
+  { path: '/user', name: '用户管理', icon: 'User' },
+  { path: '/settings', name: '个人设置', icon: 'Setting' }
+]
+
+/**
+ * 当前激活的菜单路径
+ */
+const activeMenu = computed(() => {
+  // 匹配一级路径
+  const path = '/' + route.path.split('/')[1]
+  return path
+})
+
+/**
+ * 处理菜单点击
+ */
+const handleMenuClick = (item: MenuItem) => {
+  router.push(item.path)
+}
+</script>
+
 
 <style scoped>
 /* 毛玻璃侧边栏 */

@@ -44,10 +44,29 @@ export const useUserStore = defineStore('user', () => {
   // ==================== 动作 ====================
 
   /**
+   * 开发模式：跳过登录验证时使用的模拟用户
+   */
+  const DEV_SKIP_AUTH = true
+  const mockUser: UserInfo = {
+    id: 1,
+    username: 'admin',
+    email: 'admin@example.com',
+    avatar: '',
+    role: 1
+  }
+
+  /**
    * 初始化用户状态
    * 从 localStorage 读取 Token
    */
   const init = () => {
+    // 开发模式：自动设置模拟用户
+    if (DEV_SKIP_AUTH && !userInfo.value) {
+      userInfo.value = mockUser
+      token.value = 'dev-mock-token'
+      return
+    }
+
     const savedToken = localStorage.getItem(TOKEN_KEY)
     if (savedToken) {
       token.value = savedToken

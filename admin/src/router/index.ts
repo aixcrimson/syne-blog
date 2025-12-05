@@ -201,6 +201,13 @@ const isTokenExpired = (token: string): boolean => {
 }
 
 /**
+ * 开发模式：跳过登录验证
+ * 设置为 true 时，无需登录即可访问所有页面
+ * 生产环境请设置为 false
+ */
+const DEV_SKIP_AUTH = true
+
+/**
  * 检查 Token 是否存在且有效
  * - 检查 Token 是否存在
  * - 检查 Token 格式是否正确（JWT 格式）
@@ -208,6 +215,11 @@ const isTokenExpired = (token: string): boolean => {
  * @returns Token 是否有效
  */
 export const isAuthenticated = (): boolean => {
+  // 开发模式跳过验证
+  if (DEV_SKIP_AUTH) {
+    return true
+  }
+
   const token = getToken()
   
   // Token 不存在

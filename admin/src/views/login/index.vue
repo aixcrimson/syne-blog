@@ -1,3 +1,82 @@
+<template>
+  <div class="login-page min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+    <!-- 背景装饰 -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary-200/30 rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-primary-300/20 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- 登录卡片 -->
+    <div class="glass-card p-8 w-full max-w-md relative z-10">
+      <!-- Logo 和标题 -->
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg">
+          <span class="text-white text-2xl font-bold">B</span>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-800">博客管理系统</h1>
+        <p class="text-gray-500 mt-2">请登录您的账号</p>
+      </div>
+
+      <!-- 登录表单 -->
+      <el-form
+        ref="formRef"
+        :model="loginForm"
+        :rules="rules"
+        size="large"
+        @keyup.enter="handleKeyEnter"
+      >
+        <!-- 用户名 -->
+        <el-form-item prop="username">
+          <el-input
+            v-model="loginForm.username"
+            placeholder="请输入用户名"
+            :prefix-icon="User"
+            clearable
+          />
+        </el-form-item>
+
+        <!-- 密码 -->
+        <el-form-item prop="password">
+          <el-input
+            v-model="loginForm.password"
+            :type="showPassword ? 'text' : 'password'"
+            placeholder="请输入密码"
+            :prefix-icon="Lock"
+          >
+            <template #suffix>
+              <el-icon 
+                class="cursor-pointer hover:text-primary-500 transition-colors"
+                @click="togglePasswordVisibility"
+              >
+                <View v-if="showPassword" />
+                <Hide v-else />
+              </el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+
+        <!-- 登录按钮 -->
+        <el-form-item class="mt-6">
+          <el-button
+            type="primary"
+            class="w-full"
+            :loading="loading"
+            :disabled="isSubmitDisabled"
+            @click="handleLogin"
+          >
+            {{ loading ? '登录中...' : '登 录' }}
+          </el-button>
+        </el-form-item>
+      </el-form>
+
+      <!-- 底部提示 -->
+      <div class="text-center text-sm text-gray-400 mt-6">
+        <p>© 2024 Blog Admin System</p>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 /**
  * 登录页面
@@ -113,84 +192,6 @@ const handleKeyEnter = () => {
 }
 </script>
 
-<template>
-  <div class="login-page min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-    <!-- 背景装饰 -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-      <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary-200/30 rounded-full blur-3xl"></div>
-      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-primary-300/20 rounded-full blur-3xl"></div>
-    </div>
-
-    <!-- 登录卡片 -->
-    <div class="glass-card p-8 w-full max-w-md relative z-10">
-      <!-- Logo 和标题 -->
-      <div class="text-center mb-8">
-        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg">
-          <span class="text-white text-2xl font-bold">B</span>
-        </div>
-        <h1 class="text-2xl font-bold text-gray-800">博客管理系统</h1>
-        <p class="text-gray-500 mt-2">请登录您的账号</p>
-      </div>
-
-      <!-- 登录表单 -->
-      <el-form
-        ref="formRef"
-        :model="loginForm"
-        :rules="rules"
-        size="large"
-        @keyup.enter="handleKeyEnter"
-      >
-        <!-- 用户名 -->
-        <el-form-item prop="username">
-          <el-input
-            v-model="loginForm.username"
-            placeholder="请输入用户名"
-            :prefix-icon="User"
-            clearable
-          />
-        </el-form-item>
-
-        <!-- 密码 -->
-        <el-form-item prop="password">
-          <el-input
-            v-model="loginForm.password"
-            :type="showPassword ? 'text' : 'password'"
-            placeholder="请输入密码"
-            :prefix-icon="Lock"
-          >
-            <template #suffix>
-              <el-icon 
-                class="cursor-pointer hover:text-primary-500 transition-colors"
-                @click="togglePasswordVisibility"
-              >
-                <View v-if="showPassword" />
-                <Hide v-else />
-              </el-icon>
-            </template>
-          </el-input>
-        </el-form-item>
-
-        <!-- 登录按钮 -->
-        <el-form-item class="mt-6">
-          <el-button
-            type="primary"
-            class="w-full"
-            :loading="loading"
-            :disabled="isSubmitDisabled"
-            @click="handleLogin"
-          >
-            {{ loading ? '登录中...' : '登 录' }}
-          </el-button>
-        </el-form-item>
-      </el-form>
-
-      <!-- 底部提示 -->
-      <div class="text-center text-sm text-gray-400 mt-6">
-        <p>© 2024 Blog Admin System</p>
-      </div>
-    </div>
-  </div>
-</template>
 
 <style scoped>
 /* 主题色变量引用 */
