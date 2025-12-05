@@ -1,13 +1,17 @@
 spring:
   application:
     name: syne-blog-server
+  
+  # 激活的 profile
+  profiles:
+    active: dev,dev-local
 
   # 数据源配置
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/syne_blog?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: postgres
-    password: your_password_here
+    password: ${DB_PASSWORD}
     hikari:
       minimum-idle: 5
       maximum-pool-size: 20
