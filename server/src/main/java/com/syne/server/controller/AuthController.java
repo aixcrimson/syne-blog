@@ -30,33 +30,33 @@ public class AuthController {
 
     /**
      * 用户登录
-     * 
+     *
      * @param loginDTO 登录信息
      * @return 登录响应
      */
     @Operation(summary = "用户登录", description = "用户名密码登录，返回JWT Token")
     @PostMapping("/login")
     public Result<LoginVO> login(
-        @Parameter(description = "登录信息", required = true)
-        @Valid @RequestBody LoginDTO loginDTO
-    ){
+            @Parameter(description = "登录信息", required = true)
+            @Valid @RequestBody LoginDTO loginDTO
+    ) {
         log.info("用户登录: {}", loginDTO.getUsername());
         LoginVO loginVO = authService.login(loginDTO);
-        log.info("用户 {} 登录成功",  loginDTO.getUsername());
+        log.info("用户 {} 登录成功", loginDTO.getUsername());
         return Result.success("登录成功", loginVO);
     }
 
     /**
      * 退出登录
-     * 
+     *
      * @param token JWT Token
      * @return 退出登录响应
      */
     @Operation(summary = "退出登录", description = "用户退出登录")
     @PostMapping("/logout")
     public Result<String> logout(
-        @Parameter(description = "JWT Token", hidden = true)
-        @RequestHeader(value = "Authorization", required = false) String token
+            @Parameter(description = "JWT Token", hidden = true)
+            @RequestHeader(value = "Authorization", required = false) String token
     ) {
         // TODO: 实现Token黑名单机制
         log.info("用户退出登录");
@@ -72,12 +72,12 @@ public class AuthController {
     @Operation(summary = "刷新Token", description = "刷新过期的JWT Token")
     @PostMapping("/refresh")
     public Result<String> refreshToken(
-        @Parameter(description = "JWT Token", hidden = true)
-        @RequestHeader(value = "Authorization") String token
-    ){
-        try{
+            @Parameter(description = "JWT Token", hidden = true)
+            @RequestHeader(value = "Authorization") String token
+    ) {
+        try {
             // 移除Bearer前缀
-            if(token.startsWith("Bearer ")) {
+            if (token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
 
@@ -93,7 +93,7 @@ public class AuthController {
             }
 
             return Result.success("Token刷新成功", newToken);
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("Token刷新失败", e);
             return Result.error(400, "Token刷新失败");
         }
