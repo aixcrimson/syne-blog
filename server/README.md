@@ -28,7 +28,7 @@ psql -U postgres
 CREATE DATABASE syne_blog;
 
 # 导入表结构
-psql -U postgres -d syne_blog -f ../web/database/schema-postgres.sql
+psql -U postgres -d syne_blog -f src/main/resources/sql/schema-postgres.sql
 ```
 
 ### 3. 配置文件（重要 ⚠️）
@@ -38,7 +38,7 @@ psql -U postgres -d syne_blog -f ../web/database/schema-postgres.sql
 ```bash
 # 1. 复制配置模板
 cd src/main/resources
-cp application-dev-local.yml.example application-dev-local.yml
+cp application-dev.yml application-dev-local.yml
 
 # 2. 编辑 application-dev-local.yml
 # 修改 password 字段为你的实际数据库密码
@@ -137,7 +137,7 @@ server/
 
 ## 依赖说明
 
-详见 [DEPENDENCIES.md](./DEPENDENCIES.md)
+详见 `pom.xml`（按模块管理依赖），后续会补充更详细的依赖说明文档。
 
 ## 常见问题
 

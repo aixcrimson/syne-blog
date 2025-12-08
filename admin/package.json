@@ -1,0 +1,38 @@
+{
+  "name": "myblog-admin",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Syne's Blog 博客管理后台",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest --run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
+    "axios": "^1.13.1",
+    "dayjs": "^1.11.18",
+    "element-plus": "^2.11.5",
+    "md-editor-v3": "^6.2.0",
+    "pinia": "^2.3.1",
+    "vue": "^3.5.22",
+    "vue-router": "^4.6.3",
+    "vuedraggable": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.24",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "@vue/test-utils": "^2.4.6",
+    "autoprefixer": "^10.4.21",
+    "fast-check": "^3.23.2",
+    "jsdom": "^25.0.1",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.18",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.21",
+    "vitest": "^2.1.8",
+    "vue-tsc": "^2.2.12"
+  }
+}

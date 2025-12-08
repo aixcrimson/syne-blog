@@ -49,7 +49,7 @@ syne-blog/
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/your-username/syne-blog.git
+git clone https://github.com/aixcrimson/syne-blog.git
 cd syne-blog
 ```
 
@@ -62,7 +62,7 @@ CREATE DATABASE syne_blog;
 \q
 
 # 导入数据库结构
-psql -U postgres -d syne_blog -f web/database/schema-postgres.sql
+psql -U postgres -d syne_blog -f server/src/main/resources/sql/schema-postgres.sql
 ```
 
 ### 3. 启动后端
@@ -99,8 +99,8 @@ npm run dev
 
 - [后端开发文档](./server/README.md)
 - [前端开发文档](./web/README.md)
-- [后端依赖说明](./server/DEPENDENCIES.md)
-- [数据库设计](./web/database/README.md)
+- 后端依赖说明（待补充）
+- [数据库结构与初始化脚本](./server/src/main/resources/sql/schema-postgres.sql)
 
 ## 🏗️ 开发规范
 
@@ -191,7 +191,7 @@ API 文档地址：http://localhost:8080/api/doc.html (待配置 Swagger)
 
 ## 🐛 问题反馈
 
-如有问题，请在 [Issues](https://github.com/your-username/syne-blog/issues) 中提出。
+如有问题，请在 [Issues](https://github.com/aixcrimson/syne-blog/issues) 中提出。
 
 ## 📄 开源协议
 
