@@ -1,4 +1,4 @@
-package com.syne.server.controller;
+package com.syne.server.controller.admin;
 
 import com.syne.server.common.Result;
 import com.syne.server.entity.dto.LoginDTO;
