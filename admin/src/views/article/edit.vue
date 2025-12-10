@@ -364,7 +364,8 @@ const handleSaveDraft = async () => {
   try {
     const data: ArticleForm = {
       ...formData,
-      status: ArticleStatus.DRAFT
+      status: ArticleStatus.DRAFT,
+      ...(isEdit.value && { id: articleId.value })
     }
     
     if (isEdit.value) {
@@ -400,7 +401,8 @@ const handlePublish = async () => {
   try {
     const data: ArticleForm = {
       ...formData,
-      status: ArticleStatus.PUBLISHED
+      status: ArticleStatus.PUBLISHED,
+      ...(isEdit.value && { id: articleId.value })
     }
     
     if (isEdit.value) {
