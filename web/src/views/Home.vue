@@ -59,17 +59,34 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { useArticleStore } from "@/stores/article";
 import ArticleCard from "@/components/ArticleCard.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import type { Article} from '@/types';
+import { articleApi } from '@/api/article'
 
 const router = useRouter();
-const articleStore = useArticleStore();
 
 // 最新文章
-const latestArticles = computed(() => articleStore.latestArticles.slice(0, 6));
+const latestArticles = ref<Article[]>([])
+// const latestArticles = computed(() => articleStore.latestArticles.slice(0, 6));
+
+const getLatestArticles = async() =>{
+  try {
+    const res = await articleApi.getList({
+      page: 1,
+      pageSize: 6,
+    })
+    latestArticles.value = res.list
+  }catch(error){
+    console.error(error)
+  }
+}
+
+onMounted(() => {
+  getLatestArticles()
+})
 
 </script>
 

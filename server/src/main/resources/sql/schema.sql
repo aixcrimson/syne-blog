@@ -1,7 +1,8 @@
 -- ============================================
 -- 博客系统数据库设计
--- 版本: 1.0
+-- 版本: 1.1
 -- 创建日期: 2025-11-03
+-- 更新日期: 2025-12-10
 -- 数据库引擎: MySQL 8.0+
 -- 字符集: utf8mb4
 -- ============================================
@@ -26,8 +27,8 @@ CREATE TABLE `users` (
                          `bilibili` VARCHAR(255) DEFAULT NULL COMMENT 'Bilibili主页链接',
                          `role` TINYINT UNSIGNED NOT NULL DEFAULT 2 COMMENT '用户角色: 1-管理员, 2-普通用户',
                          `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '账号状态: 1-正常, 0-禁用',
-                         `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                         `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                         `created_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                         `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                          PRIMARY KEY (`id`),
                          UNIQUE KEY `uk_username` (`username`),
                          UNIQUE KEY `uk_email` (`email`),
@@ -48,8 +49,8 @@ CREATE TABLE `categories` (
                               `description` TEXT DEFAULT NULL COMMENT '分类描述',
                               `icon` VARCHAR(255) DEFAULT NULL COMMENT '分类图标',
                               `sort_order` INT NOT NULL DEFAULT 0 COMMENT '排序权重，数字越大越靠前',
-                              `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                              `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                              `created_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                              `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                               PRIMARY KEY (`id`),
                               UNIQUE KEY `uk_name` (`name`),
                               UNIQUE KEY `uk_slug` (`slug`),
@@ -67,8 +68,8 @@ CREATE TABLE `tags` (
                         `slug` VARCHAR(50) NOT NULL COMMENT 'URL友好的标签标识',
                         `color` VARCHAR(20) DEFAULT '#409EFF' COMMENT '标签颜色，用于前端显示',
                         `usage_count` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '标签使用次数统计',
-                        `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                        `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                        `created_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                        `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                         PRIMARY KEY (`id`),
                         UNIQUE KEY `uk_name` (`name`),
                         UNIQUE KEY `uk_slug` (`slug`),
@@ -94,8 +95,11 @@ CREATE TABLE `articles` (
                             `comments_count` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '评论数量',
                             `status` TINYINT UNSIGNED NOT NULL DEFAULT 2 COMMENT '文章状态: 1-已发布, 2-草稿, 3-已下架',
                             `published_time` DATETIME DEFAULT NULL COMMENT '发布时间，NULL 表示未发布',
-                            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                            `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                            `top` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '是否置顶: 0-否, 1-是',
+                            `is_recommend` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '是否推荐: 0-否, 1-是',
+                            `deleted` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '逻辑删除: 0-未删除, 1-已删除',
+                            `created_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                            `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                             PRIMARY KEY (`id`),
                             KEY `idx_user_id` (`user_id`),
                             KEY `idx_category_id` (`category_id`),
@@ -103,7 +107,10 @@ CREATE TABLE `articles` (
                             KEY `idx_published_time` (`published_time`),
                             KEY `idx_views` (`views`),
                             KEY `idx_likes` (`likes`),
-                            KEY `idx_created_at` (`created_at`),
+                            KEY `idx_created_time` (`created_time`),
+                            KEY `idx_top` (`top`),
+                            KEY `idx_is_recommend` (`is_recommend`),
+                            KEY `idx_deleted` (`deleted`),
                             FULLTEXT KEY `ft_title_content` (`title`, `summary`, `content`) WITH PARSER ngram,
                             CONSTRAINT `fk_articles_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
                             CONSTRAINT `fk_articles_category_id` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT
@@ -118,7 +125,7 @@ CREATE TABLE `article_tags` (
                                 `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
                                 `article_id` BIGINT UNSIGNED NOT NULL COMMENT '文章ID，外键关联articles表',
                                 `tag_id` BIGINT UNSIGNED NOT NULL COMMENT '标签ID，外键关联tags表',
-                                `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                `created_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                 PRIMARY KEY (`id`),
                                 UNIQUE KEY `uk_article_tag` (`article_id`, `tag_id`),
                                 KEY `idx_tag_id` (`tag_id`),
@@ -140,7 +147,7 @@ CREATE TABLE `article_likes` (
                                  PRIMARY KEY (`id`),
                                  UNIQUE KEY `uk_article_user` (`article_id`, `user_id`),
                                  KEY `idx_user_id` (`user_id`),
-                                 KEY `idx_created_at` (`created_at`),
+                                 KEY `idx_created_time` (`created_time`),
                                  CONSTRAINT `fk_article_likes_article_id` FOREIGN KEY (`article_id`) REFERENCES `articles` (`id`) ON DELETE CASCADE,
                                  CONSTRAINT `fk_article_likes_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章点赞表';
@@ -158,7 +165,7 @@ CREATE TABLE `article_favorites` (
                                      PRIMARY KEY (`id`),
                                      UNIQUE KEY `uk_article_user` (`article_id`, `user_id`),
                                      KEY `idx_user_id` (`user_id`),
-                                     KEY `idx_created_at` (`created_at`),
+                                     KEY `idx_created_time` (`created_time`),
                                      CONSTRAINT `fk_article_favorites_article_id` FOREIGN KEY (`article_id`) REFERENCES `articles` (`id`) ON DELETE CASCADE,
                                      CONSTRAINT `fk_article_favorites_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章收藏表';
@@ -176,14 +183,14 @@ CREATE TABLE `comments` (
                             `content` TEXT NOT NULL COMMENT '评论内容',
                             `ip_address` VARCHAR(45) DEFAULT NULL COMMENT 'IP地址',
                             `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '评论状态: 1-正常, 2-待审核, 3-已删除',
-                            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                            `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                            `created_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                            `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                             PRIMARY KEY (`id`),
                             KEY `idx_article_id` (`article_id`),
                             KEY `idx_user_id` (`user_id`),
                             KEY `idx_parent_id` (`parent_id`),
                             KEY `idx_status` (`status`),
-                            KEY `idx_created_at` (`created_at`),
+                            KEY `idx_created_time` (`created_time`),
                             CONSTRAINT `fk_comments_article_id` FOREIGN KEY (`article_id`) REFERENCES `articles` (`id`) ON DELETE CASCADE,
                             CONSTRAINT `fk_comments_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
                             CONSTRAINT `fk_comments_parent_id` FOREIGN KEY (`parent_id`) REFERENCES `comments` (`id`) ON DELETE CASCADE
@@ -199,8 +206,8 @@ CREATE TABLE `navigation_categories` (
                                          `name` VARCHAR(50) NOT NULL COMMENT '分类名称',
                                          `icon` VARCHAR(255) DEFAULT NULL COMMENT '分类图标',
                                          `sort_order` INT NOT NULL DEFAULT 0 COMMENT '排序权重',
-                                         `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                         `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                                         `created_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                         `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                                          PRIMARY KEY (`id`),
                                          UNIQUE KEY `uk_name` (`name`),
                                          KEY `idx_sort_order` (`sort_order`)
@@ -219,13 +226,35 @@ CREATE TABLE `navigation_sites` (
                                     `url` VARCHAR(500) NOT NULL COMMENT '站点URL',
                                     `icon` VARCHAR(500) DEFAULT NULL COMMENT '站点图标URL',
                                     `sort_order` INT NOT NULL DEFAULT 0 COMMENT '排序权重',
-                                    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                                    `created_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                    `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                                     PRIMARY KEY (`id`),
                                     KEY `idx_category_id` (`category_id`),
                                     KEY `idx_sort_order` (`sort_order`),
                                     CONSTRAINT `fk_navigation_sites_category_id` FOREIGN KEY (`category_id`) REFERENCES `navigation_categories` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='导航站点表';
+
+-- ============================================
+-- 11. 友情链接表 (links)
+-- 博客友情链接管理
+-- ============================================
+DROP TABLE IF EXISTS `links`;
+CREATE TABLE `links` (
+                         `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '链接ID，主键',
+                         `name` VARCHAR(100) NOT NULL COMMENT '网站名称',
+                         `url` VARCHAR(500) NOT NULL COMMENT '网站URL',
+                         `logo` VARCHAR(500) DEFAULT NULL COMMENT '网站Logo URL',
+                         `description` TEXT DEFAULT NULL COMMENT '网站描述',
+                         `email` VARCHAR(100) DEFAULT NULL COMMENT '联系邮箱',
+                         `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态: 1-正常, 0-禁用',
+                         `sort_order` INT NOT NULL DEFAULT 0 COMMENT '排序权重',
+                         `created_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                         `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                         PRIMARY KEY (`id`),
+                         UNIQUE KEY `uk_url` (`url`),
+                         KEY `idx_status` (`status`),
+                         KEY `idx_sort_order` (`sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='友情链接表';
 
 -- ============================================
 -- 触发器：更新标签使用次数
@@ -287,6 +316,14 @@ INSERT INTO `navigation_categories` (`name`, `icon`, `sort_order`) VALUES
                                                                        ('技术社区', 'community', 80),
                                                                        ('设计资源', 'design', 70);
 
+-- 插入友情链接
+INSERT INTO `links` (`name`, `url`, `logo`, `description`, `email`, `sort_order`) VALUES
+                                                                             ('Vue.js', 'https://vuejs.org/', 'https://vuejs.org/images/logo.svg', '渐进式JavaScript框架', null, 100),
+                                                                             ('React', 'https://reactjs.org/', 'https://reactjs.org/logo-og.png', '用于构建用户界面的JavaScript库', null, 90),
+                                                                             ('Spring Boot', 'https://spring.io/projects/spring-boot', 'https://spring.io/images/spring-boot-logo.png', 'Java应用开发框架', null, 80),
+                                                                             ('MySQL', 'https://www.mysql.com/', 'https://www.mysql.com/common/logos/logo-mysql-170x115.png', '世界上最流行的开源数据库', null, 70),
+                                                                             ('Docker', 'https://www.docker.com/', 'https://www.docker.com/sites/default/files/d8/2019-07/vertical-logo-monochromatic.png', '容器化平台', null, 60);
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================
@@ -297,7 +334,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 /*
 SELECT 
   a.id, a.title, a.summary, a.cover_image, a.views, a.likes, 
-  a.published_time, a.created_at,
+  a.published_time, a.created_time,
   u.username AS author_name, u.avatar AS author_avatar,
   c.name AS category_name,
   GROUP_CONCAT(t.name) AS tags
@@ -306,7 +343,7 @@ LEFT JOIN users u ON a.user_id = u.id
 LEFT JOIN categories c ON a.category_id = c.id
 LEFT JOIN article_tags at ON a.id = at.article_id
 LEFT JOIN tags t ON at.tag_id = t.id
-WHERE a.status = 1
+WHERE a.status = 1 AND a.deleted = 0
 GROUP BY a.id
 ORDER BY a.published_time DESC
 LIMIT 10;
@@ -328,16 +365,33 @@ WHERE a.id = 1;
 /*
 SELECT id, title, summary, views, likes, published_time
 FROM articles
-WHERE status = 1
+WHERE status = 1 AND deleted = 0
 ORDER BY views DESC
 LIMIT 10;
 */
 
 -- 4. 查询用户收藏的文章
 /*
-SELECT a.id, a.title, a.summary, af.created_at AS favorited_at
+SELECT a.id, a.title, a.summary, af.created_time AS favorited_at
 FROM article_favorites af
 LEFT JOIN articles a ON af.article_id = a.id
 WHERE af.user_id = 1
-ORDER BY af.created_at DESC;
+ORDER BY af.created_time DESC;
+*/
+
+-- 5. 查询友情链接
+/*
+SELECT id, name, url, logo, description, sort_order
+FROM links
+WHERE status = 1
+ORDER BY sort_order DESC, id ASC;
+*/
+
+-- 6. 查询置顶推荐文章
+/*
+SELECT id, title, summary, cover_image, views, likes, published_time
+FROM articles
+WHERE status = 1 AND deleted = 0 AND (top = 1 OR is_recommend = 1)
+ORDER BY top DESC, is_recommend DESC, published_time DESC
+LIMIT 10;
 */
