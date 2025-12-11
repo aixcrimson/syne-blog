@@ -25,13 +25,13 @@
       <div class="flex items-center gap-4">
         <!-- 主题色切换 -->
         <el-dropdown trigger="click" @command="handleThemeChange">
-          <div class="theme-btn flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-            <div 
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+            <div
               class="w-4 h-4 rounded-full"
               :style="{ backgroundColor: currentThemeColor }"
             ></div>
-            <span class="text-sm text-gray-600">主题</span>
-            <el-icon class="text-gray-400">
+            <span class="text-sm text-gray-600 dark:text-gray-300">主题</span>
+            <el-icon class="text-gray-400 dark:text-gray-500">
               <ArrowDown />
             </el-icon>
           </div>
@@ -57,23 +57,50 @@
           </template>
         </el-dropdown>
 
+        <!-- 明暗模式切换开关 -->
+        <el-tooltip content="切换明暗模式" placement="bottom">
+          <div
+            class="cursor-pointer p-2 rounded-lg transition-all duration-300 hover:bg-bg-tertiary"
+            @click="toggleThemeMode"
+          >
+            <div
+              class="w-12 h-6 bg-bg-tertiary rounded-full relative transition-all duration-300 border border-border-primary"
+              :style="{
+                '--toggle-position': isDarkMode ? '24px' : '2px',
+                '--toggle-bg': 'var(--color-primary-500)'
+              }"
+            >
+              <div
+                class="absolute top-0.5 w-[18px] h-[18px] rounded-full flex items-center justify-center transition-all duration-300 text-white text-xs"
+                :style="{
+                  'left': 'var(--toggle-position)',
+                  'background': 'var(--toggle-bg)'
+                }"
+              >
+                <el-icon v-if="!isDarkMode" size="14"><Sunny /></el-icon>
+                <el-icon v-else size="14"><Moon /></el-icon>
+              </div>
+            </div>
+          </div>
+        </el-tooltip>
+
         <!-- 分隔线 -->
-        <div class="h-6 w-px bg-gray-200"></div>
+        <div class="h-6 w-px bg-gray-200 dark:bg-gray-700"></div>
 
         <!-- 用户信息下拉菜单 -->
         <el-dropdown trigger="click">
-          <div class="user-info flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
             <!-- 头像 -->
-            <el-avatar 
-              :size="32" 
+            <el-avatar
+              :size="32"
               :src="userInfo.avatar"
               class="bg-primary-500"
             >
               <el-icon><UserFilled /></el-icon>
             </el-avatar>
             <!-- 用户名 -->
-            <span class="text-sm font-medium text-gray-700">{{ userInfo.username }}</span>
-            <el-icon class="text-gray-400">
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ userInfo.username }}</span>
+            <el-icon class="text-gray-400 dark:text-gray-500">
               <ArrowDown />
             </el-icon>
           </div>
@@ -100,7 +127,7 @@
  * 顶部导航栏组件
  * 实现用户信息显示、主题色切换和退出登录功能
  */
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
@@ -141,12 +168,22 @@ const themes = [
 const currentTheme = ref(localStorage.getItem('theme') || 'blue')
 
 /**
+ * 主题模式
+ */
+const themeMode = ref<'light' | 'dark'>((localStorage.getItem('themeMode') as 'light' | 'dark') || 'light')
+
+/**
  * 当前主题颜色
  */
 const currentThemeColor = computed(() => {
   const theme = themes.find(t => t.value === currentTheme.value)
   return theme?.color || '#3b82f6'
 })
+
+/**
+ * 是否为暗色模式
+ */
+const isDarkMode = computed(() => themeMode.value === 'dark')
 
 /**
  * 模拟用户信息（后续会从 store 获取）
@@ -162,15 +199,38 @@ const userInfo = computed(() => ({
 const handleThemeChange = (theme: string) => {
   currentTheme.value = theme
   localStorage.setItem('theme', theme)
-  
+
   // 设置 data-theme 属性
   if (theme === 'blue') {
     document.documentElement.removeAttribute('data-theme')
   } else {
     document.documentElement.setAttribute('data-theme', theme)
   }
-  
+
   ElMessage.success(`已切换为${themes.find(t => t.value === theme)?.name}主题`)
+}
+
+/**
+ * 切换主题模式
+ */
+const toggleThemeMode = () => {
+  themeMode.value = themeMode.value === 'light' ? 'dark' : 'light'
+  localStorage.setItem('themeMode', themeMode.value)
+  applyThemeMode()
+}
+
+/**
+ * 应用主题模式
+ */
+const applyThemeMode = () => {
+  const root = document.documentElement
+  if (themeMode.value === 'dark') {
+    root.setAttribute('data-theme-mode', 'dark')
+    document.body.classList.add('dark')
+  } else {
+    root.removeAttribute('data-theme-mode')
+    document.body.classList.remove('dark')
+  }
 }
 
 /**
@@ -202,30 +262,25 @@ const initTheme = () => {
   if (savedTheme && savedTheme !== 'blue') {
     document.documentElement.setAttribute('data-theme', savedTheme)
   }
+
+  // 初始化主题模式
+  applyThemeMode()
 }
 
 // 初始化
-initTheme()
+onMounted(() => {
+  initTheme()
+})
 </script>
 
 
 <style scoped>
 /* 毛玻璃顶部导航栏 */
 .glass-navbar {
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
-}
-
-/* 用户信息区域 */
-.user-info:hover {
-  background: rgba(0, 0, 0, 0.04);
-}
-
-/* 主题按钮 */
-.theme-btn:hover {
-  background: rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md);
 }
 </style>
