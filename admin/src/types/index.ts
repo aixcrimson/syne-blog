@@ -162,6 +162,8 @@ export interface Article {
  * 文章表单接口
  */
 export interface ArticleForm {
+  /** 文章ID（编辑时需要） */
+  id?: number
   /** 文章标题 */
   title: string
   /** 文章摘要 */
