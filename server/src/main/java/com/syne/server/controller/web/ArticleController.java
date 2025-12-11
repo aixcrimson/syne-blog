@@ -1,4 +1,4 @@
-package com.syne.server.controller;
+package com.syne.server.controller.web;
 
 import com.syne.server.common.PageQuery;
 import com.syne.server.common.PageResult;
@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 文章控制器
+ * 用户端文章控制器
  */
-@Tag(name = "文章管理", description = "文章相关接口")
-@RestController
+@Tag(name = "用户端文章管理", description = "用户端文章相关接口")
+@RestController("webArticleController")
 @RequestMapping("/articles")
 @RequiredArgsConstructor
 public class ArticleController {

@@ -74,8 +74,8 @@ public class Article implements Serializable {
     private Integer isRecommend;
 
     @Schema(description = "发布时间")
-    @TableField("published_at")
-    private LocalDateTime publishedAt;
+    @TableField("published_time")
+    private LocalDateTime publishedTime;
 
     @Schema(description = "创建时间")
     @TableField(value = "create_time", fill = FieldFill.INSERT)
