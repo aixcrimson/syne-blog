@@ -217,6 +217,61 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return Result.success(message);
     }
 
+    @Override
+    public Result<String> toggleArticleTop(Long id) {
+        // 检查文章是否存在
+        Article article = this.getById(id);
+        if(article == null || article.getDeleted() == 1) {
+            throw new BusinessException("文章不存在");
+        }
+
+        // 切换置顶状态
+        int newTopStatus = article.getIsTop() == 0 ? 1 : 0;
+        article.setIsTop(newTopStatus);
+        this.updateById(article);
+
+        String message = newTopStatus == 1 ? "文章已置顶" : "文章已取消置顶";
+        log.info("切换文章置顶状态成功：id={}, title={}, newTopStatus={}", id, article.getTitle(), newTopStatus);
+
+        return Result.success(message);
+    }
+
+    @Override
+    public Result<String> toggleArticleRecommend(Long id) {
+        // 检查文章是否存在
+        Article article = this.getById(id);
+        if(article == null || article.getDeleted() == 1) {
+            throw new BusinessException("文章不存在");
+        }
+
+        // 切换推荐状态
+        int newRecommendStatus = article.getIsRecommend() == 0 ? 1 : 0;
+        article.setIsRecommend(newRecommendStatus);
+        this.updateById(article);
+
+        String message = newRecommendStatus == 1 ? "文章已推荐" : "文章已取消推荐";
+        log.info("切换文章推荐状态成功：id={}, title={}, newRecommendStatus={}", id, article.getTitle(), newRecommendStatus);
+
+        return Result.success(message);
+    }
+
+    @Override
+    public Result<String> updateStatus(Long id, Integer status) {
+        // 检查文章是否存在
+        Article article = this.getById(id);
+        if(article == null || article.getDeleted() == 1) {
+            throw new BusinessException("文章不存在");
+        }
+
+        // 更新状态
+        article.setStatus(status);
+        this.updateById(article);
+
+        log.info("更新文章状态成功：id={}, title={}, newStatus={}", id, article.getTitle(), status);
+
+        return Result.success("文章状态更新成功");
+    }
+
     public void deleteArticle(Long id) {
         // 检查文章是否存在
         Article article = this.getById(id);

@@ -54,6 +54,29 @@ public interface ArticleService extends IService<Article> {
     /**
      * 删除文章
      * @param ids 文章ID
+     * @return 删除结果
      */
     Result<String> deleteArticles(String ids);
+
+    /**
+     * 切换文章置顶状态
+     * @param id 文章ID
+     * @return 切换结果
+     */
+    Result<String> toggleArticleTop(Long id);
+
+    /**
+     * 切换文章推荐状态
+     * @param id 文章ID
+     * @return 切换结果
+     */
+    Result<String> toggleArticleRecommend(Long id);
+
+    /**
+     * 更新文章状态
+     * @param id 文章ID
+     * @param status 文章状态
+     * @return 更新结果
+     */
+    Result<String> updateStatus(Long id, Integer status);
 }
