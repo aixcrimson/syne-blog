@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { ThemeColor, UserInfo } from '@/types'
 import authorAvatar from '@/assets/images/avatar/author.jpg'
 
 export const useAppStore = defineStore('app', () => {
   // 状态
   const themeColor = ref<ThemeColor>('blue')
+  const themeMode = ref<'light' | 'dark'>('light')
   const userInfo = ref<UserInfo>({
     name: 'Syne',
     avatar: authorAvatar,
@@ -16,42 +17,74 @@ export const useAppStore = defineStore('app', () => {
   })
   const loading = ref(false)
 
+  // 计算属性
+  const isDarkMode = computed(() => themeMode.value === 'dark')
+
   // 动作
   const init = () => {
+    // 读取主题模式
+    const savedMode = localStorage.getItem('themeMode') as 'light' | 'dark' | null
+    if (savedMode) {
+      themeMode.value = savedMode
+    } else {
+      // 可以根据系统偏好自动设置
+      themeMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+
     // 从本地存储读取主题色设置
     const savedColor = localStorage.getItem('themeColor') as ThemeColor
-    
+
     // 应用主题色（如果有保存的就用保存的，否则用默认的）
     if (savedColor) {
       themeColor.value = savedColor
-      applyThemeColor(savedColor)
-    } else {
-      // 应用默认主题色
-      applyThemeColor(themeColor.value)
     }
+
+    // 应用主题
+    applyTheme()
   }
 
   const setThemeColor = (color: ThemeColor) => {
     console.log('设置主题色:', color)
     themeColor.value = color
     localStorage.setItem('themeColor', color)
-    applyThemeColor(color)
+    applyTheme()
   }
 
-  const applyThemeColor = (color: ThemeColor) => {
-    console.log('应用主题色:', color)
+  // 新增：切换主题模式
+  const toggleThemeMode = () => {
+    themeMode.value = themeMode.value === 'light' ? 'dark' : 'light'
+    localStorage.setItem('themeMode', themeMode.value)
+    applyTheme()
+  }
+
+  // 设置主题模式
+  const setThemeMode = (mode: 'light' | 'dark') => {
+    themeMode.value = mode
+    localStorage.setItem('themeMode', mode)
+    applyTheme()
+  }
+
+  // 统一的主题应用函数
+  const applyTheme = () => {
     const root = document.documentElement
-    
-    // 移除旧的主题属性
-    root.removeAttribute('data-theme')
-    
-    // 如果不是默认蓝色主题，设置对应的 data-theme 属性
-    // blue 是默认主题，定义在 :root 中，不需要设置 data-theme
-    if (color !== 'blue') {
-      root.setAttribute('data-theme', color)
+
+    // 设置主题色
+    if (themeColor.value !== 'blue') {
+      root.setAttribute('data-theme', themeColor.value)
+    } else {
+      root.removeAttribute('data-theme')
     }
-    
-    console.log('主题色应用完成:', color)
+
+    // 设置明暗模式
+    if (themeMode.value === 'dark') {
+      root.setAttribute('data-theme-mode', 'dark')
+      document.body.classList.add('dark')
+    } else {
+      root.removeAttribute('data-theme-mode')
+      document.body.classList.remove('dark')
+    }
+
+    console.log('主题应用完成:', { color: themeColor.value, mode: themeMode.value })
   }
 
   const setLoading = (value: boolean) => {
@@ -64,10 +97,14 @@ export const useAppStore = defineStore('app', () => {
 
   return {
     themeColor,
+    themeMode,
+    isDarkMode,
     userInfo,
     loading,
     init,
     setThemeColor,
+    toggleThemeMode,
+    setThemeMode,
     setLoading,
     updateUserInfo
   }

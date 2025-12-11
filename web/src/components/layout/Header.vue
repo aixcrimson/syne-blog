@@ -8,20 +8,20 @@
             <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
               <span class="text-white font-bold text-lg">X</span>
             </div>
-            <span class="text-xl font-bold text-gray-900">syne-blog</span>
+            <span class="text-xl font-bold text-gray-900 dark:text-gray-100">syne-blog</span>
           </router-link>
         </div>
-        
+
         <!-- 导航菜单 - 中间 -->
         <div class="hidden md:flex items-center space-x-8">
           <router-link
             v-for="item in menuItems"
             :key="item.path"
             :to="item.path"
-            class="nav-link text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
-            exact-active-class="text-primary-600 bg-primary-50"
+            class="text-gray-700 dark:text-gray-300 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
+            exact-active-class="text-primary-600 bg-primary-50 dark:bg-primary-900/20"
           >
-            <SvgIcon v-if="item.icon" :name="item.icon" size="18" color="#000" />
+            <SvgIcon v-if="item.icon" :name="item.icon" size="18" :color="appStore.isDarkMode ? '#fff' : '#000'" />
             {{ item.name }}
           </router-link>
         </div>
@@ -50,6 +50,19 @@
             >
               <el-icon class="text-xl text-gray-700 hover:text-gray-900">
                 <Search />
+              </el-icon>
+            </button>
+          </el-tooltip>
+
+          <!-- 明暗模式切换 -->
+          <el-tooltip content="切换明暗模式" placement="bottom">
+            <button
+              class="theme-mode-btn hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              @click="appStore.toggleThemeMode"
+            >
+              <el-icon class="text-xl" :class="appStore.isDarkMode ? 'text-yellow-400' : 'text-gray-700'">
+                <Sunny v-if="!appStore.isDarkMode" />
+                <Moon v-else />
               </el-icon>
             </button>
           </el-tooltip>
@@ -146,7 +159,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useAppStore } from '@/stores/app'
-import { Menu, Brush, Check, Search } from '@element-plus/icons-vue'
+import { Menu, Brush, Check, Search, Sunny, Moon } from '@element-plus/icons-vue'
 import type { MenuItem, ThemeColor } from '@/types'
 
 const appStore = useAppStore()
