@@ -105,7 +105,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public Article createArticle(ArticleDTO articleDTO) {
         // 1.转换DTO为实体
         Article article = new Article();
-        article.setUserId(1L); // TODO： 从当前登录用户获取
         article.setCategoryId(articleDTO.getCategoryId());
         article.setTitle(articleDTO.getTitle());
         article.setSummary(articleDTO.getSummary());
