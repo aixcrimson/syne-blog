@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.syne.server.mapper.TagMapper">
+
+    <!-- 标签列表结果映射 -->
+    <resultMap id="TagListVOMap" type="com.syne.server.entity.vo.TagListVO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="slug" column="slug"/>
+        <result property="color" column="color"/>
+        <result property="usageCount" column="usage_count"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <!-- 查询标签列表 -->
+    <select id="selectTagList" resultMap="TagListVOMap">
+        SELECT
+            id,
+            name,
+            slug,
+            COALESCE(color, '#409EFF') AS color,
+            COALESCE(usage_count, 0) AS usage_count,
+            create_time,
+            update_time
+        FROM tags
+        WHERE deleted = 0
+        <if test="keyword != null and keyword != ''">
+            AND (name ILIKE CONCAT('%', #{keyword}, '%') OR slug ILIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <choose>
+            <when test="sortBy == 'usage_count'">
+                ORDER BY usage_count
+            </when>
+            <when test="sortBy == 'create_time'">
+                ORDER BY create_time
+            </when>
+            <when test="sortBy == 'name'">
+                ORDER BY name
+            </when>
+            <otherwise>
+                ORDER BY usage_count
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="sortOrder == 'asc'">
+                ASC
+            </when>
+            <otherwise>
+                DESC
+            </otherwise>
+        </choose>
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 查询标签数量 -->
+    <select id="countTags" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM tags
+        WHERE deleted = 0
+        <if test="keyword != null and keyword != ''">
+            AND (name ILIKE CONCAT('%', #{keyword}, '%') OR slug ILIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+    </select>
+
+    <!-- 检查标签是否被文章使用 -->
+    <select id="countArticleTagsByTagId" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM article_tags
+        WHERE tag_id = #{tagId} AND deleted = 0
+    </select>
+
+</mapper>
