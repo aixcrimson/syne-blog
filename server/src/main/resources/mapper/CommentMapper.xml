@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.syne.server.mapper.CommentMapper">
+
+    <!-- 评论列表结果映射 -->
+    <resultMap id="CommentListVOMap" type="com.syne.server.entity.vo.CommentListVO">
+        <id property="id" column="id"/>
+        <result property="articleId" column="article_id"/>
+        <result property="articleTitle" column="article_title"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="userAvatar" column="user_avatar"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="parentContent" column="parent_content"/>
+        <result property="content" column="content"/>
+        <result property="ipAddress" column="ip_address"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <!-- 查询评论列表 -->
+    <select id="selectCommentList" resultMap="CommentListVOMap">
+        SELECT
+            c.id,
+            c.article_id,
+            a.title AS article_title,
+            c.user_id,
+            COALESCE(u.username, '访客') AS username,
+            u.avatar AS user_avatar,
+            c.parent_id,
+            pc.content AS parent_content,
+            c.content,
+            c.ip_address,
+            c.status,
+            c.create_time
+        FROM comments c
+        LEFT JOIN articles a ON c.article_id = a.id
+        LEFT JOIN users u ON c.user_id = u.id
+        LEFT JOIN comments pc ON c.parent_id = pc.id
+        WHERE c.deleted = 0
+        <if test="status != null">
+            AND c.status = #{status}
+        </if>
+        <if test="articleId != null">
+            AND c.article_id = #{articleId}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (c.content ILIKE CONCAT('%', #{keyword}, '%')
+                 OR COALESCE(u.username, '访客') ILIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="startTime != null">
+            AND c.create_time >= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND c.create_time &lt;= #{endTime}
+        </if>
+        ORDER BY c.create_time DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 查询评论数量 -->
+    <select id="countComments" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM comments c
+        WHERE c.deleted = 0
+        <if test="status != null">
+            AND c.status = #{status}
+        </if>
+        <if test="articleId != null">
+            AND c.article_id = #{articleId}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (c.content ILIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="startTime != null">
+            AND c.create_time >= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND c.create_time &lt;= #{endTime}
+        </if>
+    </select>
+
+    <!-- 查询子评论 -->
+    <select id="selectChildComments" resultMap="CommentListVOMap">
+        SELECT
+            c.id,
+            c.article_id,
+            a.title AS article_title,
+            c.user_id,
+            COALESCE(u.username, '访客') AS username,
+            u.avatar AS user_avatar,
+            c.parent_id,
+            NULL AS parent_content,
+            c.content,
+            c.ip_address,
+            c.status,
+            c.create_time
+        FROM comments c
+        LEFT JOIN articles a ON c.article_id = a.id
+        LEFT JOIN users u ON c.user_id = u.id
+        WHERE c.parent_id = #{parentId} AND c.deleted = 0
+        ORDER BY c.create_time ASC
+    </select>
+
+    <!-- 更新文章评论数量 -->
+    <update id="updateArticleCommentCount">
+        UPDATE articles
+        SET comments_count = CASE
+            WHEN comments_count + #{increment} &lt; 0 THEN 0
+            ELSE comments_count + #{increment}
+        END
+        WHERE id = #{articleId}
+    </update>
+
+</mapper>
