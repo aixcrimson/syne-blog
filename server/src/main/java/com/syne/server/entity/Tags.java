@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
 @TableName("tags")
 @Schema(description = "标签实体类")
 @EqualsAndHashCode(callSuper = true)
-public class Tag extends BaseEntity {
+public class Tags extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 

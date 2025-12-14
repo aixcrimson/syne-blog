@@ -58,6 +58,13 @@ public class Result<T> implements Serializable {
     }
 
     /**
+     * 失败响应（自定义错误信息）
+     */
+    public static <T> Result<T> error(String message) {
+        return new Result<>(500, message, null, System.currentTimeMillis());
+    }
+
+    /**
      * 失败响应（自定义错误码）
      */
     public static <T> Result<T> error(Integer code, String message) {

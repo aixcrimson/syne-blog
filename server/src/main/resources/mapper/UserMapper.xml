@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.syne.server.mapper.UserMapper">
+
+    <!-- 用户列表结果映射 -->
+    <resultMap id="UserListVOMap" type="com.syne.server.entity.vo.UserListVO">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="email" column="email"/>
+        <result property="avatar" column="avatar"/>
+        <result property="bio" column="bio"/>
+        <result property="github" column="github"/>
+        <result property="bilibili" column="bilibili"/>
+        <result property="role" column="role"/>
+        <result property="status" column="status"/>
+        <result property="articleCount" column="article_count"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="lastLoginTime" column="last_login_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <!-- 查询用户列表 -->
+    <select id="selectUserList" resultMap="UserListVOMap">
+        SELECT
+            u.id,
+            u.username,
+            u.email,
+            u.avatar,
+            u.bio,
+            u.github,
+            u.bilibili,
+            u.role,
+            u.status,
+            (SELECT COUNT(*) FROM articles WHERE create_by = u.id AND deleted = 0) AS article_count,
+            (SELECT COUNT(*) FROM comments WHERE user_id = u.id AND deleted = 0) AS comment_count,
+            u.create_time,
+            u.update_time
+        FROM users u
+        WHERE u.deleted = 0
+        <if test="role != null">
+            AND u.role = #{role}
+        </if>
+        <if test="status != null">
+            AND u.status = #{status}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (u.username ILIKE CONCAT('%', #{keyword}, '%')
+                 OR u.email ILIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="startTime != null">
+            AND u.create_time >= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND u.create_time &lt;= #{endTime}
+        </if>
+        ORDER BY u.create_time DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 查询用户数量 -->
+    <select id="countUsers" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM users u
+        WHERE u.deleted = 0
+        <if test="role != null">
+            AND u.role = #{role}
+        </if>
+        <if test="status != null">
+            AND u.status = #{status}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (u.username ILIKE CONCAT('%', #{keyword}, '%')
+                 OR u.email ILIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="startTime != null">
+            AND u.create_time >= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND u.create_time &lt;= #{endTime}
+        </if>
+    </select>
+
+    <!-- 检查用户名是否已存在 -->
+    <select id="checkUsernameExists" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM users
+        WHERE username = #{username} AND deleted = 0
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <!-- 检查邮箱是否已存在 -->
+    <select id="checkEmailExists" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM users
+        WHERE email = #{email} AND deleted = 0
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <!-- 检查用户是否有关联数据 -->
+    <select id="checkUserRelatedData" resultType="java.lang.String">
+        SELECT CONCAT('文章:', (SELECT COUNT(*) FROM articles WHERE create_by = #{userId} AND deleted = 0),
+                      ',评论:', (SELECT COUNT(*) FROM comments WHERE user_id = #{userId} AND deleted = 0))
+        FROM users
+        WHERE id = #{userId} AND deleted = 0
+    </select>
+
+</mapper>
