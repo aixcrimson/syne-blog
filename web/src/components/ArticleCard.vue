@@ -1,6 +1,6 @@
 <template>
   <div
-    class="article-card glass-card rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer"
+    class="article-card glass-card rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-1"
     @click="handleClick"
   >
     <!-- 封面图 -->
@@ -83,10 +83,6 @@ const handleClick = () => {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.article-card {
-  @apply transform hover:-translate-y-1;
-}
-
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -99,6 +95,12 @@ const handleClick = () => {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* 暗色模式下的毛玻璃效果 */
+.dark .glass-card {
+  background: rgba(26, 31, 46, 0.85);
+  border: 1px solid rgba(74, 85, 104, 0.4);
 }
 </style>
 

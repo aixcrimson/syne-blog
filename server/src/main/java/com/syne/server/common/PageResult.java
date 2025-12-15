@@ -1,6 +1,7 @@
 package com.syne.server.common;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "分页结果")
+@Builder
 public class PageResult<T> implements Serializable {
 
     private static final long serialVersionUID = 1L;

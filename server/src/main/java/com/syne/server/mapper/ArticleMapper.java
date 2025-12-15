@@ -33,4 +33,27 @@ public interface ArticleMapper extends BaseMapper<Article> {
      * @return 总数
      */
     Long countArticles(@Param("status") Integer status);
+
+    /**
+     * 管理员查询文章列表
+     * @param offset   偏移量
+     * @param pageSize 每页大小
+     * @param status   文章状态（可选）
+     * @param keyword  搜索关键词（可选）
+     * @return 文章列表
+     */
+    List<ArticleListVO> selectAdminArticleList(
+            @Param("offset") Integer offset,
+            @Param("pageSize") Integer pageSize,
+            @Param("status") Integer status,
+            @Param("keyword") String keyword
+    );
+
+    /**
+     * 查询文章总数
+     * @param status 文章状态（可选）
+     * @param keyword  搜索关键词（可选）
+     * @return 总数
+     */
+    Long countAdminArticles(@Param("status") Integer status, @Param("keyword") String keyword);
 }

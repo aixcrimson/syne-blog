@@ -205,7 +205,7 @@ const isTokenExpired = (token: string): boolean => {
  * 设置为 true 时，无需登录即可访问所有页面
  * 生产环境请设置为 false
  */
-const DEV_SKIP_AUTH = true
+const DEV_SKIP_AUTH = false
 
 /**
  * 检查 Token 是否存在且有效

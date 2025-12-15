@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.syne.server.mapper.CategoryMapper">
+
+    <!-- 分类列表结果映射 -->
+    <resultMap id="CategoryListVOMap" type="com.syne.server.entity.vo.CategoryListVO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="slug" column="slug"/>
+        <result property="description" column="description"/>
+        <result property="icon" column="icon"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="articleCount" column="article_count"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <!-- 查询分类列表 -->
+    <select id="selectCategoryList" resultMap="CategoryListVOMap">
+        SELECT
+            c.id,
+            c.name,
+            c.slug,
+            c.description,
+            c.icon,
+            c.sort_order,
+            c.create_time,
+            c.update_time,
+            COUNT(DISTINCT a.id) as article_count
+        FROM categories c
+                 LEFT JOIN articles a ON c.id = a.category_id AND a.deleted = 0
+        WHERE c.deleted = 0
+        GROUP BY c.id, c.name, c.slug, c.description, c.icon, c.sort_order, c.create_time, c.update_time
+        ORDER BY c.sort_order ASC, c.create_time DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 查询文章总数 -->
+    <select id = "countCategories" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM categories
+        WHERE deleted = 0
+    </select>
+
+</mapper>

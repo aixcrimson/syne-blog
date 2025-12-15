@@ -6,9 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
-import java.io.Serializable;
-import java.time.LocalDateTime;
+import lombok.EqualsAndHashCode;
 
 /**
  * 用户实体类
@@ -16,7 +14,8 @@ import java.time.LocalDateTime;
 @Data
 @TableName("users")
 @Schema(description = "用户实体类")
-public class User implements Serializable {
+@EqualsAndHashCode(callSuper = true)
+public class User extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -60,15 +59,4 @@ public class User implements Serializable {
     @TableField("status")
     private Integer status;
 
-    @Schema(description = "创建时间")
-    @TableField("create_time")
-    private LocalDateTime createdTime;
-
-    @Schema(description = "更新时间")
-    @TableField("update_time")
-    private LocalDateTime updateTime;
-
-    @Schema(description = "逻辑删除：0-未删除，1-已删除")
-    @TableField("deleted")
-    private Integer deleted;
 }

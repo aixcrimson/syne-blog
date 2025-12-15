@@ -169,10 +169,20 @@ const handleMenuClick = (item: MenuItem) => {
 }
 
 .menu-list::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 rounded-full;
+  background-color: #d1d5db;
+  border-radius: 9999px;
 }
 
 .menu-list::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400;
+  background-color: #9ca3af;
+}
+
+/* 暗色模式下的滚动条 */
+.dark .menu-list::-webkit-scrollbar-thumb {
+  background-color: #4a5568;
+}
+
+.dark .menu-list::-webkit-scrollbar-thumb:hover {
+  background-color: #718096;
 }
 </style>

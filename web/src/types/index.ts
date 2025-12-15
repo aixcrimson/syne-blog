@@ -5,11 +5,10 @@ export interface Article {
   summary: string
   content: string
   author: string
-  category: string
+  categoryName: string
   tags: string[]
   coverImage?: string
-  createdAt: string
-  updatedAt: string
+  publishedTime: string
   views: number
 }
 

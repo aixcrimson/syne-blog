@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import type { UserInfo } from '@/types'
 
 /** Token 存储的 key */
-const TOKEN_KEY = 'admin_token'
+const TOKEN_KEY = 'token'
 
 /**
  * 用户状态 Store
@@ -46,7 +46,7 @@ export const useUserStore = defineStore('user', () => {
   /**
    * 开发模式：跳过登录验证时使用的模拟用户
    */
-  const DEV_SKIP_AUTH = true
+  const DEV_SKIP_AUTH = false
   const mockUser: UserInfo = {
     id: 1,
     username: 'admin',

@@ -46,7 +46,7 @@
         c.name AS category_name,
         STRING_AGG(t.name, ',') AS tags
         FROM articles a
-        LEFT JOIN users u ON a.user_id = u.id
+        LEFT JOIN users u ON a.create_by = u.id
         LEFT JOIN categories c ON a.category_id = c.id
         LEFT JOIN article_tags at ON a.id = at.article_id
         LEFT JOIN tags t ON at.tag_id = t.id
@@ -66,6 +66,65 @@
         WHERE deleted = 0
         <if test="status != null">
             AND status = #{status}
+        </if>
+    </select>
+
+    <!-- 管理员查询文章列表 -->
+    <select id="selectAdminArticleList" resultMap="ArticleListVOMap"> 
+        SELECT
+        a.id,
+        a.title,
+        a.summary,
+        a.cover_image,
+        a.views,
+        a.likes,
+        a.favorites,
+        a.comments_count,
+        a.is_top,
+        a.is_recommend,
+        a.published_time,
+        a.create_time,
+        u.username AS author_name,
+        u.avatar AS author_avatar,
+        c.name AS category_name,
+        STRING_AGG(t.name, ',') AS tags
+        FROM articles a
+        LEFT JOIN users u ON a.create_by = u.id
+        LEFT JOIN categories c ON a.category_id = c.id
+        LEFT JOIN article_tags at ON a.id = at.article_id
+        LEFT JOIN tags t ON at.tag_id = t.id
+        WHERE a.deleted = 0
+        <if test="status != null">
+        AND a.status = #{status}
+        </if>
+        <if test="keyword != null and keyword != ''">
+        AND ( a.title ILIKE CONCAT('%', #{keyword}, '%')
+        OR a.summary ILIKE CONCAT('%', #{keyword}, '%')
+        OR a.content ILIKE CONCAT('%', #{keyword}, '%')
+        )
+        </if>
+        GROUP BY a.id, u.username, u.avatar, c.name
+        ORDER BY a.is_top DESC, a.create_time DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 管理员查询文章总数 -->
+    <select id="countAdminArticles" resultType="java.lang.Long">
+    SELECT COUNT(DISTINCT a.id)
+    FROM articles a
+        LEFT JOIN users u ON a.create_by = u.id
+        LEFT JOIN categories c ON a.category_id = c.id
+        LEFT JOIN article_tags at ON a.id = at.article_id
+        LEFT JOIN tags t ON at.tag_id = t.id
+        WHERE a.deleted = 0
+        <if test="status != null">
+        AND a.status = #{status}
+        </if>
+        <if test="keyword != null and keyword != ''">
+        AND ( a.title ILIKE CONCAT('%', #{keyword}, '%')
+        OR a.summary ILIKE CONCAT('%', #{keyword}, '%')
+        OR a.content ILIKE CONCAT('%', #{keyword}, '%')
+        )
         </if>
     </select>
 </mapper>
