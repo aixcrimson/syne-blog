@@ -14,7 +14,7 @@ export const categoryApi = {
    * @returns 分类列表
    */
   getList(): Promise<Category[]> {
-    return get<Category[]>('/admin/categories')
+    return get<{ list: Category[] }>('/admin/categories').then(res => res.list)
   },
 
   /**

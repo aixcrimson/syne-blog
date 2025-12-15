@@ -14,7 +14,7 @@ export const tagApi = {
    * @returns 标签列表
    */
   getList(): Promise<Tag[]> {
-    return get<Tag[]>('/admin/tags')
+    return get<{ list: Tag[] }>('/admin/tags').then(res => res.list)
   },
 
   /**
