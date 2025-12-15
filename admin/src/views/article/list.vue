@@ -242,6 +242,7 @@ import {
   StarFilled
 } from '@element-plus/icons-vue'
 import { articleApi } from '@/api/article'
+import { categoryApi } from '@/api/category'
 import type { Article, ArticleListParams, Category } from '@/types'
 import { ArticleStatus } from '@/types'
 import dayjs from 'dayjs'
@@ -309,6 +310,18 @@ const getStatusLabel = (status: ArticleStatus) => {
 const formatDate = (date: string) => {
   if (!date) return '-'
   return dayjs(date).format('YYYY-MM-DD HH:mm')
+}
+
+/**
+ * 加载分类筛选列表
+ */
+const loadCategoryList = async () => {
+  try {
+    const result = await categoryApi.getList()
+    categoryList.value = result
+  } catch (error) {
+    console.error('加载分类列表失败:', error)
+  } 
 }
 
 /**
@@ -460,6 +473,7 @@ const handleStatusChange = async (article: Article, newStatus: ArticleStatus) =>
 // ==================== 生命周期 ====================
 
 onMounted(() => {
+  loadCategoryList()
   loadArticleList()
 })
 </script>

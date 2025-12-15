@@ -46,7 +46,7 @@
         c.name AS category_name,
         STRING_AGG(t.name, ',') AS tags
         FROM articles a
-        LEFT JOIN users u ON a.user_id = u.id
+        LEFT JOIN users u ON a.create_by = u.id
         LEFT JOIN categories c ON a.category_id = c.id
         LEFT JOIN article_tags at ON a.id = at.article_id
         LEFT JOIN tags t ON at.tag_id = t.id
@@ -89,7 +89,7 @@
         c.name AS category_name,
         STRING_AGG(t.name, ',') AS tags
         FROM articles a
-        LEFT JOIN users u ON a.user_id = u.id
+        LEFT JOIN users u ON a.create_by = u.id
         LEFT JOIN categories c ON a.category_id = c.id
         LEFT JOIN article_tags at ON a.id = at.article_id
         LEFT JOIN tags t ON at.tag_id = t.id
@@ -112,7 +112,7 @@
     <select id="countAdminArticles" resultType="java.lang.Long">
     SELECT COUNT(DISTINCT a.id)
     FROM articles a
-        LEFT JOIN users u ON a.user_id = u.id
+        LEFT JOIN users u ON a.create_by = u.id
         LEFT JOIN categories c ON a.category_id = c.id
         LEFT JOIN article_tags at ON a.id = at.article_id
         LEFT JOIN tags t ON at.tag_id = t.id

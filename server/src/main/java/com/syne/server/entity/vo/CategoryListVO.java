@@ -33,6 +33,9 @@ public class CategoryListVO implements Serializable {
     @Schema(description = "排序权重")
     private Integer sortOrder;
 
+    @Schema(description = "文章数量")
+    private Integer articleCount;
+
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
 
