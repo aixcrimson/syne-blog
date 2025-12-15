@@ -24,15 +24,19 @@
           <!-- 头像上传 -->
           <el-form-item label="头像" prop="avatar">
             <div class="flex items-center gap-4">
-              <div class="relative group">
-                <el-avatar :size="80" :src="avatarPreview || profileForm.avatar">
+              <div class="relative w-20 h-20 overflow-hidden rounded-full group">
+                <el-avatar
+                  :size="80"
+                  :src="avatarPreview || profileForm.avatar"
+                  class="w-full h-full object-cover"
+                >
                   {{ userStore.username?.charAt(0)?.toUpperCase() }}
                 </el-avatar>
-                <div 
-                  class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                <div
+                  class="absolute inset-0 bg-gray-800/75 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
                   @click="triggerAvatarUpload"
                 >
-                  <el-icon class="text-white text-xl"><Camera /></el-icon>
+                  <el-icon class="text-white text-2xl"><Camera /></el-icon>
                 </div>
               </div>
               <div class="flex flex-col gap-2">
