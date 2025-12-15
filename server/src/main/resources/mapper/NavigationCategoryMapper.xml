@@ -2,28 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.syne.server.mapper.NavigationCategoryMapper">
 
-    <!-- 通用查询结果映射 -->
-    <resultMap id="BaseResultMap" type="com.syne.server.entity.NavigationCategory">
-        <id column="id" property="id"/>
-        <result column="name" property="name"/>
-        <result column="icon" property="icon"/>
-        <result column="sort_order" property="sortOrder"/>
-        <result column="create_time" property="createTime"/>
-        <result column="update_time" property="updateTime"/>
-        <result column="deleted" property="deleted"/>
-    </resultMap>
-
-    <!-- 通用查询字段 -->
-    <sql id="Base_Column_List">
-        id, name, icon, sort_order, create_time, update_time, deleted
-    </sql>
-
     <!-- 根据分类ID统计相关的导航站点数量 -->
     <select id="countSitesByCategoryId" resultType="int">
         SELECT COUNT(*)
         FROM navigation_sites
         WHERE category_id = #{categoryId}
-        AND deleted = 0
+          AND deleted = 0
     </select>
 
 </mapper>
