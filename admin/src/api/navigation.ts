@@ -48,7 +48,7 @@ export const navigationApi = {
    * @requirements 10.1
    */
   getCategories(): Promise<NavigationCategory[]> {
-    return get<NavigationCategory[]>('/admin/navigation/categories')
+    return get<{ list: NavigationCategory[] }>('/admin/navigation/categories').then(res => res.list)
   },
 
   /**
