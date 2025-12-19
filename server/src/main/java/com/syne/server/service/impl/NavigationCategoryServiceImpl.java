@@ -119,4 +119,9 @@ public class NavigationCategoryServiceImpl extends ServiceImpl<NavigationCategor
         int count = navigationCategoryMapper.countSitesByCategoryId(categoryId);
         return count > 0;
     }
+
+    @Override
+    public long count() {
+        return navigationCategoryMapper.selectCount(null);
+    }
 }

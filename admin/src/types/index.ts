@@ -449,3 +449,71 @@ export interface LoginResponse {
   /** 用户信息 */
   user: UserInfo
 }
+
+// ==================== 书签导入相关 ====================
+
+/**
+ * 书签项
+ */
+export interface BookmarkItem {
+  /** 书签名称 */
+  name: string
+  /** 书签URL */
+  url: string
+  /** 所属文件夹 */
+  folder: string
+  /** 书签描述 */
+  description?: string
+}
+
+/**
+ * 文件夹统计
+ */
+export interface FolderStats {
+  /** 文件夹名称 */
+  name: string
+  /** 文件夹路径 */
+  path: string
+  /** 书签数量 */
+  count: number
+}
+
+/**
+ * 书签预览响应
+ */
+export interface BookmarkPreviewDTO {
+  /** 文件夹统计列表 */
+  categories: FolderStats[]
+  /** 书签列表 */
+  bookmarks: BookmarkItem[]
+  /** 书签总数 */
+  totalBookmarks: number
+  /** 文件夹总数 */
+  totalFolders: number
+}
+
+/**
+ * 文件夹映射
+ */
+export interface FolderMapping {
+  /** 文件夹名称 */
+  folder: string
+  /** 映射的分类ID */
+  categoryId: number
+  /** 是否创建新分类 */
+  createNew?: boolean
+  /** 新分类名称 */
+  newCategoryName?: string
+  /** 新分类图标 */
+  newCategoryIcon?: string
+}
+
+/**
+ * 书签映射请求
+ */
+export interface BookmarkMappingDTO {
+  /** 文件夹与分类的映射关系 */
+  mappings: FolderMapping[]
+  /** 要导入的书签列表 */
+  bookmarks: BookmarkItem[]
+}

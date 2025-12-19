@@ -4,7 +4,7 @@
  * @requirements 10.1, 10.2, 10.3, 10.5
  */
 import { get, post, put, del } from './request'
-import type { NavigationCategory, NavigationSite, SortOrderItem } from '@/types'
+import type { NavigationCategory, NavigationSite, SortOrderItem, BookmarkPreviewDTO, BookmarkMappingDTO } from '@/types'
 
 /**
  * 导航分类表单接口
@@ -48,7 +48,7 @@ export const navigationApi = {
    * @requirements 10.1
    */
   getCategories(): Promise<NavigationCategory[]> {
-    return get<{ list: NavigationCategory[] }>('/admin/navigation/categories').then(res => res.list)
+    return get<NavigationCategory[]>('/admin/navigation/categories')
   },
 
   /**
@@ -129,6 +129,32 @@ export const navigationApi = {
    */
   updateSiteSortOrder(orders: SortOrderItem[]): Promise<void> {
     return put('/admin/navigation/sites/sort', { orders })
+  },
+
+  // ==================== 书签导入相关 ====================
+
+  /**
+   * 解析书签文件
+   * @param file 书签文件
+   * @returns 预览数据
+   */
+  parseBookmarkFile(file: File): Promise<BookmarkPreviewDTO> {
+    const formData = new FormData()
+    formData.append('file', file)
+    return post<BookmarkPreviewDTO>('/admin/navigations/bookmarks/parse', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+  },
+
+  /**
+   * 导入书签数据
+   * @param mapping 映射和书签数据
+   * @returns 导入结果
+   */
+  importBookmarks(mapping: BookmarkMappingDTO): Promise<string> {
+    return post<string>('/admin/navigations/bookmarks/import', mapping)
   }
 }
 
