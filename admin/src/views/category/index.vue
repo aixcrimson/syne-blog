@@ -22,7 +22,8 @@
         <el-table-column label="名称" min-width="150">
           <template #default="{ row }">
             <div class="flex items-center gap-2">
-              <span v-if="row.icon" class="text-lg">{{ row.icon }}</span>
+              <el-icon v-if="row.icon && isElementIcon(row.icon)" class="text-lg"><component :is="row.icon" /></el-icon>
+              <span v-else-if="row.icon" class="text-lg">{{ row.icon }}</span>
               <span class="text-gray-800 font-medium">{{ row.name }}</span>
             </div>
           </template>
@@ -82,7 +83,11 @@
           <el-input v-model="formData.slug" placeholder="请输入分类别名（URL友好）" maxlength="50" show-word-limit />
         </el-form-item>
         <el-form-item label="图标" prop="icon">
-          <el-input v-model="formData.icon" placeholder="请输入图标（emoji或图标类名）" />
+          <IconSelector
+            v-model="formData.icon"
+            placeholder="请选择图标"
+            :clearable="true"
+          />
         </el-form-item>
         <el-form-item label="描述" prop="description">
           <el-input v-model="formData.description" type="textarea" :rows="3" placeholder="请输入分类描述" maxlength="200" show-word-limit />
@@ -110,10 +115,12 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Plus, Edit, Delete } from '@element-plus/icons-vue'
+import IconSelector from '@/components/IconSelector.vue'
 import { categoryApi } from '@/api/category'
 import type { Category, CategoryForm } from '@/types'
 import { isCategoryNameUnique, isCategorySlugUnique, canDeleteCategory } from '@/utils/validate'
 import dayjs from 'dayjs'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 const loading = ref(false)
 const categoryList = ref<Category[]>([])
@@ -124,6 +131,14 @@ const editingId = ref<number | null>(null)
 const formRef = ref<FormInstance>()
 const submitting = ref(false)
 const formData = reactive<CategoryForm>({ name: '', slug: '', description: '', icon: '', sortOrder: 0 })
+
+/** 检测是否为 Element Plus 图标 */
+const isElementIcon = (icon: string): boolean => {
+  return !!(icon && typeof icon === 'string' &&
+         !/\p{Extended_Pictographic}/u.test(icon) &&
+         /^[A-Z]/.test(icon) &&
+         icon in ElementPlusIconsVue)
+}
 
 /** 验证分类名称唯一性 @requirements 7.3 */
 const validateNameUnique = (_rule: unknown, value: string, callback: (error?: Error) => void) => {

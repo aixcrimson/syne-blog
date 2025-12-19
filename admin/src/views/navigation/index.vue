@@ -11,6 +11,9 @@
       <div class="flex items-center justify-between">
         <span class="text-gray-600">共 {{ categoryList.length }} 个分类，{{ totalSites }} 个站点</span>
         <div class="flex gap-2">
+          <el-button type="success" :icon="Upload" @click="showBookmarkImport">
+            导入书签
+          </el-button>
           <el-button type="primary" :icon="Plus" @click="handleCreateCategory">
             新建分类
           </el-button>
@@ -41,7 +44,10 @@
                 <el-icon class="category-drag-handle cursor-move text-gray-400 hover:text-gray-600">
                   <Rank />
                 </el-icon>
-                <span v-if="category.icon" class="text-xl">{{ category.icon }}</span>
+                <el-icon v-if="category.icon && isElementIcon(category.icon)" class="text-xl">
+                  <component :is="category.icon" />
+                </el-icon>
+                <span v-else-if="category.icon" class="text-xl">{{ category.icon }}</span>
                 <span class="font-medium text-gray-800">{{ category.name }}</span>
                 <el-tag type="info" size="small">{{ category.sites?.length || 0 }} 个站点</el-tag>
               </div>
@@ -85,7 +91,10 @@
                         <Rank />
                       </el-icon>
                       <div v-if="site.icon" class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded">
-                        <span class="text-lg">{{ site.icon }}</span>
+                        <el-icon v-if="isElementIcon(site.icon)" class="text-lg">
+                          <component :is="site.icon" />
+                        </el-icon>
+                        <span v-else class="text-lg">{{ site.icon }}</span>
                       </div>
                       <div class="flex-1 min-w-0">
                         <div class="font-medium text-gray-800 truncate">{{ site.name }}</div>
@@ -125,7 +134,11 @@
           <el-input v-model="categoryForm.name" placeholder="请输入分类名称" maxlength="50" show-word-limit />
         </el-form-item>
         <el-form-item label="图标" prop="icon">
-          <el-input v-model="categoryForm.icon" placeholder="请输入图标（emoji）" />
+          <IconSelector
+            v-model="categoryForm.icon"
+            placeholder="请选择图标"
+            :clearable="true"
+          />
         </el-form-item>
         <el-form-item label="排序" prop="sortOrder">
           <el-input-number v-model="categoryForm.sortOrder" :min="0" :max="9999" />
@@ -160,7 +173,11 @@
           <el-input v-model="siteForm.description" type="textarea" :rows="2" placeholder="请输入站点描述" maxlength="200" show-word-limit />
         </el-form-item>
         <el-form-item label="图标" prop="icon">
-          <el-input v-model="siteForm.icon" placeholder="请输入图标（emoji）" />
+          <IconSelector
+            v-model="siteForm.icon"
+            placeholder="请选择图标"
+            :clearable="true"
+          />
         </el-form-item>
         <el-form-item label="排序" prop="sortOrder">
           <el-input-number v-model="siteForm.sortOrder" :min="0" :max="9999" />
@@ -175,6 +192,13 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 书签导入对话框 -->
+    <BookmarkImport
+      v-model="bookmarkImportVisible"
+      :categories="categoryList"
+      @success="handleImportSuccess"
+    />
   </div>
 </template>
 
@@ -186,17 +210,28 @@
  */
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Plus, Edit, Delete, Rank, Link } from '@element-plus/icons-vue'
+import { Plus, Edit, Delete, Rank, Link, Upload } from '@element-plus/icons-vue'
+import IconSelector from '@/components/IconSelector.vue'
 import draggable from 'vuedraggable'
 import { navigationApi, type NavigationCategoryForm, type NavigationSiteForm } from '@/api/navigation'
 import type { NavigationCategory, NavigationSite, SortOrderItem } from '@/types'
 import { isValidUrl } from '@/utils/validate'
+import BookmarkImport from './components/BookmarkImport.vue'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 /** 加载状态 */
 const loading = ref(false)
 
 /** 分类列表 */
 const categoryList = ref<NavigationCategory[]>([])
+
+/** 检测是否为 Element Plus 图标 */
+const isElementIcon = (icon: string): boolean => {
+  return !!(icon && typeof icon === 'string' &&
+         !/\p{Extended_Pictographic}/u.test(icon) &&
+         /^[A-Z]/.test(icon) &&
+         icon in ElementPlusIconsVue)
+}
 
 /** 站点总数 */
 const totalSites = computed(() => 
@@ -294,6 +329,26 @@ const siteFormRules: FormRules<NavigationSiteForm> = {
   sortOrder: [
     { required: true, message: '请输入排序值', trigger: 'blur' }
   ]
+}
+
+// ==================== 书签导入相关 ====================
+
+/** 书签导入对话框可见性 */
+const bookmarkImportVisible = ref(false)
+
+/**
+ * 显示书签导入对话框
+ */
+const showBookmarkImport = () => {
+  bookmarkImportVisible.value = true
+}
+
+/**
+ * 处理导入成功
+ */
+const handleImportSuccess = () => {
+  ElMessage.success('书签导入成功')
+  loadCategoryList() // 刷新数据
 }
 
 // ==================== 数据加载 ====================
