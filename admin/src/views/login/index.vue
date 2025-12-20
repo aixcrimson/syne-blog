@@ -165,12 +165,16 @@ const handleLogin = async () => {
   try {
     // 调用登录 API
     const response = await authApi.login(loginForm)
-    
+
     // 保存登录状态
-    userStore.loginSuccess(response.token, response.user)
-    
+    userStore.setToken(response.token)
+
+    // 获取完整的用户信息
+    const userInfo = await authApi.getCurrentUser()
+    userStore.setUserInfo(userInfo)
+
     ElMessage.success('登录成功')
-    
+
     // 跳转到原始目标页面或首页
     const redirect = (route.query.redirect as string) || '/dashboard'
     router.push(redirect)

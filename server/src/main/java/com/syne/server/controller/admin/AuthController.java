@@ -3,6 +3,7 @@ package com.syne.server.controller.admin;
 import com.syne.server.common.Result;
 import com.syne.server.entity.dto.LoginDTO;
 import com.syne.server.entity.vo.LoginVO;
+import com.syne.server.entity.vo.UserInfoVO;
 import com.syne.server.service.AuthService;
 import com.syne.server.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,7 +59,7 @@ public class AuthController {
             @Parameter(description = "JWT Token", hidden = true)
             @RequestHeader(value = "Authorization", required = false) String token
     ) {
-        // TODO: 实现Token黑名单机制
+        // TODO: 实现Token （Redis + 黑名单）机制
         log.info("用户退出登录");
         return Result.success("退出登录成功");
     }
@@ -97,5 +98,17 @@ public class AuthController {
             log.error("Token刷新失败", e);
             return Result.error(400, "Token刷新失败");
         }
+    }
+
+    /**
+     * 获取当前用户
+     *
+     * @return 当前用户信息
+     */
+    @Operation(summary = "获取当前用户", description = "获取当前用户信息")
+    @GetMapping("/current")
+    public Result<UserInfoVO> getCurrentUser() {
+        UserInfoVO userInfoVO = authService.getCurrentUser();
+        return Result.success("获取当前用户成功", userInfoVO);
     }
 }

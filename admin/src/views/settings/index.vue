@@ -344,14 +344,17 @@ const passwordRules: FormRules<ChangePasswordParams> = {
 
 /**
  * 初始化个人信息表单
+ * 从用户store中获取信息并填充表单
  */
 const initProfileForm = () => {
   const userInfo = userStore.userInfo
   if (userInfo) {
+    // 从用户信息中填充表单字段
     profileForm.avatar = userInfo.avatar || ''
+    profileForm.bio = userInfo.bio || ''
+    profileForm.github = userInfo.github || ''
+    profileForm.bilibili = userInfo.bilibili || ''
   }
-  // 其他字段需要从完整用户信息获取，这里先置空
-  // 实际项目中可能需要调用 API 获取完整用户信息
 }
 
 /**
@@ -474,6 +477,7 @@ const resetPasswordForm = () => {
 
 // ==================== 生命周期 ====================
 onMounted(() => {
+  // 直接从 store 中初始化表单，登录时已经获取了完整用户信息
   initProfileForm()
 })
 </script>

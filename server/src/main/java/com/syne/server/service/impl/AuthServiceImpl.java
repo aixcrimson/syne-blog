@@ -5,10 +5,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.syne.server.entity.User;
 import com.syne.server.entity.dto.LoginDTO;
 import com.syne.server.entity.vo.LoginVO;
+import com.syne.server.entity.vo.UserInfoVO;
 import com.syne.server.exception.BusinessException;
 import com.syne.server.mapper.AuthMapper;
 import com.syne.server.service.AuthService;
 import com.syne.server.utils.JwtUtil;
+import com.syne.server.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,12 +50,8 @@ public class AuthServiceImpl extends ServiceImpl<AuthMapper, User> implements Au
         }
 
         // 4. 验证密码（临时测试用）
-        if (loginDTO.getPassword().equals("admin123")) {
-            log.info("密码验证成功（临时测试模式）");
-        } else {
-            if (!matchesPassword(loginDTO.getPassword(), user.getPasswordHash())) {
-                throw new BusinessException(400, "用户名或密码错误");
-            }
+        if (!matchesPassword(loginDTO.getPassword(), user.getPasswordHash())) {
+            throw new BusinessException(400, "用户名或密码错误");
         }
 
         // 5. 生成JWT Token
@@ -79,5 +77,33 @@ public class AuthServiceImpl extends ServiceImpl<AuthMapper, User> implements Au
             log.error("密码验证失败", e);
             return false;
         }
+    }
+
+    @Override
+    public UserInfoVO getCurrentUser() {
+        UserInfoVO userInfoVO = new UserInfoVO();
+
+        // 获取当前用户ID
+        Long userId = SecurityUtils.getCurrentUserId();
+        if (userId == null) {
+            throw new BusinessException(401, "用户未登录");
+        }
+
+        // 获取当前用户信息
+        User user = getById(userId);
+        if (user == null || user.getDeleted() != 0) {
+            throw new BusinessException(404, "用户不存在");
+        }
+
+        userInfoVO.setId(user.getId());
+        userInfoVO.setUsername(user.getUsername());
+        userInfoVO.setEmail(user.getEmail());
+        userInfoVO.setAvatar(user.getAvatar());
+        userInfoVO.setBio(user.getBio());
+        userInfoVO.setGithub(user.getGithub());
+        userInfoVO.setBilibili(user.getBilibili());
+        userInfoVO.setRole(user.getRole());
+
+        return userInfoVO;
     }
 }

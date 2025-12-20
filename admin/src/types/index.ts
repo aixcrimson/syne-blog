@@ -285,6 +285,12 @@ export interface UserInfo {
   email: string
   /** 头像URL */
   avatar: string
+  /** 个人简介 */
+  bio?: string
+  /** GitHub链接 */
+  github?: string
+  /** Bilibili链接 */
+  bilibili?: string
   /** 用户角色 */
   role: UserRole
 }

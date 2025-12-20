@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.syne.server.entity.User;
 import com.syne.server.entity.dto.LoginDTO;
 import com.syne.server.entity.vo.LoginVO;
+import com.syne.server.entity.vo.UserInfoVO;
 
 /**
  * 认证服务接口
@@ -34,4 +35,11 @@ public interface AuthService extends IService<User> {
      * @return 是否匹配
      */
     boolean matchesPassword(String rawPassword, String encodedPassword);
+
+    /**
+     * 获取当前用户信息
+     *
+     * @return 当前用户信息
+     */
+    UserInfoVO getCurrentUser();
 }
