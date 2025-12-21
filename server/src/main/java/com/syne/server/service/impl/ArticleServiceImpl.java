@@ -6,10 +6,13 @@ import com.syne.server.common.PageQuery;
 import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
 import com.syne.server.entity.Article;
+import com.syne.server.entity.ArticleTag;
 import com.syne.server.entity.dto.ArticleDTO;
 import com.syne.server.entity.vo.ArticleListVO;
 import com.syne.server.exception.BusinessException;
 import com.syne.server.mapper.ArticleMapper;
+import com.syne.server.mapper.ArticleTagMapper;
+import com.syne.server.mapper.TagMapper;
 import com.syne.server.service.ArticleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -28,6 +32,8 @@ import java.util.List;
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> implements ArticleService {
 
     private final ArticleMapper articleMapper;
+    private final ArticleTagMapper articleTagMapper;
+    private final TagMapper tagMapper;
 
     @Override
     public PageResult<ArticleListVO> getArticleList(PageQuery pageQuery, Integer status) {
@@ -85,10 +91,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
         // 构建分页结果
         return PageResult.build(
-            pageQuery.getPage(),
-            pageQuery.getPageSize(),
-            total,
-            list
+                pageQuery.getPage(),
+                pageQuery.getPageSize(),
+                total,
+                list
         );
     }
 
@@ -102,6 +108,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Article createArticle(ArticleDTO articleDTO) {
         // 1.转换DTO为实体
         Article article = new Article();
@@ -126,16 +133,20 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             article.setPublishedTime(LocalDateTime.now());
         }
 
-        // 3.保存
+        // 3.保存文章
         this.save(article);
 
-        // TODO 4.处理标签关联
+        // 4.处理标签关联
+        if(articleDTO.getTagIds() != null && !articleDTO.getTagIds().isEmpty()) {
+            processArticleTags(article.getId(), null, articleDTO.getTagIds());
+        }
 
         log.info("创建文章成功：id={}, title={}", article.getId(), article.getTitle());
         return article;
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Article updateArticle(ArticleDTO articleDTO) {
         // 1.检查文章是否存在
         Article existingArticle = this.getById(articleDTO.getId());
@@ -155,17 +166,18 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         article.setIsTop(articleDTO.getIsTop() != null ? articleDTO.getIsTop() : 0); // 默认不置顶
         article.setIsRecommend(articleDTO.getIsRecommend() != null ? articleDTO.getIsRecommend() : 0); // 默认不推荐
 
-
         // 如果状态从未发布改为发布，设置发布时间
         if(article.getStatus() != null && article.getStatus() == 1
                 && (existingArticle.getStatus() != null && existingArticle.getStatus() != 1)
-            ) {
+        ) {
             article.setPublishedTime(LocalDateTime.now());
         }
 
         this.updateById(article);
 
-        // TODO 4.处理标签关联
+        // 3.处理标签关联
+        List<Long> newTagIds = articleDTO.getTagIds() != null ? articleDTO.getTagIds() : new ArrayList<>();
+        processArticleTags(article.getId(), null, newTagIds);
 
         log.info("更新文章成功：id={}, title={}", article.getId(), article.getTitle());
         return this.getById(article.getId());
@@ -187,7 +199,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         List<String> failedIds = new ArrayList<>();
         int successCount = 0;
 
-        for(String idStr : idArray) { 
+        for(String idStr : idArray) {
             try {
                 Long id = Long.parseLong(idStr.trim());
                 this.deleteArticle(id);
@@ -206,11 +218,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         // 构建返回消息
         String message;
         if(failedIds.isEmpty()) {
-            message = successCount == 1 ? "删除文章成功" : 
-                String.format("成功删除 %d 篇文章", successCount);
+            message = successCount == 1 ? "删除文章成功" :
+                    String.format("成功删除 %d 篇文章", successCount);
         } else {
-            message = String.format("成功删除 %d 篇文章，失败 %s", 
-                successCount, String.join(", ", failedIds)
+            message = String.format("成功删除 %d 篇文章，失败 %s",
+                    successCount, String.join(", ", failedIds)
             );
         }
 
@@ -272,6 +284,70 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return Result.success("文章状态更新成功");
     }
 
+    /**
+     * 处理文章标签关联
+     *
+     * @param articleId   文章ID
+     * @param oldTagIds   旧标签ID列表（更新时使用，创建时传null）
+     * @param newTagIds   新标签ID列表
+     */
+    private void processArticleTags(Long articleId, List<Long> oldTagIds, List<Long> newTagIds) {
+        // 1.验证标签ID列表
+        if(newTagIds != null && !newTagIds.isEmpty()) {
+            // 去重并检查标签是否存在
+            newTagIds = newTagIds.stream()
+                    .distinct()
+                    .filter(tagId -> tagId != null && tagId > 0)
+                    .collect(Collectors.toList());
+
+            if(!newTagIds.isEmpty()) {
+                // 批量验证标签是否存在
+                for(Long tagId : newTagIds) {
+                    if(tagMapper.selectById(tagId) == null) {
+                        throw new BusinessException("标签不存在：tagId=" + tagId);
+                    }
+                }
+            }
+        }
+
+        // 2.如果是更新操作，先删除旧的关联
+        if(oldTagIds != null) {
+            // 删除所有旧的关联
+            articleTagMapper.deleteByArticleId(articleId);
+        }
+
+        // 3.插入新的关联（如果存在）
+        if(newTagIds != null && !newTagIds.isEmpty()) {
+            // 检查是否有关联变更（更新时）
+            if(oldTagIds != null) {
+                List<Long> oldTagIdsSorted = oldTagIds.stream()
+                        .filter(id -> id != null)
+                        .sorted()
+                        .collect(Collectors.toList());
+                List<Long> newTagIdsSorted = newTagIds.stream()
+                        .filter(id -> id != null)
+                        .sorted()
+                        .collect(Collectors.toList());
+
+                // 如果没有变化，直接返回
+                if(oldTagIdsSorted.equals(newTagIdsSorted)) {
+                    return;
+                }
+            }
+
+            // 批量插入新的关联
+            int insertCount = articleTagMapper.insertByArticleAndTags(articleId, newTagIds);
+            if(insertCount != newTagIds.size()) {
+                throw new BusinessException("标签关联插入失败");
+            }
+        } else if(oldTagIds == null) {
+            // 创建时如果没有标签，不做任何操作
+        } else {
+            // 更新时如果新标签为空，确保删除所有旧关联
+            articleTagMapper.deleteByArticleId(articleId);
+        }
+    }
+
     public void deleteArticle(Long id) {
         // 检查文章是否存在
         Article article = this.getById(id);
@@ -282,8 +358,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         // 逻辑删除
         LambdaUpdateWrapper<Article> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(Article::getId, id)
-        .set(Article::getDeleted, 1)
-        .set(Article::getUpdateTime, LocalDateTime.now());
+                .set(Article::getDeleted, 1)
+                .set(Article::getUpdateTime, LocalDateTime.now());
 
         this.update(updateWrapper);
 
