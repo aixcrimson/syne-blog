@@ -7,13 +7,16 @@ import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
 import com.syne.server.entity.Article;
 import com.syne.server.entity.ArticleTag;
+import com.syne.server.entity.Tags;
 import com.syne.server.entity.dto.ArticleDTO;
+import com.syne.server.entity.vo.ArticleDetailVO;
 import com.syne.server.entity.vo.ArticleListVO;
 import com.syne.server.exception.BusinessException;
 import com.syne.server.mapper.ArticleMapper;
 import com.syne.server.mapper.ArticleTagMapper;
 import com.syne.server.mapper.TagMapper;
 import com.syne.server.service.ArticleService;
+import com.syne.server.service.TagService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,6 +37,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private final ArticleMapper articleMapper;
     private final ArticleTagMapper articleTagMapper;
     private final TagMapper tagMapper;
+    private final TagService tagService;
 
     @Override
     public PageResult<ArticleListVO> getArticleList(PageQuery pageQuery, Integer status) {
@@ -99,12 +103,37 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
-    public Article getAdminArticleById(Long id) {
+    public ArticleDetailVO getAdminArticleById(Long id) {
+        // 获取文章基本信息
         Article article = this.getById(id);
         if(article == null || article.getDeleted() == 1) {
             throw new BusinessException("文章不存在");
         }
-        return article;
+
+        // 获取文章标签列表
+        List<Tags> tags = tagService.getTagsByArticleId(id);
+
+        // 构建文章详情VO
+        ArticleDetailVO articleDetailVO = new ArticleDetailVO();
+        articleDetailVO.setId(article.getId());
+        articleDetailVO.setCategoryId(article.getCategoryId());
+        articleDetailVO.setTitle(article.getTitle());
+        articleDetailVO.setSummary(article.getSummary());
+        articleDetailVO.setContent(article.getContent());
+        articleDetailVO.setCoverImage(article.getCoverImage());
+        articleDetailVO.setViews(article.getViews());
+        articleDetailVO.setLikes(article.getLikes());
+        articleDetailVO.setFavorites(article.getFavorites());
+        articleDetailVO.setCommentsCount(article.getCommentsCount());
+        articleDetailVO.setStatus(article.getStatus());
+        articleDetailVO.setIsTop(article.getIsTop());
+        articleDetailVO.setIsRecommend(article.getIsRecommend());
+        articleDetailVO.setPublishedTime(article.getPublishedTime());
+        articleDetailVO.setCreateTime(article.getCreateTime());
+        articleDetailVO.setUpdateTime(article.getUpdateTime());
+        articleDetailVO.setTags(tags);
+
+        return articleDetailVO;
     }
 
     @Override

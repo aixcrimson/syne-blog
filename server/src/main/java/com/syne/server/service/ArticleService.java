@@ -7,6 +7,7 @@ import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
 import com.syne.server.entity.Article;
 import com.syne.server.entity.dto.ArticleDTO;
+import com.syne.server.entity.vo.ArticleDetailVO;
 import com.syne.server.entity.vo.ArticleListVO;
 
 /**
@@ -31,11 +32,11 @@ public interface ArticleService extends IService<Article> {
     PageResult<ArticleListVO> getAdminArticleList(PageQuery pageQuery, Integer status, String keyword);
 
     /**
-     * 管理员根据ID获取管理员文章
+     * 管理员根据ID获取管理员文章详情
      * @param id 文章ID
-     * @return 文章实体
+     * @return 文章详情
      */
-    Article getAdminArticleById(Long id);
+    ArticleDetailVO getAdminArticleById(Long id);
 
     /**
      * 创建文章
