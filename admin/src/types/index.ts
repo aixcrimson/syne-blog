@@ -452,8 +452,26 @@ export interface LoginParams {
 export interface LoginResponse {
   /** 访问令牌 */
   token: string
-  /** 用户信息 */
-  user: UserInfo
+  /** Token类型 */
+  tokenType?: string
+  /** 用户ID */
+  userId: number
+  /** 用户名 */
+  username: string
+  /** 邮箱 */
+  email: string
+  /** 用户角色 */
+  role: UserRole
+  /** 头像 */
+  avatar?: string
+  /** 个人简介 */
+  bio: string
+  /** GitHub链接 */
+  github: string
+  /** B站链接 */
+  bilibili: string
+  /** 过期时间（秒） */
+  expiresIn?: number
 }
 
 // ==================== 书签导入相关 ====================

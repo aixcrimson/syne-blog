@@ -21,10 +21,13 @@ public class LoginVO {
     private String tokenType = "Bearer";
 
     @Schema(description = "用户ID")
-    private Long userId;
+    private Long id;
 
     @Schema(description = "用户名")
     private String username;
+
+    @Schema(description = "邮箱")
+    private String email;
 
     @Schema(description = "用户角色：1-管理员，2-普通用户")
     private Integer role;
@@ -32,16 +35,15 @@ public class LoginVO {
     @Schema(description = "头像")
     private String avatar;
 
+    @Schema(description = "个人简介")
+    private String bio;
+
+    @Schema(description = "GitHub链接")
+    private String github;
+
+    @Schema(description = "B站链接")
+    private String bilibili;
+
     @Schema(description = "过期时间（秒）")
     private Long expiresIn;
-
-    public LoginVO(String token, Long expiresIn, Long userId, String username, Integer role, String avatar) {
-        this.token = token;
-        this.tokenType = "Bearer";
-        this.expiresIn = expiresIn;
-        this.userId = userId;
-        this.username = username;
-        this.role = role;
-        this.avatar = avatar;
-    }
 }

@@ -33,6 +33,8 @@ public class AuthServiceImpl extends ServiceImpl<AuthMapper, User> implements Au
 
     @Override
     public LoginVO login(LoginDTO loginDTO) {
+        LoginVO loginVO = new LoginVO();
+
         // 1. 根据用户名查询用户
         User user = getByUsername(loginDTO.getUsername());
         if (user == null) {
@@ -49,7 +51,7 @@ public class AuthServiceImpl extends ServiceImpl<AuthMapper, User> implements Au
             throw new BusinessException(404, "用户不存在");
         }
 
-        // 4. 验证密码（临时测试用）
+        // 4. 验证密码
         if (!matchesPassword(loginDTO.getPassword(), user.getPasswordHash())) {
             throw new BusinessException(400, "用户名或密码错误");
         }
@@ -57,8 +59,20 @@ public class AuthServiceImpl extends ServiceImpl<AuthMapper, User> implements Au
         // 5. 生成JWT Token
         String token = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getRole());
 
-        // 6. 返回登录响应
-        return new LoginVO(token, jwtExpiration, user.getId(), user.getUsername(), user.getRole(), user.getAvatar());
+        // 6.构造返回VO
+        loginVO.setToken(token);
+        loginVO.setId(user.getId());
+        loginVO.setUsername(user.getUsername());
+        loginVO.setEmail(user.getEmail());
+        loginVO.setRole(user.getRole());
+        loginVO.setAvatar(user.getAvatar());
+        loginVO.setBio(user.getBio());
+        loginVO.setGithub(user.getGithub());
+        loginVO.setBilibili(user.getBilibili());
+        loginVO.setExpiresIn(jwtExpiration);
+
+        // 7. 返回登录响应
+        return loginVO;
     }
 
     @Override

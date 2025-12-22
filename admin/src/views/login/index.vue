@@ -89,7 +89,7 @@ import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { User, Lock, View, Hide } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { authApi } from '@/api/auth'
-import type { LoginParams } from '@/types'
+import type { LoginParams, UserInfo } from '@/types'
 
 // ==================== 路由 ====================
 const router = useRouter()
@@ -166,12 +166,20 @@ const handleLogin = async () => {
     // 调用登录 API
     const response = await authApi.login(loginForm)
 
-    // 保存登录状态
-    userStore.setToken(response.token)
+    // 构建用户信息对象（使用登录接口返回的信息）
+    const userInfo: UserInfo = {
+      id: response.userId,
+      username: response.username,
+      email: response.email,
+      role: response.role,
+      avatar: response.avatar || '',
+      bio: response.bio,
+      github: response.github,
+      bilibili: response.bilibili
+    }
 
-    // 获取完整的用户信息
-    const userInfo = await authApi.getCurrentUser()
-    userStore.setUserInfo(userInfo)
+    // 一次性保存所有登录状态
+    userStore.loginSuccess(response.token, userInfo)
 
     ElMessage.success('登录成功')
 
