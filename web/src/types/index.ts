@@ -4,12 +4,40 @@ export interface Article {
   title: string
   summary: string
   content: string
-  author: string
+  categoryId?: number
   categoryName: string
-  tags: string[]
+  tags: { id: number; name: string }[]
   coverImage?: string
   publishedTime: string
+  createTime?: string
+  updateTime?: string
   views: number
+  likes?: number
+  favorites?: number
+  commentsCount?: number
+  status?: number
+  isTop?: number
+  isRecommend?: number
+}
+
+// 分类信息接口
+export interface CategoryInfo {
+  id: number
+  name: string
+  count: number
+}
+
+// 标签信息接口
+export interface TagInfo {
+  id: number
+  name: string
+}
+
+// 统计信息接口
+export interface StatsInfo {
+  totalArticles: number
+  totalCategories: number
+  totalViews: number
 }
 
 // 分页参数

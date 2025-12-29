@@ -17,22 +17,22 @@
           <div class="flex flex-wrap items-center text-sm text-gray-600 space-x-4 mb-4">
             <span class="flex items-center">
               <el-icon class="mr-1"><User /></el-icon>
-              {{ article.author }}
+              {{ defaultAuthor }}
             </span>
             <span class="flex items-center">
               <el-icon class="mr-1"><Calendar /></el-icon>
-              {{ formatDate(article.createdAt) }}
+              {{ formatDate(article.publishedTime) }}
             </span>
             <span class="flex items-center">
               <el-icon class="mr-1"><View /></el-icon>
               {{ article.views }} 次阅读
             </span>
           </div>
-          
+
           <div class="flex flex-wrap gap-2 mb-4">
-            <el-tag type="primary">{{ article.category }}</el-tag>
-            <el-tag v-for="tag in article.tags" :key="tag" type="info">
-              {{ tag }}
+            <el-tag type="primary">{{ article.categoryName }}</el-tag>
+            <el-tag v-for="tag in article.tags" :key="tag.id" type="info">
+              {{ tag.name }}
             </el-tag>
           </div>
           
@@ -57,7 +57,7 @@
         <div class="article-footer p-8 border-t bg-gray-50">
           <div class="flex justify-between items-center">
             <div class="text-sm text-gray-600">
-              最后更新：{{ formatDate(article.updatedAt) }}
+              最后更新：{{ formatDate(article.updateTime || '') }}
             </div>
             <div class="flex space-x-2">
               <el-button type="primary" circle @click="handleLike">
@@ -90,37 +90,52 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { useArticleStore } from '@/stores/article'
 import { User, Calendar, View, StarFilled, Share } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import ArticleCard from '@/components/ArticleCard.vue'
 import { renderMarkdown } from '@/utils/markdown'
 import { formatDate } from '@/utils/format'
+import { articleApi } from '@/api/article'
+import type { Article } from '@/types'
 
 const route = useRoute()
-const articleStore = useArticleStore()
 
 const articleId = computed(() => Number(route.params.id))
-const article = computed(() => articleStore.currentArticle)
+const article = ref<Article | null>(null)
+const relatedArticles = ref<Article[]>([])
+const loading = ref(false)
+
+// 默认作者
+const defaultAuthor = '站长'
 
 const renderedContent = computed(() => {
   if (!article.value) return ''
   return renderMarkdown(article.value.content)
 })
 
-// 获取相关文章（同分类的其他文章）
-const relatedArticles = computed(() => {
-  if (!article.value) return []
-  
-  return articleStore.articles
-    .filter(a => 
-      a.id !== article.value!.id && 
-      a.category === article.value!.category
-    )
-    .slice(0, 3)
-})
+// 获取文章详情
+const fetchArticle = async () => {
+  loading.value = true
+  try {
+    article.value = await articleApi.getById(articleId.value)
+  } catch (e) {
+    console.error('获取文章详情失败:', e)
+    ElMessage.error('获取文章失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 获取推荐文章
+const fetchRecommendedArticles = async () => {
+  try {
+    relatedArticles.value = await articleApi.getRecommended(3)
+  } catch (e) {
+    console.error('获取推荐文章失败:', e)
+  }
+}
 
 const handleLike = () => {
   ElMessage.success('感谢点赞！')
@@ -140,9 +155,8 @@ const handleShare = () => {
 }
 
 onMounted(() => {
-  articleStore.setCurrentArticle(articleId.value)
-  
-  // 滚动到顶部
+  fetchArticle()
+  fetchRecommendedArticles()
   window.scrollTo({ top: 0, behavior: 'smooth' })
 })
 </script>

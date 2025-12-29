@@ -39,8 +39,8 @@
           <div v-show="activeTab === 'categories'" class="categories-content">
             <div class="space-y-2">
               <div
-                v-for="category in categoriesWithCount"
-                :key="category.name"
+                v-for="category in categories"
+                :key="category.id"
                 class="category-item flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                 @click="handleCategoryClick(category.name)"
               >
@@ -58,7 +58,7 @@
               </div>
 
               <el-empty
-                v-if="categoriesWithCount.length === 0"
+                v-if="categories.length === 0"
                 description="暂无分类"
                 :image-size="60"
               />
@@ -91,19 +91,19 @@
               <div class="w-full grid grid-cols-3 gap-3 mb-4">
                 <div class="stat-item">
                   <div class="text-2xl font-bold text-primary-600">
-                    {{ articleStore.totalArticles }}
+                    {{ stats.totalArticles }}
                   </div>
                   <div class="text-xs text-gray-600 mt-1">文章</div>
                 </div>
                 <div class="stat-item">
                   <div class="text-2xl font-bold text-primary-600">
-                    {{ articleStore.getAllCategories.length }}
+                    {{ stats.totalCategories }}
                   </div>
                   <div class="text-xs text-gray-600 mt-1">分类</div>
                 </div>
                 <div class="stat-item">
                   <div class="text-2xl font-bold text-primary-600">
-                    {{ totalViews }}
+                    {{ stats.totalViews }}
                   </div>
                   <div class="text-xs text-gray-600 mt-1">浏览</div>
                 </div>
@@ -140,14 +140,23 @@
   </aside>
 </template>
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { useArticleStore } from "@/stores/article";
 import { useAppStore } from "@/stores/app";
+import { articleApi } from "@/api/article";
+import type { CategoryInfo, StatsInfo } from "@/types";
 
 const router = useRouter();
-const articleStore = useArticleStore();
 const appStore = useAppStore();
+
+// 分类数据
+const categories = ref<CategoryInfo[]>([]);
+// 统计数据
+const stats = ref<StatsInfo>({
+  totalArticles: 0,
+  totalCategories: 0,
+  totalViews: 0
+});
 
 /**
  * 标签页配置
@@ -169,24 +178,26 @@ const tabs = [
 const activeTab = ref<"categories" | "profile">("categories");
 
 /**
- * 总浏览量
+ * 获取分类列表
  */
-const totalViews = computed(() => {
-    return articleStore.articles.reduce((sum, article) => sum + article.views, 0)
-})
+const fetchCategories = async () => {
+  try {
+    categories.value = await articleApi.getCategories();
+  } catch (e) {
+    console.error("获取分类失败:", e);
+  }
+};
 
 /**
- * 分类机器文章数量
+ * 获取统计信息
  */
-const categoriesWithCount = computed(() => {
-  const categories = articleStore.getAllCategories;
-  return categories.map((category) => ({
-    name: category,
-    count: articleStore.articles.filter(
-      (article) => article.category === category
-    ).length,
-  }));
-});
+const fetchStats = async () => {
+  try {
+    stats.value = await articleApi.getStats();
+  } catch (e) {
+    console.error("获取统计信息失败:", e);
+  }
+};
 
 /**
  * 点击分类,跳转到文章列表页并筛选该分类
@@ -197,6 +208,11 @@ const handleCategoryClick = (category: string): void => {
     query: { category },
   });
 };
+
+onMounted(() => {
+  fetchCategories();
+  fetchStats();
+});
 </script>
 <style scoped>
 /* 毛玻璃效果 */
