@@ -222,4 +222,15 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tags> implements TagS
 
         return this.list(queryWrapper);
     }
+
+    @Override
+    public List<TagListVO> getAllTagList(){
+        // 查询文章列表
+        List<TagListVO> list = new ArrayList<>();
+
+        List<Tags> tags = tagMapper.selectList(null);
+
+        // 构建分页结果返回
+        return list;
+    }
 }

@@ -22,8 +22,8 @@ public interface CategoryMapper extends BaseMapper<Category> {
      * @return 分类列表
      */
     List<CategoryListVO> selectCategoryList(
-        @Param("offset") Integer offset,
-        @Param("pageSize") Integer pageSize
+            @Param("offset") Integer offset,
+            @Param("pageSize") Integer pageSize
     );
 
     /**
@@ -32,4 +32,11 @@ public interface CategoryMapper extends BaseMapper<Category> {
      * @return 分类数量
      */
     Long countCategories();
+
+    /**
+     * 查询所有分类列表
+     *
+     * @return 分类列表
+     */
+    List<CategoryListVO> selectAllCategoryList();
 }

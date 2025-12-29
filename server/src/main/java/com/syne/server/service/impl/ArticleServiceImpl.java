@@ -40,37 +40,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private final TagService tagService;
 
     @Override
-    public PageResult<ArticleListVO> getArticleList(PageQuery pageQuery, Integer status) {
-        // 查询文章列表
-        List<ArticleListVO> list = articleMapper.selectArticleList(
-                pageQuery.getOffset(),
-                pageQuery.getPageSize(),
-                status
-        );
-
-        // 处理标签字段：将都好分隔得字符串转为 List
-        list.forEach(article -> {
-            if(article.getTags() != null && !article.getTags().isEmpty()) {
-                String tagsStr = article.getTags().get(0);
-                if(tagsStr != null && !tagsStr.isEmpty()) {
-                    article.setTags(Arrays.asList(tagsStr.split(",")));
-                }
-            }
-        });
-
-        // 查询总数
-        Long total = articleMapper.countArticles(status);
-
-        // 构建分页结果
-        return PageResult.build(
-                pageQuery.getPage(),
-                pageQuery.getPageSize(),
-                total,
-                list
-        );
-    }
-
-    @Override
     public PageResult<ArticleListVO> getAdminArticleList(PageQuery pageQuery, Integer status, String keyword) {
         // 查询文章列表
         List<ArticleListVO> list = articleMapper.selectAdminArticleList(
@@ -393,5 +362,65 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         this.update(updateWrapper);
 
         log.info("删除文章成功：id={}, title={}", id, article.getTitle());
+    }
+
+    /* ========================================
+   用户端相关接口
+======================================== */
+    @Override
+    public PageResult<ArticleListVO> getUserArticleList(PageQuery pageQuery, String keyword, Long categoryId, List<Long> tagIds){
+        // 查询文章列表
+        List<ArticleListVO> list = articleMapper.selectUserArticleList(
+                pageQuery.getOffset(),
+                pageQuery.getPageSize(),
+                keyword,
+                categoryId,
+                tagIds
+        );
+
+        // 处理标签字段：将逗号分隔的字符串转为 List
+        list.forEach(article -> {
+            if(article.getTags() != null && !article.getTags().isEmpty()) {
+                String tagsStr = article.getTags().get(0);
+                if(tagsStr != null && !tagsStr.isEmpty()) {
+                    article.setTags(Arrays.asList(tagsStr.split(",")));
+                }
+            }
+        });
+
+        // 查询总数
+        Long total = articleMapper.countUserArticles(keyword, categoryId, tagIds);
+
+        // 构建分页结果
+        return PageResult.build(
+                pageQuery.getPage(),
+                pageQuery.getPageSize(),
+                total,
+                list
+        );
+    }
+
+    @Override
+    public List<ArticleListVO> getRecommendedArticleList(Integer limit){
+        // 查询推荐文章列表（不传筛选条件）
+        List<ArticleListVO> list = articleMapper.selectUserArticleList(
+                0,
+                limit,
+                null,
+                null,
+                null
+        );
+
+        // 处理标签字段：将逗号分隔的字符串转为 List
+        list.forEach(article -> {
+            if(article.getTags() != null && !article.getTags().isEmpty()){
+                String tagStr = article.getTags().get(0);
+                if(tagStr != null && !tagStr.isEmpty()){
+                    article.setTags(Arrays.asList(tagStr.split(",")));
+                }
+            }
+        });
+
+        return list;
     }
 }
