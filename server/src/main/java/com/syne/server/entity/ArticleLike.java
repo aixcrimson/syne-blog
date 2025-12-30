@@ -5,8 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.time.LocalDateTime;
-
 /**
  * 文章点赞实体类
  */
@@ -26,15 +24,7 @@ public class ArticleLike extends BaseEntity {
     @TableField("article_id")
     private Long articleId;
 
-    @Schema(description = "用户ID（游客为NULL）")
-    @TableField("user_id")
-    private Long userId;
-
     @Schema(description = "IP地址")
     @TableField("ip_address")
     private String ipAddress;
-
-    @Schema(description = "点赞时间")
-    @TableField(value = "create_time", fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
 }

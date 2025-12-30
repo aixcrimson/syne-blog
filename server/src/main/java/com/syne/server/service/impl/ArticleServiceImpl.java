@@ -5,23 +5,24 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.syne.server.common.PageQuery;
 import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
-import com.syne.server.entity.Article;
-import com.syne.server.entity.ArticleTag;
-import com.syne.server.entity.Tags;
+import com.syne.server.entity.*;
 import com.syne.server.entity.dto.ArticleDTO;
 import com.syne.server.entity.vo.ArticleDetailVO;
 import com.syne.server.entity.vo.ArticleListVO;
 import com.syne.server.exception.BusinessException;
-import com.syne.server.mapper.ArticleMapper;
-import com.syne.server.mapper.ArticleTagMapper;
-import com.syne.server.mapper.TagMapper;
+import com.syne.server.mapper.*;
 import com.syne.server.service.ArticleService;
 import com.syne.server.service.TagService;
+import com.syne.server.utils.IpUtils;
+import com.syne.server.utils.SecurityUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,6 +36,8 @@ import java.util.stream.Collectors;
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> implements ArticleService {
 
     private final ArticleMapper articleMapper;
+    private final ArticleLikeMapper articleLikeMapper;
+    private final ArticleFavoriteMapper articleFavoriteMapper;
     private final ArticleTagMapper articleTagMapper;
     private final TagMapper tagMapper;
     private final TagService tagService;
@@ -364,9 +367,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         log.info("删除文章成功：id={}, title={}", id, article.getTitle());
     }
 
-    /* ========================================
-   用户端相关接口
-======================================== */
+
+    /* ========================================用户端相关接口======================================== */
+
+
     @Override
     public PageResult<ArticleListVO> getUserArticleList(PageQuery pageQuery, String keyword, Long categoryId, List<Long> tagIds){
         // 查询文章列表
@@ -423,4 +427,163 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
         return list;
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result<String> toggleArticleLike(Long id){
+        // 检查文章是否存在
+        Article article = this.getById(id);
+        if(article == null || article.getDeleted() == 1) {
+            throw new BusinessException("文章不存在");
+        }
+
+        // 获取当前用户ID（如果已登录）
+        Long userId = SecurityUtils.getCurrentUserId();
+
+        // 获取客户端IP地址
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String ipAddress = IpUtils.getClientIp(request);
+
+        ArticleLike existingLike;
+        boolean isLiked;
+
+        if (userId != null) {
+            // 登录用户：根据用户ID查询
+            existingLike = articleLikeMapper.selectByArticleAndUser(id, userId);
+        } else {
+            // 游客：根据IP地址查询
+            existingLike = articleLikeMapper.selectByArticleAndIp(id, ipAddress);
+        }
+
+        if (existingLike != null) {
+            // 已有记录
+            if (existingLike.getDeleted() == 0) {
+                // 已点赞，取消点赞
+                articleLikeMapper.softDeleteLike(existingLike.getId());
+                // 文章点赞数 -1
+                article.setLikes(article.getLikes() - 1);
+                this.updateById(article);
+                isLiked = false;
+                log.info("取消点赞成功：articleId={}, userId={}, ip={}", id, userId, ipAddress);
+            } else {
+                // 已取消点赞，恢复点赞
+                articleLikeMapper.restoreLike(existingLike.getId());
+                // 文章点赞数 +1
+                article.setLikes(article.getLikes() + 1);
+                this.updateById(article);
+                isLiked = true;
+                log.info("恢复点赞成功：articleId={}, userId={}, ip={}", id, userId, ipAddress);
+            }
+        } else {
+            // 没有记录，新增点赞
+            ArticleLike newLike = new ArticleLike();
+            newLike.setArticleId(id);
+            newLike.setIpAddress(ipAddress);
+            newLike.setCreateBy(userId); // 登录用户设置userId，游客为null
+            newLike.setDeleted(0);
+            articleLikeMapper.insert(newLike);
+            // 文章点赞数 +1
+            article.setLikes(article.getLikes() + 1);
+            this.updateById(article);
+            isLiked = true;
+            log.info("新增点赞成功：articleId={}, userId={}, ip={}", id, userId, ipAddress);
+        }
+
+        return Result.success(isLiked ? "点赞成功" : "取消点赞成功");
+    }
+
+    @Override
+    public Result<String> toggleArticleFavorite(Long id){
+        // 检查文章是否存在
+        Article article = this.getById(id);
+        if(article == null || article.getDeleted() == 1) {
+            throw new BusinessException("文章不存在");
+        }
+
+        // 获取当前用户ID（需要登录才能收藏）
+        Long userId = SecurityUtils.getCurrentUserId();
+
+        // 根据用户ID和文章ID是否已收藏
+        ArticleFavorite existingFavorite = articleFavoriteMapper.selectByArticleAndUser(id, userId);
+        boolean isFavorite;
+
+        if(existingFavorite != null) {
+            // 已有记录
+            if(existingFavorite.getDeleted() == 0){
+                // 已收藏，取消收藏
+                articleFavoriteMapper.softDeleteFavorite(existingFavorite.getId());
+                // 文章收藏数 - 1
+                article.setFavorites(article.getFavorites() - 1);
+                this.updateById(article);
+                isFavorite = false;
+                log.info("取消收藏成功：articleId={}, userId={}", id, userId);
+            }else{
+                // 已取消收藏，恢复收藏
+                articleFavoriteMapper.restoreFavorite(existingFavorite.getId());
+                // 文章收藏数 + 1
+                article.setFavorites(article.getFavorites() + 1);
+                this.updateById(article);
+                isFavorite = true;
+                log.info("恢复收藏成功：articleId={}, userId={}", id, userId);
+            }
+        } else {
+            // 没有记录，新增收藏
+            ArticleFavorite newFavorite = new ArticleFavorite();
+            newFavorite.setArticleId(id);
+            articleFavoriteMapper.insert(newFavorite);
+            // 文章收藏数 + 1
+            article.setFavorites(article.getFavorites() + 1);
+            this.updateById(article);
+            isFavorite = true;
+            log.info("新增收藏成功：articleId={}, userId={}", id, userId);
+        }
+
+        return Result.success(isFavorite ? "收藏成功" : "取消收藏成功");
+    }
+
+    @Override
+    public Result<String> increaseViews(Long id){
+        // 检查文章是否存在
+        Article article = this.getById(id);
+        if(article == null || article.getDeleted() == 1) {
+            throw new BusinessException("文章不存在");
+        }
+
+        // TODO 改为Redis时间窗口防刷
+        article.setViews(article.getViews() + 1);
+        this.updateById(article);
+
+        return Result.success("浏览量增加成功");
+    }
+
+//     @Override
+// public Result<String> increaseViews(Long id) {
+//     // 1. 检查文章是否存在
+//     Article article = this.getById(id);
+//     if(article == null || article.getDeleted() == 1) {
+//         throw new BusinessException("文章不存在");
+//     }
+
+//     // 2. 获取客户端IP
+//     HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+//     String ipAddress = IpUtils.getClientIp(request);
+
+//     // 3. 检查是否在时间窗口内（例如：同一IP 5分钟内只能增加1次浏览量）
+//     String cacheKey = "article:view:" + id + ":" + ipAddress;
+//     if (redisTemplate.hasKey(cacheKey)) {
+//         // 5分钟内已经访问过，不增加浏览量
+//         return Result.success("浏览量已记录");
+//     }
+
+//     // 4. 增加浏览量
+//     article.setViews(article.getViews() + 1);
+//     this.updateById(article);
+
+//     // 5. 设置缓存（5分钟过期）
+//     redisTemplate.opsForValue().set(cacheKey, "1", 5, TimeUnit.MINUTES);
+
+//     log.info("增加浏览量成功：articleId={}, ip={}, newViews={}", id, ipAddress, article.getViews());
+//     return Result.success("浏览量增加成功");
+// }
+
 }

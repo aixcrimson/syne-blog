@@ -25,12 +25,4 @@ public class ArticleFavorite extends BaseEntity {
     @Schema(description = "文章ID")
     @TableField("article_id")
     private Long articleId;
-
-    @Schema(description = "用户ID")
-    @TableField("user_id")
-    private Long userId;
-
-    @Schema(description = "收藏时间")
-    @TableField(value = "create_time", fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
 }

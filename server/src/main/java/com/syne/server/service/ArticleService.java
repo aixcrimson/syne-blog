@@ -93,4 +93,25 @@ public interface ArticleService extends IService<Article> {
      * @return 文章列表
      */
     List<ArticleListVO> getRecommendedArticleList(Integer limit);
+
+    /**
+     * 切换文章喜欢或不喜欢
+     * @param id 文章ID
+     * @return 切换结果
+     */
+    Result<String> toggleArticleLike(Long id);
+
+    /**
+     * 切换文章收藏或不收藏
+     * @param id 文章ID
+     * @return 切换结果
+     */
+    Result<String> toggleArticleFavorite(Long id);
+
+    /**
+     * 给文章增加浏览量
+     * @param id 文章ID
+     * @return 结果
+     */
+    Result<String> increaseViews(Long id);
 }

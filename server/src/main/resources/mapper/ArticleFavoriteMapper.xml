@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.syne.server.mapper.ArticleFavoriteMapper">
+
+    <!-- 根据文章ID和用户ID查询点赞记录（包含已删除的） -->
+    <select id="selectByArticleAndUser" resultType="com.syne.server.entity.ArticleFavorite">
+        SELECT id, article_id, create_by, update_by, create_time, update_time, deleted
+        FROM article_favorites
+        WHERE article_id = #{articleId}
+          AND create_by = #{userId}
+    </select>
+
+    <!-- 恢复已删除的收藏记录 -->
+    <update id="restoreFavorite">
+        UPDATE article_favorites
+        SET deleted = 0, update_time = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <!-- 软删除点赞记录 -->
+    <update id="softDeleteFavorite">
+        UPDATE article_favorites
+        SET deleted = 1, update_time = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+</mapper>

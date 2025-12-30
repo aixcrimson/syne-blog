@@ -3,7 +3,6 @@ package com.syne.server.controller.web;
 import com.syne.server.common.PageQuery;
 import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
-import com.syne.server.entity.Article;
 import com.syne.server.entity.vo.ArticleDetailVO;
 import com.syne.server.entity.vo.ArticleListVO;
 import com.syne.server.service.ArticleService;
@@ -14,11 +13,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -112,25 +111,47 @@ public class ArticleController {
      * 给文章点赞或取消点赞
      *
      * @param id 文章ID
-     * @return 更新后的文章
+     * @return 操作结果
      */
     @Operation(summary = "点赞文章", description = "给文章点赞或取消点赞")
-    @GetMapping("/{id}/like")
-    public Result<Article> likeArticle(
+    @PostMapping("/{id}/like")
+    public Result<String> toggleArticleLike(
             @Parameter(description = "文章ID", example = "1")
             @PathVariable Long id
     ){
-        return null;
+        log.info("用户给文章点赞或取消点赞：id={}", id);
+        return articleService.toggleArticleLike(id);
     }
 
     /**
-     * 获取统计信息
+     * 给文章收藏或取消收藏
      *
-     * @return 统计数据
+     * @param id 文章ID
+     * @return 操作结果
      */
-    @Operation(summary = "获取统计数据", description = "用户端获取统计数据（文章总数，分类总数，总浏览量）")
-    @GetMapping("/stats")
-    public Result<Long> getStats(){
-        return null;
+    @Operation(summary = "收藏文章", description = "给文章收藏或取消收藏")
+    @PostMapping("/{id}/favorite")
+    public Result<String> toggleArticleFavorite(
+            @Parameter(description = "文章ID", example = "1")
+            @PathVariable Long id
+    ){
+        log.info("给文章收藏或取消收藏：id={}", id);
+        return articleService.toggleArticleFavorite(id);
+    }
+
+    /**
+     * 给文章增加浏览量
+     *
+     * @param id 文章ID
+     * @return 操作结果
+     */
+    @Operation(summary = "文章增加浏览量", description = "给文章增加浏览量")
+    @PostMapping("/{id}/views")
+    public Result<String> increaseViews(
+            @Parameter(description = "文章ID", example = "1")
+            @PathVariable Long id
+    ){
+        log.info("用户给文章增加浏览量：id={}", id);
+        return articleService.increaseViews(id);
     }
 }
