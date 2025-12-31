@@ -1,14 +1,24 @@
 <template>
-  <header class="header-glass shadow-sm sticky top-0 z-50">
+  <header class="header-glass shadow-sm fixed top-0 w-full z-50">
     <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo - 左侧 -->
-        <div class="flex items-center min-w-[200px]">
-          <router-link to="/" class="flex items-center space-x-2">
-            <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
-              <span class="text-white font-bold text-lg">X</span>
-            </div>
-            <span class="text-xl font-bold text-gray-900 dark:text-gray-100">syne-blog</span>
+        <div class="flex items-center min-w-[200px] space-x-2">
+          <div
+            class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
+            @click="logoModalOpen = true"
+          >
+            <img
+              :src="logoImage"
+              alt="syne-blog logo"
+              class="w-full h-full rounded-md"
+            />
+          </div>
+          <router-link
+            to="/"
+            class="text-xl font-bold text-gray-900 dark:text-gray-100 hover:text-primary-600 transition-colors"
+          >
+            syne-blog
           </router-link>
         </div>
 
@@ -21,11 +31,13 @@
             class="text-gray-700 dark:text-gray-300 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
             exact-active-class="text-primary-600 bg-primary-50 dark:bg-primary-900/20"
           >
-            <SvgIcon v-if="item.icon" :name="item.icon" size="18" :color="appStore.isDarkMode ? '#fff' : '#000'" />
+            <el-icon v-if="item.icon" :size="18">
+              <component :is="item.icon" />
+            </el-icon>
             {{ item.name }}
           </router-link>
         </div>
-        
+
         <!-- 右侧工具栏 -->
         <div class="flex items-center space-x-3">
           <!-- GitHub 链接 -->
@@ -36,8 +48,16 @@
               rel="noopener noreferrer"
               class="github-link hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
             >
-              <svg class="w-6 h-6 text-gray-700 hover:text-gray-900" fill="currentColor" viewBox="0 0 24 24">
-                <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+              <svg
+                class="w-6 h-6 text-gray-700 hover:text-gray-900"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                  clip-rule="evenodd"
+                />
               </svg>
             </a>
           </el-tooltip>
@@ -60,7 +80,12 @@
               class="theme-mode-btn hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               @click="appStore.toggleThemeMode"
             >
-              <el-icon class="text-xl" :class="appStore.isDarkMode ? 'text-yellow-400' : 'text-gray-700'">
+              <el-icon
+                class="text-xl"
+                :class="
+                  appStore.isDarkMode ? 'text-yellow-400' : 'text-gray-700'
+                "
+              >
                 <Sunny v-if="!appStore.isDarkMode" />
                 <Moon v-else />
               </el-icon>
@@ -80,41 +105,89 @@
                   <div class="flex items-center space-x-2">
                     <div class="w-4 h-4 rounded-full bg-blue-500"></div>
                     <span>蓝色</span>
-                    <el-icon v-if="appStore.themeColor === 'blue'" class="ml-2"><Check /></el-icon>
+                    <el-icon v-if="appStore.themeColor === 'blue'" class="ml-2"
+                      ><Check
+                    /></el-icon>
                   </div>
                 </el-dropdown-item>
                 <el-dropdown-item command="purple">
                   <div class="flex items-center space-x-2">
                     <div class="w-4 h-4 rounded-full bg-purple-500"></div>
                     <span>紫色</span>
-                    <el-icon v-if="appStore.themeColor === 'purple'" class="ml-2"><Check /></el-icon>
+                    <el-icon
+                      v-if="appStore.themeColor === 'purple'"
+                      class="ml-2"
+                      ><Check
+                    /></el-icon>
                   </div>
                 </el-dropdown-item>
                 <el-dropdown-item command="green">
                   <div class="flex items-center space-x-2">
                     <div class="w-4 h-4 rounded-full bg-green-500"></div>
                     <span>绿色</span>
-                    <el-icon v-if="appStore.themeColor === 'green'" class="ml-2"><Check /></el-icon>
+                    <el-icon v-if="appStore.themeColor === 'green'" class="ml-2"
+                      ><Check
+                    /></el-icon>
                   </div>
                 </el-dropdown-item>
                 <el-dropdown-item command="orange">
                   <div class="flex items-center space-x-2">
                     <div class="w-4 h-4 rounded-full bg-orange-500"></div>
                     <span>橙色</span>
-                    <el-icon v-if="appStore.themeColor === 'orange'" class="ml-2"><Check /></el-icon>
+                    <el-icon
+                      v-if="appStore.themeColor === 'orange'"
+                      class="ml-2"
+                      ><Check
+                    /></el-icon>
                   </div>
                 </el-dropdown-item>
                 <el-dropdown-item command="pink">
                   <div class="flex items-center space-x-2">
                     <div class="w-4 h-4 rounded-full bg-pink-500"></div>
                     <span>粉色</span>
-                    <el-icon v-if="appStore.themeColor === 'pink'" class="ml-2"><Check /></el-icon>
+                    <el-icon v-if="appStore.themeColor === 'pink'" class="ml-2"
+                      ><Check
+                    /></el-icon>
                   </div>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-          
+
+          <!-- 登录/用户信息 -->
+          <div v-if="!appStore.isLoggedIn" class="hidden md:block">
+            <el-button type="primary" round @click="router.push('/login')">
+              登录
+            </el-button>
+          </div>
+          <el-dropdown
+            v-else
+            trigger="click"
+            @command="
+              (cmd) => {
+                if (cmd === 'logout') handleLogout();
+              }
+            "
+          >
+            <div
+              class="flex items-center gap-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full pr-2 transition-colors"
+            >
+              <el-avatar :size="32" :src="appStore.userInfo.avatar" />
+              <span
+                class="text-sm font-medium text-gray-700 dark:text-gray-300 hidden lg:block"
+                >{{ appStore.userInfo.name }}</span
+              >
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="profile">个人中心</el-dropdown-item>
+                <el-dropdown-item divided command="logout" class="text-red-500"
+                  >退出登录</el-dropdown-item
+                >
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+
           <!-- 移动端菜单按钮 -->
           <el-button
             class="md:hidden"
@@ -127,7 +200,7 @@
           </el-button>
         </div>
       </div>
-      
+
       <!-- 移动端菜单 -->
       <div v-if="mobileMenuOpen" class="md:hidden py-4 border-t">
         <router-link
@@ -138,10 +211,12 @@
           exact-active-class="text-primary-600 bg-primary-50"
           @click="mobileMenuOpen = false"
         >
-          <SvgIcon v-if="item.icon" :name="item.icon" size="20" />
+          <el-icon v-if="item.icon" :size="20">
+            <component :is="item.icon" />
+          </el-icon>
           {{ item.name }}
         </router-link>
-        
+
         <!-- 移动端 GitHub 链接 -->
         <a
           :href="appStore.userInfo.github"
@@ -154,50 +229,180 @@
       </div>
     </nav>
   </header>
+
+  <!-- Logo 放大展示弹窗 -->
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-all duration-200 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="logoModalOpen"
+        class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 cursor-pointer"
+        @click="logoModalOpen = false"
+      >
+        <Transition
+          enter-active-class="transition-all duration-300 ease-out"
+          enter-from-class="scale-75 opacity-0"
+          enter-to-class="scale-100 opacity-100"
+          leave-active-class="transition-all duration-200 ease-in"
+          leave-from-class="scale-100 opacity-100"
+          leave-to-class="scale-75 opacity-0"
+        >
+          <div v-if="logoModalOpen" class="relative max-w-sm mx-4" @click.stop>
+            <!-- 关闭按钮 -->
+            <button
+              class="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors p-2"
+              @click="logoModalOpen = false"
+            >
+              <svg
+                class="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                ></path>
+              </svg>
+            </button>
+
+            <!-- Logo 图片 -->
+            <div class="bg-white rounded-2xl p-1 shadow-2xl">
+              <img
+                :src="logoImage"
+                alt="syne-blog logo"
+                class="w-full h-full rounded-xl"
+              />
+            </div>
+
+            <!-- 标题 -->
+            <div class="text-center mt-4">
+              <h3 class="text-white text-xl font-semibold">syne-blog</h3>
+              <p class="text-gray-300 text-sm mt-1">现代化博客平台</p>
+            </div>
+          </div>
+        </Transition>
+      </div>
+    </Transition>
+  </Teleport>
+  <!-- 搜索弹窗 -->
+  <el-dialog
+    v-model="searchVisible"
+    title="搜索文章"
+    width="500px"
+    center
+    destroy-on-close
+  >
+    <el-input
+      v-model="searchKeyword"
+      placeholder="请输入关键词..."
+      size="large"
+      clearable
+      @keyup.enter="submitSearch"
+    >
+      <template #prefix>
+        <el-icon><Search /></el-icon>
+      </template>
+    </el-input>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="searchVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitSearch"> 搜索 </el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useAppStore } from '@/stores/app'
-import { Menu, Brush, Check, Search, Sunny, Moon } from '@element-plus/icons-vue'
-import type { MenuItem, ThemeColor } from '@/types'
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useAppStore } from "@/stores/app";
+import { ElMessage } from "element-plus";
+import {
+  Menu,
+  Brush,
+  Check,
+  Search,
+  Sunny,
+  Moon,
+  House,
+  Document,
+  Compass,
+  User,
+} from "@element-plus/icons-vue";
+import type { MenuItem, ThemeColor } from "@/types";
+import logoImage from "@/assets/images/common/logo.png";
 
-const appStore = useAppStore()
-const mobileMenuOpen = ref(false)
+const appStore = useAppStore();
+const mobileMenuOpen = ref(false);
+const logoModalOpen = ref(false);
 
 const menuItems: MenuItem[] = [
-  { name: '首页', path: '/', icon: 'blogshouye' },
-  { name: '文章', path: '/articles', icon: 'blogwenzhang' },
-  { name: '网站导航', path: '/navigation', icon: 'blogwangyedaohang' },
-  { name: '关于', path: '/about', icon: 'blogguanyu' }
-]
+  { name: "首页", path: "/", icon: House },
+  { name: "文章", path: "/articles", icon: Document },
+  { name: "网站导航", path: "/navigation", icon: Compass },
+  { name: "关于", path: "/about", icon: User },
+];
+
+/**
+ * 处理搜索按钮点击
+ */
+const router = useRouter();
+const searchVisible = ref(false);
+const searchKeyword = ref("");
 
 /**
  * 处理搜索按钮点击
  */
 const handleSearch = () => {
-  // TODO: 实现搜索功能
-  console.log('点击搜索按钮')
-}
+  searchVisible.value = true;
+};
+
+const submitSearch = () => {
+  if (!searchKeyword.value.trim()) {
+    ElMessage.warning("请输入搜索内容");
+    return;
+  }
+  router.push({
+    path: "/articles",
+    query: { keyword: searchKeyword.value },
+  });
+  searchVisible.value = false;
+  searchKeyword.value = "";
+};
+
+const handleLogout = () => {
+  appStore.logout();
+  ElMessage.success("已退出登录");
+  router.push("/");
+};
 
 /**
  * 处理主题颜色切换
  */
 const handleThemeColorChange = (color: ThemeColor) => {
-  console.log('Header: 切换主题色到', color)
-  console.log('当前 appStore:', appStore)
-  appStore.setThemeColor(color)
-  console.log('切换完成，新颜色:', appStore.themeColor)
-}
+  console.log("Header: 切换主题色到", color);
+  console.log("当前 appStore:", appStore);
+  appStore.setThemeColor(color);
+  console.log("切换完成，新颜色:", appStore.themeColor);
+};
 </script>
 
 <style scoped>
 /* 毛玻璃效果 Header */
 .header-glass {
-  background: rgba(255, 255, 255, 0.75);
+  background: var(--glass-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .nav-link {
@@ -205,7 +410,7 @@ const handleThemeColorChange = (color: ThemeColor) => {
 }
 
 .nav-link::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 50%;
@@ -237,4 +442,3 @@ const handleThemeColorChange = (color: ThemeColor) => {
   transform: rotate(15deg);
 }
 </style>
-

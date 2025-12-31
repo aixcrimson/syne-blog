@@ -10,12 +10,14 @@
           <!-- 页面标题 -->
           <div class="mb-6">
             <h1
-              class="text-3xl font-bold text-gray-900 mb-4 flex items-center gap-3"
+              class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-3"
             >
               <span class="w-1 h-8 bg-primary-600 rounded-full"></span>
               文章列表
             </h1>
-            <p class="text-gray-600">共 {{ totalArticles }} 篇文章</p>
+            <p class="text-gray-600 dark:text-gray-400">
+              共 {{ totalArticles }} 篇文章
+            </p>
           </div>
 
           <!-- 搜索和筛选 -->
@@ -174,6 +176,9 @@ onMounted(() => {
   if (route.query.category) {
     selectedCategory.value = route.query.category as string;
   }
+  if (route.query.keyword) {
+    searchKeyword.value = route.query.keyword as string;
+  }
   loadArticles();
   loadTags();
 });
@@ -181,9 +186,9 @@ onMounted(() => {
 
 <style scoped>
 .glass-card {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--glass-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--glass-border);
 }
 </style>

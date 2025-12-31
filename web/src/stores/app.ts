@@ -7,6 +7,7 @@ export const useAppStore = defineStore('app', () => {
   // 状态
   const themeColor = ref<ThemeColor>('blue')
   const themeMode = ref<'light' | 'dark'>('light')
+  const token = ref<string | null>(localStorage.getItem('token'))
   const userInfo = ref<UserInfo>({
     name: 'Syne',
     avatar: authorAvatar,
@@ -19,6 +20,7 @@ export const useAppStore = defineStore('app', () => {
 
   // 计算属性
   const isDarkMode = computed(() => themeMode.value === 'dark')
+  const isLoggedIn = computed(() => !!token.value)
 
   // 动作
   const init = () => {
@@ -95,6 +97,16 @@ export const useAppStore = defineStore('app', () => {
     userInfo.value = { ...userInfo.value, ...info }
   }
 
+  const setToken = (newToken: string) => {
+    token.value = newToken
+    localStorage.setItem('token', newToken)
+  }
+
+  const logout = () => {
+    token.value = null
+    localStorage.removeItem('token')
+  }
+
   return {
     themeColor,
     themeMode,
@@ -106,7 +118,11 @@ export const useAppStore = defineStore('app', () => {
     toggleThemeMode,
     setThemeMode,
     setLoading,
-    updateUserInfo
+    updateUserInfo,
+    token,
+    isLoggedIn,
+    setToken,
+    logout
   }
 })
 

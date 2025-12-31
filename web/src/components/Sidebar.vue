@@ -9,7 +9,7 @@
           <div class="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></div>
           <p class="font-bold text-primary-600 text-lg">公告栏</p>
         </div>
-        <p class="text-sm text-gray-700 leading-relaxed">
+        <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
           📢 天行健，君子以自强不息
         </p>
       </div>
@@ -17,7 +17,7 @@
       <!-- 标签页切换卡片 -->
       <div class="tab-card glass-section rounded-xl shadow-sm overflow-hidden">
         <!-- 标签页头部 -->
-        <div class="flex border-b border-gray-200">
+        <div class="flex border-b border-gray-200 dark:border-gray-700">
           <button
             v-for="tab in tabs"
             :key="tab.key"
@@ -41,17 +41,18 @@
               <div
                 v-for="category in categories"
                 :key="category.id"
-                class="category-item flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                class="category-item flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
                 @click="handleCategoryClick(category.name)"
               >
                 <div class="flex items-center gap-3">
                   <div class="w-2 h-2 rounded-full bg-primary-500"></div>
-                  <span class="text-sm font-medium text-gray-700">{{
-                    category.name
-                  }}</span>
+                  <span
+                    class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >{{ category.name }}</span
+                  >
                 </div>
                 <span
-                  class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full"
+                  class="text-xs text-gray-500 bg-gray-100 dark:text-gray-400 dark:bg-gray-700 px-2 py-1 rounded-full"
                 >
                   {{ category.count }}
                 </span>
@@ -80,10 +81,12 @@
               </div>
 
               <!-- 名称 -->
-              <h3 class="text-xl font-bold text-gray-900 mb-2">
+              <h3
+                class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2"
+              >
                 {{ appStore.userInfo.name }}
               </h3>
-              <p class="text-sm text-gray-600 mb-4">
+              <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
                 {{ appStore.userInfo.bio || "热爱技术,热爱分享" }}
               </p>
 
@@ -93,19 +96,25 @@
                   <div class="text-2xl font-bold text-primary-600">
                     {{ stats.totalArticles }}
                   </div>
-                  <div class="text-xs text-gray-600 mt-1">文章</div>
+                  <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                    文章
+                  </div>
                 </div>
                 <div class="stat-item">
                   <div class="text-2xl font-bold text-primary-600">
                     {{ stats.totalCategories }}
                   </div>
-                  <div class="text-xs text-gray-600 mt-1">分类</div>
+                  <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                    分类
+                  </div>
                 </div>
                 <div class="stat-item">
                   <div class="text-2xl font-bold text-primary-600">
                     {{ stats.totalViews }}
                   </div>
-                  <div class="text-xs text-gray-600 mt-1">浏览</div>
+                  <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                    浏览
+                  </div>
                 </div>
               </div>
 
@@ -155,7 +164,7 @@ const categories = ref<CategoryInfo[]>([]);
 const stats = ref<StatsInfo>({
   totalArticles: 0,
   totalCategories: 0,
-  totalViews: 0
+  totalViews: 0,
 });
 
 /**
@@ -217,10 +226,10 @@ onMounted(() => {
 <style scoped>
 /* 毛玻璃效果 */
 .glass-section {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--glass-border);
 }
 
 /* 公告栏 */
@@ -228,8 +237,9 @@ onMounted(() => {
   background: linear-gradient(
     135deg,
     var(--color-primary-50) 0%,
-    rgba(255, 255, 255, 0.9) 100%
+    var(--glass-bg) 100%
   );
+  border: 1px solid var(--glass-border);
   transform: all 0.3s ease;
 }
 

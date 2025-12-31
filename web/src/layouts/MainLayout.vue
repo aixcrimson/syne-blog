@@ -1,25 +1,39 @@
 <template>
   <div class="main-layout min-h-screen flex flex-col">
     <!-- 背景图片 -->
-    <div class="background-image" :style="{ backgroundImage: `url(${bgImage})` }"></div>
-    
+    <div
+      class="background-image"
+      :style="{ backgroundImage: `url(${bgImage})` }"
+    ></div>
+
     <!-- 导航栏 -->
     <Header />
-    
+
     <!-- 主要内容区域 -->
-    <main class="flex-1">
+    <main class="flex-1 pt-16 relative z-10">
       <router-view />
     </main>
-    
+
     <!-- 页脚 -->
-    <Footer />
+    <div class="relative z-10">
+      <Footer />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import Header from '@/components/layout/Header.vue'
-import Footer from '@/components/layout/Footer.vue'
-import bgImage from '@/assets/images/common/lightTheme.png'
+import { computed } from "vue";
+import { useAppStore } from "@/stores/app";
+import Header from "@/components/layout/Header.vue";
+import Footer from "@/components/layout/Footer.vue";
+import darkThemeImg from "@/assets/images/common/darkTheme.png";
+import lightThemeImg from "@/assets/images/common/lightTheme.png";
+
+const appStore = useAppStore();
+
+const bgImage = computed(() => {
+  return appStore.isDarkMode ? darkThemeImg : lightThemeImg;
+});
 </script>
 
 <style scoped>
@@ -40,12 +54,6 @@ import bgImage from '@/assets/images/common/lightTheme.png'
   background-repeat: no-repeat;
   z-index: 0;
   pointer-events: none;
-}
-
-/* 确保内容在背景之上 */
-.main-layout > *:not(.background-image) {
-  position: relative;
-  z-index: 10;
+  transition: background-image 0.5s ease-in-out;
 }
 </style>
-

@@ -75,16 +75,27 @@ export type ThemeColor = 'blue' | 'purple' | 'green' | 'orange' | 'pink'
 export interface MenuItem {
   name: string
   path: string
-  icon?: string
+  icon?: any
 }
 
-// 导航网站
+// 导航站点
 export interface NavigationSite {
   id: number
+  categoryId: number
+  categoryName: string
   name: string
   description: string
   url: string
-  category: string
   icon?: string
+  sortOrder: number
+  createTime: string
+  updateTime: string
+}
+
+// 导航分类组
+export interface NavigationCategory {
+  categoryId: number
+  categoryName: string
+  sites: NavigationSite[]
 }
 
