@@ -2,4 +2,40 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.syne.server.mapper.NavigationSiteMapper">
 
+    <resultMap id="NavigationSiteShowMap" type="com.syne.server.entity.vo.NavigationSiteShowVO">
+        <id property="categoryId" column="c_id"/>
+        <result property="categoryName" column="c_name"/>
+        <collection property="sites" ofType="com.syne.server.entity.vo.NavigationSiteVO">
+            <id property="id" column="s_id"/>
+            <result property="categoryId" column="s_category_id"/>
+            <result property="categoryName" column="c_name"/>
+            <result property="name" column="s_name"/>
+            <result property="description" column="s_description"/>
+            <result property="url" column="s_url"/>
+            <result property="icon" column="s_icon"/>
+            <result property="sortOrder" column="s_sort_order"/>
+            <result property="createTime" column="s_create_time"/>
+            <result property="updateTime" column="s_update_time"/>
+        </collection>
+    </resultMap>
+
+    <select id="listAllSiteShowVOs" resultMap="NavigationSiteShowMap">
+        SELECT
+            c.id as c_id,
+            c.name as c_name,
+            s.id as s_id,
+            s.category_id as s_category_id,
+            s.name as s_name,
+            s.description as s_description,
+            s.url as s_url,
+            s.icon as s_icon,
+            s.sort_order as s_sort_order,
+            s.create_time as s_create_time,
+            s.update_time as s_update_time
+        FROM navigation_categories c
+                 LEFT JOIN navigation_sites s ON c.id = s.category_id
+        WHERE c.deleted = 0 AND (s.deleted = 0 OR s.id IS NULL)
+        ORDER BY c.sort_order ASC, s.sort_order ASC
+    </select>
+
 </mapper>

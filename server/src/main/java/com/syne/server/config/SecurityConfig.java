@@ -41,6 +41,7 @@ public class SecurityConfig {
                                 "/articles",
                                 "/articles/**",
                                 "/categories",
+                                "/navigations",
                                 "/tags",
                                 "/stats"
                         ).permitAll()
