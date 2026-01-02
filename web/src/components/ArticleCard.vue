@@ -35,7 +35,7 @@
           type="info"
           size="small"
         >
-          {{ tag }}
+          {{ tag.name }}
         </el-tag>
       </div>
 

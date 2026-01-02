@@ -53,14 +53,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 keyword
         );
 
-        // 处理标签字段：将逗号分隔的字符串转为 List
+        // 处理标签字段
         list.forEach(article -> {
-            if(article.getTags() != null && !article.getTags().isEmpty()) {
-                String tagsStr = article.getTags().get(0);
-                if(tagsStr != null && !tagsStr.isEmpty()) {
-                    article.setTags(Arrays.asList(tagsStr.split(",")));
-                }
-            }
+            article.setTags(tagService.getTagsByArticleId(article.getId()));
         });
 
         // 查询总数
@@ -383,14 +378,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 tagIds
         );
 
-        // 处理标签字段：将逗号分隔的字符串转为 List
+        // 处理标签字段
         list.forEach(article -> {
-            if(article.getTags() != null && !article.getTags().isEmpty()) {
-                String tagsStr = article.getTags().get(0);
-                if(tagsStr != null && !tagsStr.isEmpty()) {
-                    article.setTags(Arrays.asList(tagsStr.split(",")));
-                }
-            }
+            article.setTags(tagService.getTagsByArticleId(article.getId()));
         });
 
         // 查询总数
@@ -454,14 +444,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 null
         );
 
-        // 处理标签字段：将逗号分隔的字符串转为 List
+        // 处理标签字段
         list.forEach(article -> {
-            if(article.getTags() != null && !article.getTags().isEmpty()){
-                String tagStr = article.getTags().get(0);
-                if(tagStr != null && !tagStr.isEmpty()){
-                    article.setTags(Arrays.asList(tagStr.split(",")));
-                }
-            }
+            article.setTags(tagService.getTagsByArticleId(article.getId()));
         });
 
         return list;
