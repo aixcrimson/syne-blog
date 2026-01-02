@@ -40,6 +40,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private final ArticleFavoriteMapper articleFavoriteMapper;
     private final ArticleTagMapper articleTagMapper;
     private final TagMapper tagMapper;
+    private final CategoryMapper categoryMapper;
     private final TagService tagService;
 
     @Override
@@ -402,6 +403,44 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 total,
                 list
         );
+    }
+
+    @Override
+    public ArticleDetailVO getUserArticleById(Long id) {
+        // 获取文章基本信息
+        Article article = this.getById(id);
+        if(article == null || article.getDeleted() == 1) {
+            throw new BusinessException("文章不存在");
+        }
+
+        // 获取文章分类名称
+        Category category = categoryMapper.selectById(article.getCategoryId());
+
+        // 获取文章标签列表
+        List<Tags> tags = tagService.getTagsByArticleId(id);
+
+        // 构建文章详情VO
+        ArticleDetailVO articleDetailVO = new ArticleDetailVO();
+        articleDetailVO.setId(article.getId());
+        articleDetailVO.setCategoryId(article.getCategoryId());
+        articleDetailVO.setCategoryName(category != null ? category.getName() : null);
+        articleDetailVO.setTitle(article.getTitle());
+        articleDetailVO.setSummary(article.getSummary());
+        articleDetailVO.setContent(article.getContent());
+        articleDetailVO.setCoverImage(article.getCoverImage());
+        articleDetailVO.setViews(article.getViews());
+        articleDetailVO.setLikes(article.getLikes());
+        articleDetailVO.setFavorites(article.getFavorites());
+        articleDetailVO.setCommentsCount(article.getCommentsCount());
+        articleDetailVO.setStatus(article.getStatus());
+        articleDetailVO.setIsTop(article.getIsTop());
+        articleDetailVO.setIsRecommend(article.getIsRecommend());
+        articleDetailVO.setPublishedTime(article.getPublishedTime());
+        articleDetailVO.setCreateTime(article.getCreateTime());
+        articleDetailVO.setUpdateTime(article.getUpdateTime());
+        articleDetailVO.setTags(tags);
+
+        return articleDetailVO;
     }
 
     @Override

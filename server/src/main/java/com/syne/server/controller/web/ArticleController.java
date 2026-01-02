@@ -86,7 +86,7 @@ public class ArticleController {
             @PathVariable Long id
     ){
         log.info("用户端获取文章详情：id={}", id);
-        ArticleDetailVO article = articleService.getAdminArticleById(id);
+        ArticleDetailVO article = articleService.getUserArticleById(id);
         return Result.success(article);
     }
 

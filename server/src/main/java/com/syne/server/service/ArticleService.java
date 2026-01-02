@@ -88,6 +88,13 @@ public interface ArticleService extends IService<Article> {
     PageResult<ArticleListVO> getUserArticleList(PageQuery pageQuery, String keyword, Long categoryId, List<Long> tagIds);
 
     /**
+     * 用户端获取文章详情
+     * @param id 文章ID
+     * @return 文章详情
+     */
+    ArticleDetailVO getUserArticleById(Long id);
+
+    /**
      * 获取推荐文章列表
      * @param limit 限制数量
      * @return 文章列表
