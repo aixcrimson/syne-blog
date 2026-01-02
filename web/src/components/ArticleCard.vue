@@ -30,12 +30,12 @@
       <div class="flex flex-wrap gap-2 mb-4">
         <el-tag type="primary" size="small">{{ article.categoryName }}</el-tag>
         <el-tag
-          v-for="tag in article.tags.slice(0, 2)"
+          v-for="tag in article.tags"
           :key="tag.id"
           type="info"
           size="small"
         >
-          {{ tag.name }}
+          {{ tag }}
         </el-tag>
       </div>
 

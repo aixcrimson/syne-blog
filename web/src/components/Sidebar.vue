@@ -42,7 +42,7 @@
                 v-for="category in categories"
                 :key="category.id"
                 class="category-item flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
-                @click="handleCategoryClick(category.name)"
+                @click="handleCategoryClick(category.id)"
               >
                 <div class="flex items-center gap-3">
                   <div class="w-2 h-2 rounded-full bg-primary-500"></div>
@@ -54,7 +54,7 @@
                 <span
                   class="text-xs text-gray-500 bg-gray-100 dark:text-gray-400 dark:bg-gray-700 px-2 py-1 rounded-full"
                 >
-                  {{ category.count }}
+                  {{ category.articleCount }}
                 </span>
               </div>
 
@@ -150,13 +150,15 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
 import { useAppStore } from "@/stores/app";
 import { articleApi } from "@/api/article";
 import type { CategoryInfo, StatsInfo } from "@/types";
 
-const router = useRouter();
 const appStore = useAppStore();
+
+const emit = defineEmits<{
+  (e: "category-click", id: number): void;
+}>();
 
 // 分类数据
 const categories = ref<CategoryInfo[]>([]);
@@ -211,11 +213,8 @@ const fetchStats = async () => {
 /**
  * 点击分类,跳转到文章列表页并筛选该分类
  */
-const handleCategoryClick = (category: string): void => {
-  router.push({
-    path: "/articles",
-    query: { category },
-  });
+const handleCategoryClick = (id: number): void => {
+  emit("category-click", id);
 };
 
 onMounted(() => {

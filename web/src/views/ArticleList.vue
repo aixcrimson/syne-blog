@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- 侧边栏 -->
-        <Sidebar class="lg:col-span-1" />
+        <Sidebar class="lg:col-span-1" @category-click="handleCategorySelect" />
 
         <!-- 主内容区 -->
         <div class="lg:col-span-3">
@@ -98,7 +98,7 @@ const route = useRoute();
 const currentPage = ref(1);
 const pageSize = ref(6);
 const searchKeyword = ref("");
-const selectedCategory = ref("");
+const selectedCategory = ref<number | string>("");
 const selectedTag = ref("");
 const loading = ref(false);
 
@@ -152,6 +152,11 @@ const handleSearch = () => {
 const handleFilter = () => {
   currentPage.value = 1;
   loadArticles();
+};
+
+const handleCategorySelect = (id: number) => {
+  selectedCategory.value = id;
+  window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
 const handlePageChange = (page: number) => {

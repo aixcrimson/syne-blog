@@ -24,7 +24,7 @@ export interface Article {
 export interface CategoryInfo {
   id: number
   name: string
-  count: number
+  articleCount: number
 }
 
 // 标签信息接口
