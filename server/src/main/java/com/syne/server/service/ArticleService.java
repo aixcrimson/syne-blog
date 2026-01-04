@@ -11,6 +11,7 @@ import com.syne.server.entity.vo.ArticleDetailVO;
 import com.syne.server.entity.vo.ArticleListVO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 文章服务接口
@@ -106,19 +107,19 @@ public interface ArticleService extends IService<Article> {
      * @param id 文章ID
      * @return 切换结果
      */
-    Result<String> toggleArticleLike(Long id);
+    Result<Map<String, Object>> toggleArticleLike(Long id);
 
     /**
      * 切换文章收藏或不收藏
      * @param id 文章ID
      * @return 切换结果
      */
-    Result<String> toggleArticleFavorite(Long id);
+    Result<Map<String, Object>> toggleArticleFavorite(Long id);
 
     /**
      * 给文章增加浏览量
      * @param id 文章ID
      * @return 结果
      */
-    Result<String> increaseViews(Long id);
+    Result<Map<String, Object>> increaseViews(Long id);
 }

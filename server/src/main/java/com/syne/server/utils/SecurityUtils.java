@@ -1,5 +1,6 @@
 package com.syne.server.utils;
 
+import com.syne.server.security.LoginUser;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,27 +27,13 @@ public class SecurityUtils {
             return null;
         }
 
-        // 从认证信息中获取用户名
-        String username = null;
-        if (authentication.getPrincipal() instanceof UserDetails) {
-            username = ((UserDetails) authentication.getPrincipal()).getUsername();
-        } else if (authentication.getPrincipal() instanceof String) {
-            username = (String) authentication.getPrincipal();
+        // 从认证信息中获取用户id
+        if (authentication.getPrincipal() instanceof LoginUser) {
+            return ((LoginUser) authentication.getPrincipal()).getId();
         }
 
-        if(username == null) {
-            return null;
-        }
-
-        // TODO: 根据用户名查询用户ID
-        // 这里需要注入UserService来查询用户ID
-        // 由于在MetaObjectHandler中无法直接注入Service，建议使用以下方案之一：
-        // 1. 使用SpringContextHolder工具类获取Bean
-        // 2. 使用ThreadLocal在请求开始时存储用户信息
-        // 3. 使用JWT解析获取用户ID
-
-        // 暂时返回固定值，实际使用时需要替换为真实的用户ID获取逻辑
-        return 1L;
+        // 如果上述方式获取不到，返回 null
+        return null;
     }
 
     /**

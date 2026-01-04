@@ -4,6 +4,7 @@ import com.syne.server.common.Result;
 import com.syne.server.entity.dto.LoginDTO;
 import com.syne.server.entity.vo.LoginVO;
 import com.syne.server.entity.vo.UserInfoVO;
+import com.syne.server.exception.BusinessException;
 import com.syne.server.service.AuthService;
 import com.syne.server.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @Tag(name = "认证管理", description = "认证相关接口")
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/admin/auth")
 @RequiredArgsConstructor
 @Validated
 public class AuthController {
@@ -43,7 +44,9 @@ public class AuthController {
     ) {
         log.info("用户登录: {}", loginDTO.getUsername());
         LoginVO loginVO = authService.login(loginDTO);
-        log.info("用户 {} 登录成功", loginDTO.getUsername());
+        if(loginVO.getRole() != 1){
+            throw new BusinessException(403, "普通用户禁止登录管理后台");
+        }
         return Result.success("登录成功", loginVO);
     }
 

@@ -2,8 +2,10 @@ package com.syne.server.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.syne.server.common.Result;
 import com.syne.server.entity.User;
 import com.syne.server.entity.dto.LoginDTO;
+import com.syne.server.entity.dto.RegisterDTO;
 import com.syne.server.entity.vo.LoginVO;
 import com.syne.server.entity.vo.UserInfoVO;
 import com.syne.server.exception.BusinessException;
@@ -119,5 +121,45 @@ public class AuthServiceImpl extends ServiceImpl<AuthMapper, User> implements Au
         userInfoVO.setRole(user.getRole());
 
         return userInfoVO;
+    }
+
+    @Override
+    public Result<String> register(RegisterDTO registerDTO){
+        // 1.检查用户名是否存在
+        User byUsername = getByUsername(registerDTO.getUsername());
+        if(byUsername != null){
+            throw new BusinessException(400, "用户名已存在");
+        }
+
+        // 2.检查邮箱是否存在
+        LambdaQueryWrapper<User> queryWrapper  = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getEmail, registerDTO.getEmail())
+                .eq(User::getDeleted, 0);
+        User byEmail = getOne(queryWrapper);
+        if(byEmail != null){
+            throw new BusinessException(400, "邮箱已存在");
+        }
+
+        // 3.构建新用户
+        User newUser = new User();
+        newUser.setUsername(registerDTO.getUsername());
+        newUser.setEmail(registerDTO.getEmail());
+        // 密码加密
+        newUser.setPasswordHash(passwordEncoder.encode(registerDTO.getPassword()));
+        // 默认头像
+        newUser.setAvatar("https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png");
+        // 默认角色：普通用户
+        newUser.setRole(2);
+        // 默认状态：正常
+        newUser.setStatus(1);
+        newUser.setBio("这个人很懒，什么都没有写~");
+
+        // 4.保存用户
+        boolean save = save(newUser);
+        if(!save){
+            throw new BusinessException(500, "注册失败，请稍后重试");
+        }
+
+        return Result.success("注册成功");
     }
 }

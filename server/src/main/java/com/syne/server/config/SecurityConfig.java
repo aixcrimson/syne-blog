@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/login", "/auth/refresh").permitAll()
                         // 放行用户端文章接口（允许匿名访问）
                         .requestMatchers(
+                                "/auth/**",
                                 "/articles",
                                 "/articles/**",
                                 "/categories",

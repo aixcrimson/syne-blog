@@ -5,9 +5,12 @@ import com.syne.server.common.PageQuery;
 import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
 import com.syne.server.entity.Comment;
+import com.syne.server.entity.dto.CommentCreateDTO;
 import com.syne.server.entity.vo.CommentListVO;
+import com.syne.server.entity.vo.CommentShowVO;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 评论服务接口
@@ -43,4 +46,24 @@ public interface CommentService extends IService<Comment> {
      * @return 删除结果
      */
     Result<String> deleteComments(String ids);
+
+    // ==================== 用户端接口 ====================
+
+    /**
+     * 获取文章评论列表（用户端，树形结构）
+     *
+     * @param articleId 文章ID
+     * @param pageQuery 分页参数
+     * @return 评论列表（树形结构）
+     */
+    PageResult<CommentShowVO> getArticleComments(Long articleId, PageQuery pageQuery);
+
+    /**
+     * 创建评论
+     *
+     * @param commentCreateDTO 评论创建参数
+     * @param ipAddress 用户IP地址
+     * @return 创建的评论
+     */
+    CommentShowVO createComment(CommentCreateDTO commentCreateDTO, String ipAddress);
 }

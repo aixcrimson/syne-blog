@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -115,7 +116,7 @@ public class ArticleController {
      */
     @Operation(summary = "点赞文章", description = "给文章点赞或取消点赞")
     @PostMapping("/{id}/like")
-    public Result<String> toggleArticleLike(
+    public Result<Map<String, Object>> toggleArticleLike(
             @Parameter(description = "文章ID", example = "1")
             @PathVariable Long id
     ){
@@ -131,7 +132,7 @@ public class ArticleController {
      */
     @Operation(summary = "收藏文章", description = "给文章收藏或取消收藏")
     @PostMapping("/{id}/favorite")
-    public Result<String> toggleArticleFavorite(
+    public Result<Map<String, Object>> toggleArticleFavorite(
             @Parameter(description = "文章ID", example = "1")
             @PathVariable Long id
     ){
@@ -147,7 +148,7 @@ public class ArticleController {
      */
     @Operation(summary = "文章增加浏览量", description = "给文章增加浏览量")
     @PostMapping("/{id}/views")
-    public Result<String> increaseViews(
+    public Result<Map<String, Object>> increaseViews(
             @Parameter(description = "文章ID", example = "1")
             @PathVariable Long id
     ){

@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -454,7 +455,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result<String> toggleArticleLike(Long id){
+    public Result<Map<String, Object>> toggleArticleLike(Long id){
         // 检查文章是否存在
         Article article = this.getById(id);
         if(article == null || article.getDeleted() == 1) {
@@ -513,11 +514,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             log.info("新增点赞成功：articleId={}, userId={}, ip={}", id, userId, ipAddress);
         }
 
-        return Result.success(isLiked ? "点赞成功" : "取消点赞成功");
+        Map<String, Object> data = new java.util.HashMap<>();
+        data.put("liked", isLiked);
+        data.put("likes", article.getLikes());
+
+        return Result.success(data);
     }
 
     @Override
-    public Result<String> toggleArticleFavorite(Long id){
+    public Result<Map<String, Object>> toggleArticleFavorite(Long id){
         // 检查文章是否存在
         Article article = this.getById(id);
         if(article == null || article.getDeleted() == 1) {
@@ -554,6 +559,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             // 没有记录，新增收藏
             ArticleFavorite newFavorite = new ArticleFavorite();
             newFavorite.setArticleId(id);
+            newFavorite.setCreateBy(userId);
+            newFavorite.setDeleted(0);
             articleFavoriteMapper.insert(newFavorite);
             // 文章收藏数 + 1
             article.setFavorites(article.getFavorites() + 1);
@@ -562,11 +569,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             log.info("新增收藏成功：articleId={}, userId={}", id, userId);
         }
 
-        return Result.success(isFavorite ? "收藏成功" : "取消收藏成功");
+        Map<String, Object> data = new java.util.HashMap<>();
+        data.put("favorited", isFavorite);
+        data.put("favorites", article.getFavorites());
+
+        return Result.success(data);
     }
 
     @Override
-    public Result<String> increaseViews(Long id){
+    public Result<Map<String, Object>> increaseViews(Long id){
         // 检查文章是否存在
         Article article = this.getById(id);
         if(article == null || article.getDeleted() == 1) {
@@ -577,7 +588,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         article.setViews(article.getViews() + 1);
         this.updateById(article);
 
-        return Result.success("浏览量增加成功");
+        Map<String, Object> data = new java.util.HashMap<>();
+        data.put("views", article.getViews());
+
+        return Result.success(data);
     }
 
 //     @Override

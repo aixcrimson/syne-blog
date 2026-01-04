@@ -25,9 +25,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // 查询用户
         User user = authMapper.selectOne(
-            new LambdaQueryWrapper<User>()
-                .eq(User::getUsername, username)
-                .eq(User::getDeleted, 0)
+                new LambdaQueryWrapper<User>()
+                        .eq(User::getUsername, username)
+                        .eq(User::getDeleted, 0)
         );
 
         if (user == null) {
@@ -42,10 +42,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         // 构建用户权限
         String role = user.getRole() == 1 ? "ROLE_ADMIN" : "ROLE_USER";
 
-        return org.springframework.security.core.userdetails.User.builder()
-            .username(user.getUsername())
-            .password(user.getPasswordHash())
-            .authorities(Collections.singletonList(new SimpleGrantedAuthority(role)))
-            .build();
+        return new LoginUser(
+                user.getId(),
+                user.getUsername(),
+                user.getPasswordHash(),
+                Collections.singletonList(new SimpleGrantedAuthority(role))
+        );
     }
 }

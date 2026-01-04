@@ -1,8 +1,10 @@
 package com.syne.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.syne.server.common.Result;
 import com.syne.server.entity.User;
 import com.syne.server.entity.dto.LoginDTO;
+import com.syne.server.entity.dto.RegisterDTO;
 import com.syne.server.entity.vo.LoginVO;
 import com.syne.server.entity.vo.UserInfoVO;
 
@@ -42,4 +44,12 @@ public interface AuthService extends IService<User> {
      * @return 当前用户信息
      */
     UserInfoVO getCurrentUser();
+
+    /**
+     * 用户注册
+     *
+     * @param registerDTO 注册信息
+     * @return 注册结果
+     */
+    Result<String> register(RegisterDTO registerDTO);
 }
