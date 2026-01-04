@@ -1,11 +1,11 @@
 <template>
-  <header class="header-glass shadow-sm fixed top-0 w-full z-50">
-    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <header class="fixed top-0 z-50 w-full shadow-sm header-glass">
+    <nav class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo - 左侧 -->
         <div class="flex items-center min-w-[200px] space-x-2">
           <div
-            class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
+            class="flex justify-center items-center w-8 h-8 bg-gradient-to-br rounded-lg transition-all duration-300 cursor-pointer from-primary-500 to-primary-700 hover:scale-105 hover:shadow-lg"
             @click="logoModalOpen = true"
           >
             <img
@@ -16,19 +16,19 @@
           </div>
           <router-link
             to="/"
-            class="text-xl font-bold text-gray-900 dark:text-gray-100 hover:text-primary-600 transition-colors"
+            class="text-xl font-bold text-gray-900 transition-colors dark:text-gray-100 hover:text-primary-600"
           >
             syne-blog
           </router-link>
         </div>
 
         <!-- 导航菜单 - 中间 -->
-        <div class="hidden md:flex items-center space-x-8">
+        <div class="hidden items-center space-x-8 md:flex">
           <router-link
             v-for="item in menuItems"
             :key="item.path"
             :to="item.path"
-            class="text-gray-700 dark:text-gray-300 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
+            class="flex gap-2 items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md transition-colors dark:text-gray-300 hover:text-primary-600"
             exact-active-class="text-primary-600 bg-primary-50 dark:bg-primary-900/20"
           >
             <el-icon v-if="item.icon" :size="18">
@@ -43,10 +43,10 @@
           <!-- GitHub 链接 -->
           <el-tooltip content="访问我的 GitHub" placement="bottom">
             <a
-              :href="appStore.userInfo.github"
+              :href="siteStore.authorInfo?.github"
               target="_blank"
               rel="noopener noreferrer"
-              class="github-link hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
+              class="hidden justify-center items-center w-10 h-10 rounded-full transition-colors github-link md:flex hover:bg-gray-100"
             >
               <svg
                 class="w-6 h-6 text-gray-700 hover:text-gray-900"
@@ -65,7 +65,7 @@
           <!-- 搜索 -->
           <el-tooltip content="搜索" placement="bottom">
             <button
-              class="github-link hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
+              class="hidden justify-center items-center w-10 h-10 rounded-full transition-colors github-link md:flex hover:bg-gray-100"
               @click="handleSearch"
             >
               <el-icon class="text-xl text-gray-700 hover:text-gray-900">
@@ -77,7 +77,7 @@
           <!-- 明暗模式切换 -->
           <el-tooltip content="切换明暗模式" placement="bottom">
             <button
-              class="theme-mode-btn hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              class="hidden justify-center items-center w-10 h-10 rounded-full transition-colors theme-mode-btn md:flex hover:bg-gray-100 dark:hover:bg-gray-800"
               @click="appStore.toggleThemeMode"
             >
               <el-icon
@@ -103,7 +103,7 @@
               <el-dropdown-menu>
                 <el-dropdown-item command="blue">
                   <div class="flex items-center space-x-2">
-                    <div class="w-4 h-4 rounded-full bg-blue-500"></div>
+                    <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
                     <span>蓝色</span>
                     <el-icon v-if="appStore.themeColor === 'blue'" class="ml-2"
                       ><Check
@@ -112,7 +112,7 @@
                 </el-dropdown-item>
                 <el-dropdown-item command="purple">
                   <div class="flex items-center space-x-2">
-                    <div class="w-4 h-4 rounded-full bg-purple-500"></div>
+                    <div class="w-4 h-4 bg-purple-500 rounded-full"></div>
                     <span>紫色</span>
                     <el-icon
                       v-if="appStore.themeColor === 'purple'"
@@ -123,7 +123,7 @@
                 </el-dropdown-item>
                 <el-dropdown-item command="green">
                   <div class="flex items-center space-x-2">
-                    <div class="w-4 h-4 rounded-full bg-green-500"></div>
+                    <div class="w-4 h-4 bg-green-500 rounded-full"></div>
                     <span>绿色</span>
                     <el-icon v-if="appStore.themeColor === 'green'" class="ml-2"
                       ><Check
@@ -132,7 +132,7 @@
                 </el-dropdown-item>
                 <el-dropdown-item command="orange">
                   <div class="flex items-center space-x-2">
-                    <div class="w-4 h-4 rounded-full bg-orange-500"></div>
+                    <div class="w-4 h-4 bg-orange-500 rounded-full"></div>
                     <span>橙色</span>
                     <el-icon
                       v-if="appStore.themeColor === 'orange'"
@@ -143,7 +143,7 @@
                 </el-dropdown-item>
                 <el-dropdown-item command="pink">
                   <div class="flex items-center space-x-2">
-                    <div class="w-4 h-4 rounded-full bg-pink-500"></div>
+                    <div class="w-4 h-4 bg-pink-500 rounded-full"></div>
                     <span>粉色</span>
                     <el-icon v-if="appStore.themeColor === 'pink'" class="ml-2"
                       ><Check
@@ -155,7 +155,7 @@
           </el-dropdown>
 
           <!-- 登录/用户信息 -->
-          <div v-if="!appStore.isLoggedIn" class="hidden md:block">
+          <div v-if="!userStore.isLoggedIn" class="hidden md:block">
             <el-button type="primary" round @click="router.push('/login')">
               登录
             </el-button>
@@ -170,12 +170,18 @@
             "
           >
             <div
-              class="flex items-center gap-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full pr-2 transition-colors"
+              class="flex gap-2 items-center pr-2 rounded-full transition-colors cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
             >
-              <el-avatar :size="32" :src="appStore.userInfo.avatar" />
+              <el-avatar
+                :size="32"
+                :src="
+                  userStore.currentUser?.avatar ||
+                  'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
+                "
+              />
               <span
-                class="text-sm font-medium text-gray-700 dark:text-gray-300 hidden lg:block"
-                >{{ appStore.userInfo.name }}</span
+                class="hidden text-sm font-medium text-gray-700 dark:text-gray-300 lg:block"
+                >{{ userStore.currentUser?.username || "用户" }}</span
               >
             </div>
             <template #dropdown>
@@ -202,12 +208,12 @@
       </div>
 
       <!-- 移动端菜单 -->
-      <div v-if="mobileMenuOpen" class="md:hidden py-4 border-t">
+      <div v-if="mobileMenuOpen" class="py-4 border-t md:hidden">
         <router-link
           v-for="item in menuItems"
           :key="item.path"
           :to="item.path"
-          class="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50"
+          class="flex gap-2 items-center px-3 py-2 text-base font-medium text-gray-700 rounded-md hover:text-primary-600 hover:bg-primary-50"
           exact-active-class="text-primary-600 bg-primary-50"
           @click="mobileMenuOpen = false"
         >
@@ -219,10 +225,10 @@
 
         <!-- 移动端 GitHub 链接 -->
         <a
-          :href="appStore.userInfo.github"
+          :href="siteStore.authorInfo?.github"
           target="_blank"
           rel="noopener noreferrer"
-          class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50"
+          class="block px-3 py-2 text-base font-medium text-gray-700 rounded-md hover:text-primary-600 hover:bg-primary-50"
         >
           GitHub
         </a>
@@ -242,21 +248,21 @@
     >
       <div
         v-if="logoModalOpen"
-        class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 cursor-pointer"
+        class="flex fixed inset-0 z-50 justify-center items-center bg-black bg-opacity-80 cursor-pointer"
         @click="logoModalOpen = false"
       >
         <Transition
           enter-active-class="transition-all duration-300 ease-out"
-          enter-from-class="scale-75 opacity-0"
-          enter-to-class="scale-100 opacity-100"
+          enter-from-class="opacity-0 scale-75"
+          enter-to-class="opacity-100 scale-100"
           leave-active-class="transition-all duration-200 ease-in"
-          leave-from-class="scale-100 opacity-100"
-          leave-to-class="scale-75 opacity-0"
+          leave-from-class="opacity-100 scale-100"
+          leave-to-class="opacity-0 scale-75"
         >
-          <div v-if="logoModalOpen" class="relative max-w-sm mx-4" @click.stop>
+          <div v-if="logoModalOpen" class="relative mx-4 max-w-sm" @click.stop>
             <!-- 关闭按钮 -->
             <button
-              class="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors p-2"
+              class="absolute right-0 -top-10 p-2 text-white transition-colors hover:text-gray-300"
               @click="logoModalOpen = false"
             >
               <svg
@@ -275,7 +281,7 @@
             </button>
 
             <!-- Logo 图片 -->
-            <div class="bg-white rounded-2xl p-1 shadow-2xl">
+            <div class="p-1 bg-white rounded-2xl shadow-2xl">
               <img
                 :src="logoImage"
                 alt="syne-blog logo"
@@ -284,9 +290,9 @@
             </div>
 
             <!-- 标题 -->
-            <div class="text-center mt-4">
-              <h3 class="text-white text-xl font-semibold">syne-blog</h3>
-              <p class="text-gray-300 text-sm mt-1">现代化博客平台</p>
+            <div class="mt-4 text-center">
+              <h3 class="text-xl font-semibold text-white">syne-blog</h3>
+              <p class="mt-1 text-sm text-gray-300">现代化博客平台</p>
             </div>
           </div>
         </Transition>
@@ -325,6 +331,8 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "@/stores/app";
+import { useUserStore } from "@/stores/user";
+import { useSiteStore } from "@/stores/site";
 import { ElMessage } from "element-plus";
 import {
   Menu,
@@ -342,6 +350,9 @@ import type { MenuItem, ThemeColor } from "@/types";
 import logoImage from "@/assets/images/common/logo.png";
 
 const appStore = useAppStore();
+const userStore = useUserStore();
+const siteStore = useSiteStore();
+
 const mobileMenuOpen = ref(false);
 const logoModalOpen = ref(false);
 
@@ -380,7 +391,7 @@ const submitSearch = () => {
 };
 
 const handleLogout = () => {
-  appStore.logout();
+  userStore.logout();
   ElMessage.success("已退出登录");
   router.push("/");
 };

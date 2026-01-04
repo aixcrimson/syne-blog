@@ -1,0 +1,54 @@
+/**
+ * 评论相关 API
+ */
+import { get, post } from './request'
+import type { PaginationParams, PaginationResponse } from '@/types/api'
+
+/**
+ * 评论展示视图对象
+ */
+export interface CommentShowVO {
+  id: number
+  articleId: number
+  userId: number | null
+  username: string
+  userAvatar: string | null
+  parentId: number | null
+  replyToUsername: string | null
+  content: string
+  createTime: string
+  children?: CommentShowVO[]
+}
+
+/**
+ * 创建评论请求参数
+ */
+export interface CommentCreateDTO {
+  articleId: number
+  parentId?: number | null
+  content: string
+}
+
+/**
+ * 评论 API 服务
+ */
+export const commentApi = {
+  /**
+   * 获取文章评论列表
+   * @param articleId 文章ID
+   * @param params 分页参数
+   * @returns 评论列表（树形结构）
+   */
+  getArticleComments(articleId: number, params?: Partial<PaginationParams>) {
+    return get<PaginationResponse<CommentShowVO>>(`/comments/article/${articleId}`, params)
+  },
+
+  /**
+   * 创建评论
+   * @param data 评论数据
+   * @returns 创建的评论
+   */
+  createComment(data: CommentCreateDTO) {
+    return post<CommentShowVO>('/comments', data)
+  }
+}

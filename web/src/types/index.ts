@@ -99,3 +99,65 @@ export interface NavigationCategory {
   sites: NavigationSite[]
 }
 
+// 公告接口
+export interface Notice {
+  id: number
+  content: string
+  isEnabled?: number
+  sortOrder?: number
+  createTime?: string
+}
+
+// 项目展示接口
+export interface Project {
+  id: number
+  title: string
+  description: string
+  cover?: string
+  tags: string[]
+  links: {
+    github?: string
+    demo?: string
+  }
+}
+
+// 技能分组接口
+export interface SkillGroup {
+  category: string
+  items: {
+    name: string
+    icon: string
+    level?: number
+  }[]
+}
+
+// 里程碑/成长历程接口
+export interface Milestone {
+  date: string
+  title: string
+  content: string
+  color?: string
+}
+
+// 登录参数
+export interface LoginData {
+  username?: string
+  password?: string
+  email?: string
+}
+
+// 注册参数
+export interface RegisterData {
+  username: string
+  password: string
+  email: string
+  code?: string
+}
+
+// 登录响应
+export interface LoginResponse {
+  token: string
+  userInfo: UserInfo
+}
+
+

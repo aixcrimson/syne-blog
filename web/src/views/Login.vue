@@ -204,12 +204,14 @@ import type { FormInstance, FormRules } from "element-plus";
 import { ElMessage } from "element-plus";
 import { authApi } from "@/api/auth";
 import { useAppStore } from "@/stores/app";
+import { useUserStore } from "@/stores/user";
 import darkThemeImg from "@/assets/images/common/darkTheme.png";
 import lightThemeImg from "@/assets/images/common/lightTheme.png";
 import { computed } from "vue";
 
 const router = useRouter();
 const appStore = useAppStore();
+const userStore = useUserStore();
 
 const bgImage = computed(() => {
   return appStore.isDarkMode ? darkThemeImg : lightThemeImg;
@@ -246,14 +248,17 @@ const handleLogin = async () => {
     if (valid) {
       loading.value = true;
       try {
-        const res: any = await authApi.login(loginForm);
+        // 使用类型断言
+        const res = (await authApi.login(loginForm)) as unknown as {
+          token: string;
+          userInfo: any;
+        };
         ElMessage.success("登录成功");
-        // 这里只是简单的示例，实际项目中应该存储 token 到 pinia / localstorage
-        // 并更新用户信息
-        console.log("Login Success:", res);
-        if (res.token) {
-          localStorage.setItem("token", res.token);
-        }
+
+        // 使用 Pinia store
+        userStore.setToken(res.token);
+        userStore.setUser(res.userInfo);
+
         router.push("/");
       } catch (error: any) {
         ElMessage.error(error.message || "登录失败");

@@ -42,7 +42,7 @@ export const articleApi = {
    * @returns 点赞后的数据
    */
   like(id: number | string) {
-    return post<{ likes: number }>(`/articles/${id}/like`)
+    return post<{ likes: number; liked: boolean }>(`/articles/${id}/like`)
   },
 
   /**
@@ -51,7 +51,7 @@ export const articleApi = {
    * @returns 收藏后的数据
    */
   favorite(id: number | string) {
-    return post<{ favorited: boolean }>(`/articles/${id}/favorite`)
+    return post<{ favorited: boolean; favorites: number }>(`/articles/${id}/favorite`)
   },
 
   /**

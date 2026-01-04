@@ -1,43 +1,24 @@
-import request from './request'
-
-// 模拟延迟
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+import { post } from './request'
+import type { LoginData, RegisterData, LoginResponse } from '@/types'
 
 export const authApi = {
-  // 登录 (Mock)
-  login: async (data: any) => {
-    await delay(1000)
-    // 模拟登录成功
-    if (data.username === 'admin' || data.username === 'test@example.com') {
-      return {
-        token: 'mock-token-123456',
-        userInfo: {
-          id: 1,
-          username: 'Admin User',
-          email: 'test@example.com',
-          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
-          bio: 'Administrator'
-        }
-      }
-    }
-    // 模拟失败
-    throw new Error('用户名或密码错误')
+  // 登录
+  login: (data: LoginData) => {
+    return post<LoginResponse>('/auth/login', data)
   },
 
-  // 注册 (Mock)
-  register: async (data: any) => {
-    await delay(1500)
-    return {
-      message: '注册成功'
-    }
+  // 注册
+  register: (data: RegisterData) => {
+    return post<void>('/auth/register', data)
   },
 
-  // 发送验证码 (Mock)
+  // 发送验证码 (Mock for now, or real if endpoint exists)
   sendCode: async (email: string) => {
-    await delay(1000)
-    console.log(`验证码已发送至 ${email}: 123456`)
-    return {
-      message: '验证码已发送'
-    }
+    // 暂时保持 Mock，或者如果后端有 /auth/send-code 接口则替换为:
+    // return post<void>('/auth/send-code', { email })
+    // 这里暂时先保留 Mock 以防后端未准备好
+    console.log(`[Mock] 验证码已发送至 ${email}`)
+    return Promise.resolve({ message: '验证码已发送' })
   }
 }
+

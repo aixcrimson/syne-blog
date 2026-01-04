@@ -1,21 +1,21 @@
 <template>
   <aside class="sidebar">
-    <div class="flex flex-col gap-6 sticky top-20">
+    <div class="flex sticky top-20 flex-col gap-6">
       <!-- 公告栏 -->
       <div
-        class="notice-card rounded-xl p-5 shoadow-sm border border-primary-100"
+        class="p-5 rounded-xl border notice-card shoadow-sm border-primary-100"
       >
-        <div class="flex items-center gap-2 mb-3">
-          <div class="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></div>
-          <p class="font-bold text-primary-600 text-lg">公告栏</p>
+        <div class="flex gap-2 items-center mb-3">
+          <div class="w-2 h-2 rounded-full animate-pulse bg-primary-500"></div>
+          <p class="text-lg font-bold text-primary-600">公告栏</p>
         </div>
-        <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+        <p class="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
           📢 天行健，君子以自强不息
         </p>
       </div>
 
       <!-- 标签页切换卡片 -->
-      <div class="tab-card glass-section rounded-xl shadow-sm overflow-hidden">
+      <div class="overflow-hidden rounded-xl shadow-sm tab-card glass-section">
         <!-- 标签页头部 -->
         <div class="flex border-b border-gray-200 dark:border-gray-700">
           <button
@@ -41,10 +41,10 @@
               <div
                 v-for="category in categories"
                 :key="category.id"
-                class="category-item flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                class="flex justify-between items-center p-3 rounded-lg transition-colors cursor-pointer category-item hover:bg-gray-50 dark:hover:bg-gray-800"
                 @click="handleCategoryClick(category.id)"
               >
-                <div class="flex items-center gap-3">
+                <div class="flex gap-3 items-center">
                   <div class="w-2 h-2 rounded-full bg-primary-500"></div>
                   <span
                     class="text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -52,7 +52,7 @@
                   >
                 </div>
                 <span
-                  class="text-xs text-gray-500 bg-gray-100 dark:text-gray-400 dark:bg-gray-700 px-2 py-1 rounded-full"
+                  class="px-2 py-1 text-xs text-gray-500 bg-gray-100 rounded-full dark:text-gray-400 dark:bg-gray-700"
                 >
                   {{ category.articleCount }}
                 </span>
@@ -71,32 +71,32 @@
               <!-- 头像 -->
               <div class="relative mb-4">
                 <img
-                  :src="appStore.userInfo.avatar"
-                  :alt="appStore.userInfo.name"
+                  :src="siteStore.authorInfo.avatar"
+                  :alt="siteStore.authorInfo.name"
                   class="w-24 h-24 rounded-full border-4 border-white shadow-lg"
                 />
                 <div
-                  class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white"
+                  class="absolute -right-1 -bottom-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white"
                 ></div>
               </div>
 
               <!-- 名称 -->
               <h3
-                class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2"
+                class="mb-2 text-xl font-bold text-gray-900 dark:text-gray-100"
               >
-                {{ appStore.userInfo.name }}
+                {{ siteStore.authorInfo.name }}
               </h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                {{ appStore.userInfo.bio || "热爱技术,热爱分享" }}
+              <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+                {{ siteStore.authorInfo.bio || "热爱技术,热爱分享" }}
               </p>
 
               <!-- 统计信息 -->
-              <div class="w-full grid grid-cols-3 gap-3 mb-4">
+              <div class="grid grid-cols-3 gap-3 mb-4 w-full">
                 <div class="stat-item">
                   <div class="text-2xl font-bold text-primary-600">
                     {{ stats.totalArticles }}
                   </div>
-                  <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  <div class="mt-1 text-xs text-gray-600 dark:text-gray-400">
                     文章
                   </div>
                 </div>
@@ -104,7 +104,7 @@
                   <div class="text-2xl font-bold text-primary-600">
                     {{ stats.totalCategories }}
                   </div>
-                  <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  <div class="mt-1 text-xs text-gray-600 dark:text-gray-400">
                     分类
                   </div>
                 </div>
@@ -112,7 +112,7 @@
                   <div class="text-2xl font-bold text-primary-600">
                     {{ stats.totalViews }}
                   </div>
-                  <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  <div class="mt-1 text-xs text-gray-600 dark:text-gray-400">
                     浏览
                   </div>
                 </div>
@@ -120,14 +120,14 @@
 
               <!-- GitHub 按钮 -->
               <a
-                v-if="appStore.userInfo.github"
-                :href="appStore.userInfo.github"
+                v-if="siteStore.authorInfo.github"
+                :href="siteStore.authorInfo.github"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="w-full"
               >
                 <el-button type="primary" class="w-full" size="default">
-                  <span class="flex items-center justify-center gap-2">
+                  <span class="flex gap-2 justify-center items-center">
                     <svg
                       class="w-5 h-5"
                       fill="currentColor"
@@ -150,11 +150,11 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useAppStore } from "@/stores/app";
+import { useSiteStore } from "@/stores/site";
 import { articleApi } from "@/api/article";
 import type { CategoryInfo, StatsInfo } from "@/types";
 
-const appStore = useAppStore();
+const siteStore = useSiteStore();
 
 const emit = defineEmits<{
   (e: "category-click", id: number): void;
