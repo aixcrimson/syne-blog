@@ -1,21 +1,30 @@
 <template>
-  <aside class="sidebar">
+  <aside class="w-full sidebar">
     <div class="flex sticky top-20 flex-col gap-6">
       <!-- 公告栏 -->
       <div
-        class="p-5 rounded-xl border notice-card shoadow-sm border-primary-100"
+        class="p-5 bg-white border-b transition-all duration-300 md:bg-gradient-to-br md:to-white md:rounded-xl md:border md:shadow-sm md:from-primary-50 md:border-primary-100 dark:bg-gray-800 dark:border-gray-700 md:dark:from-gray-800 md:dark:to-gray-800 md:hover:-translate-y-0.5 md:hover:shadow-md"
       >
         <div class="flex gap-2 items-center mb-3">
           <div class="w-2 h-2 rounded-full animate-pulse bg-primary-500"></div>
           <p class="text-lg font-bold text-primary-600">公告栏</p>
         </div>
-        <p class="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-          📢 天行健，君子以自强不息
-        </p>
+        <div v-if="notices.length > 0" class="space-y-2">
+          <p
+            v-for="notice in notices"
+            :key="notice.id"
+            class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+          >
+            📢 {{ notice.content }}
+          </p>
+        </div>
+        <p v-else class="text-sm leading-relaxed text-gray-500">暂无公告</p>
       </div>
 
       <!-- 标签页切换卡片 -->
-      <div class="overflow-hidden rounded-xl shadow-sm tab-card glass-section">
+      <div
+        class="overflow-hidden tab-card md:rounded-xl md:shadow-sm glass-section"
+      >
         <!-- 标签页头部 -->
         <div class="flex border-b border-gray-200 dark:border-gray-700">
           <button
@@ -71,8 +80,8 @@
               <!-- 头像 -->
               <div class="relative mb-4">
                 <img
-                  :src="siteStore.authorInfo.avatar"
-                  :alt="siteStore.authorInfo.name"
+                  :src="siteStore.authorInfo.avatar || defaultAvatar"
+                  :alt="siteStore.authorInfo.username"
                   class="w-24 h-24 rounded-full border-4 border-white shadow-lg"
                 />
                 <div
@@ -84,7 +93,7 @@
               <h3
                 class="mb-2 text-xl font-bold text-gray-900 dark:text-gray-100"
               >
-                {{ siteStore.authorInfo.name }}
+                {{ siteStore.authorInfo.username }}
               </h3>
               <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
                 {{ siteStore.authorInfo.bio || "热爱技术,热爱分享" }}
@@ -152,7 +161,9 @@
 import { ref, onMounted } from "vue";
 import { useSiteStore } from "@/stores/site";
 import { articleApi } from "@/api/article";
-import type { CategoryInfo, StatsInfo } from "@/types";
+import { siteApi } from "@/api/site";
+import type { CategoryInfo, StatsInfo, Notice } from "@/types";
+import defaultAvatar from "@/assets/images/avatar/defalutAvatar.jpg";
 
 const siteStore = useSiteStore();
 
@@ -168,6 +179,8 @@ const stats = ref<StatsInfo>({
   totalCategories: 0,
   totalViews: 0,
 });
+// 公告数据
+const notices = ref<Notice[]>([]);
 
 /**
  * 标签页配置
@@ -211,6 +224,17 @@ const fetchStats = async () => {
 };
 
 /**
+ * 获取公告列表
+ */
+const fetchNotices = async () => {
+  try {
+    notices.value = await siteApi.getNotices();
+  } catch (e) {
+    console.error("获取公告失败:", e);
+  }
+};
+
+/**
  * 点击分类,跳转到文章列表页并筛选该分类
  */
 const handleCategoryClick = (id: number): void => {
@@ -220,32 +244,21 @@ const handleCategoryClick = (id: number): void => {
 onMounted(() => {
   fetchCategories();
   fetchStats();
+  fetchNotices();
 });
 </script>
 <style scoped>
 /* 毛玻璃效果 */
-.glass-section {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
+@media (min-width: 768px) {
+  .glass-section {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+  }
 }
 
-/* 公告栏 */
-.notice-card {
-  background: linear-gradient(
-    135deg,
-    var(--color-primary-50) 0%,
-    var(--glass-bg) 100%
-  );
-  border: 1px solid var(--glass-border);
-  transform: all 0.3s ease;
-}
-
-.notice-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
+/* 公告栏 - 已改为 Tailwind 类控制 */
 
 /* 标签页卡片 */
 .tab-card {

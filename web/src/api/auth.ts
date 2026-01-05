@@ -1,5 +1,5 @@
-import { post } from './request'
-import type { LoginData, RegisterData, LoginResponse } from '@/types'
+import { get, post } from './request'
+import type { LoginData, RegisterData, LoginResponse, UserInfo } from '@/types'
 
 export const authApi = {
   // 登录
@@ -10,6 +10,14 @@ export const authApi = {
   // 注册
   register: (data: RegisterData) => {
     return post<void>('/auth/register', data)
+  },
+
+  /**
+   * 获取当前登录用户信息
+   * @returns 当前用户信息
+   */
+  getCurrentUser: () => {
+    return get<UserInfo>('/auth/me')
   },
 
   // 发送验证码 (Mock for now, or real if endpoint exists)

@@ -55,14 +55,19 @@ export interface PaginationResult<T> {
   totalPages: number
 }
 
-// 用户信息
+/**
+ * 用户信息接口
+ * 统一用于站点信息展示和 API 返回
+ */
 export interface UserInfo {
-  name: string
-  avatar: string
-  bio: string
+  id?: number
+  username: string
   email: string
-  github?: string
-  bilibili?: string
+  avatar: string | null
+  bio: string | null
+  github?: string | null
+  bilibili?: string | null
+  role?: number
 }
 
 // 主题模式
@@ -100,43 +105,47 @@ export interface NavigationCategory {
 }
 
 // 公告接口
+// 公告接口
 export interface Notice {
   id: number
   content: string
-  isEnabled?: number
-  sortOrder?: number
-  createTime?: string
+  isShow: number
+  sortOrder: number
+  createTime: string
 }
 
-// 项目展示接口
+// 技能接口
+export interface Skill {
+  id: number
+  name: string
+  icon: string
+  percentage: number
+  color: string
+  sortOrder: number
+}
+
+// 精选项目接口
 export interface Project {
   id: number
   title: string
   description: string
-  cover?: string
-  tags: string[]
-  links: {
-    github?: string
-    demo?: string
-  }
+  coverImage?: string
+  githubUrl?: string
+  previewUrl?: string
+  techStack: string
+  isFeatured: number
+  sortOrder: number
 }
 
-// 技能分组接口
-export interface SkillGroup {
-  category: string
-  items: {
-    name: string
-    icon: string
-    level?: number
-  }[]
-}
-
-// 里程碑/成长历程接口
-export interface Milestone {
-  date: string
+// 时间线接口
+export interface Timeline {
+  id: number
+  year: string
   title: string
-  content: string
-  color?: string
+  description: string
+  icon: string
+  color: string
+  sortOrder: number
 }
 
 // 登录参数
@@ -154,10 +163,54 @@ export interface RegisterData {
   code?: string
 }
 
+// 用户更新数据
+export interface UserUpdateData {
+  id: number
+  username: string
+  email: string
+  avatar?: string
+  bio?: string
+  github?: string
+  bilibili?: string
+  password?: string // 某些接口可能需要
+}
+
+// 修改密码数据
+export interface ChangePasswordData {
+  oldPassword: string
+  newPassword: string
+}
+
 // 登录响应
 export interface LoginResponse {
   token: string
   userInfo: UserInfo
 }
+
+/**
+ * 评论展示视图对象
+ */
+export interface CommentShowVO {
+  id: number
+  articleId: number
+  userId: number | null
+  username: string
+  userAvatar: string | null
+  parentId: number | null
+  replyToUsername: string | null
+  content: string
+  createTime: string
+  children?: CommentShowVO[]
+}
+
+/**
+ * 创建评论请求参数
+ */
+export interface CommentCreateDTO {
+  articleId: number
+  parentId?: number | null
+  content: string
+}
+
 
 

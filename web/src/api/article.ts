@@ -37,6 +37,22 @@ export const articleApi = {
   },
 
   /**
+   * 获取我点赞的文章列表
+   * @param params 分页参数
+   */
+  getLikedList(params: PaginationParams) {
+    return get<PaginationResponse<Article>>('/articles/liked', params)
+  },
+
+  /**
+   * 获取我收藏的文章列表
+   * @param params 分页参数
+   */
+  getFavoriteList(params: PaginationParams) {
+    return get<PaginationResponse<Article>>('/articles/favorite', params)
+  },
+
+  /**
    * 点赞文章
    * @param id 文章 ID
    * @returns 点赞后的数据

@@ -2,8 +2,33 @@
   <div class="article-list py-12 bg-transparent">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- 侧边栏 -->
-        <Sidebar class="lg:col-span-1" @category-click="handleCategorySelect" />
+        <!-- 移动端筛选按钮 -->
+        <div class="mb-4 lg:hidden">
+          <el-button
+            type="primary"
+            class="w-full"
+            @click="drawerVisible = true"
+          >
+            <el-icon class="mr-2"><Filter /></el-icon>
+            筛选与分类
+          </el-button>
+        </div>
+
+        <!-- 侧边栏 (桌面端) -->
+        <Sidebar
+          class="hidden lg:block lg:col-span-1"
+          @category-click="handleCategorySelect"
+        />
+
+        <!-- 侧边栏抽屉 (移动端) -->
+        <el-drawer
+          v-model="drawerVisible"
+          title="筛选与分类"
+          direction="ltr"
+          size="80%"
+        >
+          <Sidebar @category-click="handleCategorySelect" />
+        </el-drawer>
 
         <!-- 主内容区 -->
         <div class="lg:col-span-3">
@@ -86,7 +111,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import { Search } from "@element-plus/icons-vue";
+import { Search, Filter } from "@element-plus/icons-vue";
 import ArticleCard from "@/components/ArticleCard.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import { articleApi } from "@/api/article";
@@ -94,6 +119,8 @@ import type { Article } from "@/types";
 import type { TagInfo } from "@/types";
 
 const route = useRoute();
+
+const drawerVisible = ref(false);
 
 const currentPage = ref(1);
 const pageSize = ref(6);
@@ -156,6 +183,7 @@ const handleFilter = () => {
 
 const handleCategorySelect = (id: number) => {
   selectedCategory.value = id;
+  drawerVisible.value = false;
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 

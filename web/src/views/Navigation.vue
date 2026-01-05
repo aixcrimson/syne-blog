@@ -59,7 +59,7 @@
               <div class="flex items-start space-x-4">
                 <div class="flex-shrink-0">
                   <div
-                    class="flex hidden justify-center items-center w-12 h-12 text-xl font-bold text-white bg-gradient-to-br rounded-lg transition-transform from-primary-400 to-primary-600 group-hover:scale-110 sm:flex"
+                    class="justify-center items-center w-12 h-12 text-xl font-bold text-white bg-gradient-to-br rounded-lg transition-transform site-icon-wrapper from-primary-400 to-primary-600 group-hover:scale-110"
                   >
                     <img
                       v-if="site.icon && site.icon.startsWith('http')"
@@ -150,5 +150,15 @@ onMounted(() => {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--glass-border);
+}
+
+.site-icon-wrapper {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .site-icon-wrapper {
+    display: flex;
+  }
 }
 </style>

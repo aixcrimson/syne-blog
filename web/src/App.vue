@@ -12,15 +12,21 @@
 import { onMounted } from "vue";
 import { useAppStore } from "@/stores/app";
 import { useSiteStore } from "@/stores/site";
+import { useUserStore } from "@/stores/user";
 
 const appStore = useAppStore();
 const siteStore = useSiteStore();
+const userStore = useUserStore();
 
 onMounted(() => {
   // 初始化应用
   appStore.init();
   // 加载博主信息
   siteStore.fetchAuthorInfo();
+  // 如果有 token，获取用户信息
+  if (userStore.token) {
+    userStore.fetchCurrentUser();
+  }
 });
 </script>
 

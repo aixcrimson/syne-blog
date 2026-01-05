@@ -91,7 +91,8 @@
 import { ref } from "vue";
 import { ChatLineSquare } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
-import { commentApi, type CommentShowVO } from "@/api/comment";
+import { commentApi } from "@/api/comment";
+import type { CommentShowVO } from "@/types";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/zh-cn";

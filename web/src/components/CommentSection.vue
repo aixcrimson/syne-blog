@@ -79,7 +79,8 @@
 import { ref, reactive, onMounted, watch } from "vue";
 import { ChatDotRound } from "@element-plus/icons-vue";
 import { ElMessage, type FormInstance, type FormRules } from "element-plus";
-import { commentApi, type CommentShowVO } from "@/api/comment";
+import { commentApi } from "@/api/comment";
+import type { CommentShowVO } from "@/types";
 import CommentItem from "./CommentItem.vue";
 
 const props = defineProps<{

@@ -3,31 +3,8 @@
  */
 import { get, post } from './request'
 import type { PaginationParams, PaginationResponse } from '@/types/api'
+import type { CommentShowVO, CommentCreateDTO } from '@/types'
 
-/**
- * 评论展示视图对象
- */
-export interface CommentShowVO {
-  id: number
-  articleId: number
-  userId: number | null
-  username: string
-  userAvatar: string | null
-  parentId: number | null
-  replyToUsername: string | null
-  content: string
-  createTime: string
-  children?: CommentShowVO[]
-}
-
-/**
- * 创建评论请求参数
- */
-export interface CommentCreateDTO {
-  articleId: number
-  parentId?: number | null
-  content: string
-}
 
 /**
  * 评论 API 服务

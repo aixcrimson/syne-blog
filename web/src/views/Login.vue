@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-500"
+    class="flex overflow-hidden relative justify-center items-center px-4 py-12 min-h-screen transition-colors duration-500 sm:px-6 lg:px-8"
   >
     <!-- 背景图片 -->
     <div
@@ -9,18 +9,18 @@
     ></div>
 
     <div
-      class="max-w-md w-full glass-card rounded-2xl shadow-xl overflow-hidden relative z-10 p-8"
+      class="overflow-hidden relative z-10 p-8 w-full max-w-md rounded-2xl shadow-xl glass-card"
     >
       <!-- 头部切换 -->
-      <div class="text-center mb-8">
-        <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-2">
+      <div class="mb-8 text-center">
+        <h2 class="mb-2 text-3xl font-extrabold text-gray-900 dark:text-white">
           {{ isLoginMode ? "欢迎回来" : "创建账号" }}
         </h2>
         <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
           {{ isLoginMode ? "还没有账号？" : "已有账号？" }}
           <a
             href="#"
-            class="font-medium text-primary-600 hover:text-primary-500 transition-colors"
+            class="font-medium transition-colors text-primary-600 hover:text-primary-500"
             @click.prevent="toggleMode"
           >
             {{ isLoginMode ? "立即注册" : "立即登录" }}
@@ -56,17 +56,17 @@
           />
         </el-form-item>
 
-        <div class="flex items-center justify-between">
+        <div class="flex justify-between items-center">
           <div class="flex items-center">
             <input
               id="remember-me"
               name="remember-me"
               type="checkbox"
-              class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+              class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
             />
             <label
               for="remember-me"
-              class="ml-2 block text-sm text-gray-900 dark:text-gray-300"
+              class="block ml-2 text-sm text-gray-900 dark:text-gray-300"
             >
               记住我
             </label>
@@ -175,20 +175,20 @@
       <!-- 底部辅助 -->
       <div class="mt-6">
         <div class="relative">
-          <div class="absolute inset-0 flex items-center">
+          <div class="flex absolute inset-0 items-center">
             <div
               class="w-full border-t border-gray-300 dark:border-gray-700"
             ></div>
           </div>
-          <div class="relative flex justify-center text-sm">
+          <div class="flex relative justify-center text-sm">
             <span
-              class="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 glass-text-bg"
+              class="px-2 text-gray-500 bg-white dark:bg-gray-800 dark:text-gray-400 glass-text-bg"
             >
               或者返回
             </span>
           </div>
         </div>
-        <div class="mt-6 grid grid-cols-1 gap-3">
+        <div class="grid grid-cols-1 gap-3 mt-6">
           <el-button @click="router.push('/')">回到首页</el-button>
         </div>
       </div>
@@ -279,7 +279,7 @@ const registerForm = reactive({
   confirmPassword: "",
 });
 
-const validatePass2 = (rule: any, value: any, callback: any) => {
+const validatePass2 = (_rule: any, value: any, callback: any) => {
   if (value === "") {
     callback(new Error("请再次输入密码"));
   } else if (value !== registerForm.password) {

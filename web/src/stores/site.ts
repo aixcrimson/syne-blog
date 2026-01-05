@@ -8,7 +8,7 @@ import defaultAvatar from '@/assets/images/avatar/defalutAvatar.jpg'
 export const useSiteStore = defineStore('site', () => {
   // 博主信息
   const authorInfo = ref<UserInfo>({
-    name: '',
+    username: '',
     avatar: defaultAvatar,
     bio: '',
     email: '',
@@ -29,14 +29,8 @@ export const useSiteStore = defineStore('site', () => {
     }
   }
 
-  // 动作: 更新博主信息 (本地更新 + TODO: 需调用API)
-  const updateAuthorInfo = (info: Partial<UserInfo>) => {
-    authorInfo.value = { ...authorInfo.value, ...info }
-  }
-
   return {
     authorInfo,
     fetchAuthorInfo,
-    updateAuthorInfo
   }
 })

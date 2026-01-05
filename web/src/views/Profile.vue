@@ -93,7 +93,58 @@
                   </div>
                   <el-button>修改</el-button>
                 </div>
-                <!-- 更多安全选项 -->
+              </div>
+            </el-tab-pane>
+
+            <!-- 我的点赞 -->
+            <el-tab-pane label="我的点赞" name="liked">
+              <div v-loading="loading" class="py-4">
+                <div v-if="articles.length > 0" class="space-y-4">
+                  <ArticleCard
+                    v-for="article in articles"
+                    :key="article.id"
+                    :article="article"
+                    class="transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
+                  />
+                  <!-- 分页 -->
+                  <div class="flex justify-center pt-8">
+                    <el-pagination
+                      v-model:current-page="currentPage"
+                      v-model:page-size="pageSize"
+                      :total="total"
+                      layout="prev, pager, next"
+                      background
+                      @current-change="handlePageChange"
+                    />
+                  </div>
+                </div>
+                <el-empty v-else description="暂无点赞文章" />
+              </div>
+            </el-tab-pane>
+
+            <!-- 我的收藏 -->
+            <el-tab-pane label="我的收藏" name="favorite">
+              <div v-loading="loading" class="py-4">
+                <div v-if="articles.length > 0" class="space-y-4">
+                  <ArticleCard
+                    v-for="article in articles"
+                    :key="article.id"
+                    :article="article"
+                    class="transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
+                  />
+                  <!-- 分页 -->
+                  <div class="flex justify-center pt-8">
+                    <el-pagination
+                      v-model:current-page="currentPage"
+                      v-model:page-size="pageSize"
+                      :total="total"
+                      layout="prev, pager, next"
+                      background
+                      @current-change="handlePageChange"
+                    />
+                  </div>
+                </div>
+                <el-empty v-else description="暂无收藏文章" />
               </div>
             </el-tab-pane>
           </el-tabs>
@@ -104,10 +155,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import { useUserStore } from "@/stores/user";
 import { ElMessage } from "element-plus";
 import { Camera } from "@element-plus/icons-vue";
+import { userApi } from "@/api/user";
+import { articleApi } from "@/api/article";
+import ArticleCard from "@/components/ArticleCard.vue";
 
 const userStore = useUserStore();
 const activeTab = ref("profile");
@@ -127,9 +181,7 @@ onMounted(() => {
   if (userStore.currentUser) {
     const user = userStore.currentUser;
     formData.username = user.username || "";
-    // 注意：当前 userStore 类型定义中可能缺少 email/github/bilibili 字段
-    // 如果后端返回的 userInfo 包含这些字段，可以直接使用
-    // 建议同步更新 web/src/stores/user.ts 中的 UserInfo 接口定义
+    // 兼容处理可能缺失的字段
     formData.email = (user as any).email || "";
     formData.bio = (user as any).bio || "";
     formData.github = (user as any).github || "";
@@ -138,12 +190,61 @@ onMounted(() => {
   }
 });
 
+// 文章列表相关
+const loading = ref(false);
+const articles = ref<any[]>([]);
+const total = ref(0);
+const currentPage = ref(1);
+const pageSize = ref(10);
+
+const loadArticles = async (type: "liked" | "favorite") => {
+  loading.value = true;
+  try {
+    const params = {
+      page: currentPage.value,
+      pageSize: pageSize.value,
+    };
+    const res =
+      type === "liked"
+        ? await articleApi.getLikedList(params)
+        : await articleApi.getFavoriteList(params);
+
+    articles.value = res.list;
+    total.value = res.total;
+  } catch (error) {
+    ElMessage.error("获取文章列表失败");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 监听 Tab 切换
+watch(activeTab, (newTab) => {
+  if (newTab === "liked" || newTab === "favorite") {
+    currentPage.value = 1;
+    loadArticles(newTab);
+  }
+});
+
+const handlePageChange = (page: number) => {
+  currentPage.value = page;
+  if (activeTab.value === "liked" || activeTab.value === "favorite") {
+    loadArticles(activeTab.value as "liked" | "favorite");
+  }
+};
+
 const handleSave = async () => {
+  if (!userStore.currentUser?.id) {
+    ElMessage.error("未找到用户信息");
+    return;
+  }
+
   saving.value = true;
   try {
-    // await userApi.updateProfile(formData)
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Mock delay
+    await userApi.updateProfile(userStore.currentUser.id, formData);
     ElMessage.success("保存成功");
+    // 更新本地 store
+    // userStore.updateUser(result) // 如果有更新 userStore 的方法
   } catch (error) {
     ElMessage.error("保存失败");
   } finally {
