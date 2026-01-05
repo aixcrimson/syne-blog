@@ -109,6 +109,56 @@ public class ArticleController {
     }
 
     /**
+     * 获取用户点赞的文章列表
+     *
+     * @param page 页码
+     * @param pageSize 每页大小
+     * @return 用户点赞的文章列表
+     */
+    @Operation(summary = "获取用户点赞的文章列表", description = "获取用户点赞的文章列表")
+    @GetMapping("/liked")
+    public Result<PageResult<ArticleListVO>> getLikedArticleList(
+            @Parameter(description = "页码", example = "1")
+            @RequestParam(defaultValue = "1") Integer page,
+
+            @Parameter(description = "每页大小", example = "10")
+            @RequestParam(defaultValue = "10") Integer pageSize
+    ){
+        log.info("用户端获取用户点赞的文章列表：page={}, pageSize={}", page, pageSize);
+        PageQuery pageQuery = new PageQuery();
+        pageQuery.setPage(page);
+        pageQuery.setPageSize(pageSize);
+
+        PageResult<ArticleListVO> result = articleService.getLikedArticleList(pageQuery);
+        return Result.success(result);
+    }
+
+    /**
+     * 获取用户收藏的文章列表
+     *
+     * @param page 页码
+     * @param pageSize 每页大小
+     * @return 用户收藏的文章列表
+     */
+    @Operation(summary = "获取用户收藏的文章列表", description = "获取用户收藏的文章列表")
+    @GetMapping("/favorite")
+    public Result<PageResult<ArticleListVO>> getFavoriteArticleList(
+            @Parameter(description = "页码", example = "1")
+            @RequestParam(defaultValue = "1") Integer page,
+
+            @Parameter(description = "每页大小", example = "10")
+            @RequestParam(defaultValue = "10") Integer pageSize
+    ){
+        log.info("用户端获取用户收藏的文章列表：page={}, pageSize={}", page, pageSize);
+        PageQuery pageQuery = new PageQuery();
+        pageQuery.setPage(page);
+        pageQuery.setPageSize(pageSize);
+
+        PageResult<ArticleListVO> result = articleService.getFavoriteArticleList(pageQuery);
+        return Result.success(result);
+    }
+
+    /**
      * 给文章点赞或取消点赞
      *
      * @param id 文章ID

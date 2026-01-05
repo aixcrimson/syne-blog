@@ -66,4 +66,26 @@ public interface ArticleMapper extends BaseMapper<Article> {
             @Param("categoryId") Long categoryId,
             @Param("tagIds") List<Long> tagIds
     );
+
+    /**
+     * 查询用户点赞的文章列表
+     */
+    List<ArticleListVO> selectLikedArticles(
+            @Param("offset") Integer offset,
+            @Param("pageSize") Integer pageSize,
+            @Param("userId") Long userId
+    );
+
+    Long countLikedArticles(@Param("userId") Long userId);
+
+    /**
+     * 查询用户收藏的文章列表
+     */
+    List<ArticleListVO> selectFavoriteArticles(
+            @Param("offset") Integer offset,
+            @Param("pageSize") Integer pageSize,
+            @Param("userId") Long userId
+    );
+
+    Long countFavoriteArticles(@Param("userId") Long userId);
 }

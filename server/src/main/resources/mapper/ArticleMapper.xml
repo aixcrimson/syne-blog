@@ -154,4 +154,79 @@
             </foreach>
         </if>
     </select>
+
+    <!-- 查询用户点赞的文章列表 -->
+    <select id="selectLikedArticles" resultMap="ArticleListVOMap">
+        SELECT
+        a.id,
+        a.title,
+        a.summary,
+        a.cover_image,
+        a.views,
+        a.likes,
+        a.favorites,
+        a.comments_count,
+        a.is_top,
+        a.is_recommend,
+        a.status,
+        a.published_time,
+        a.create_time,
+        u.username AS author_name,
+        u.avatar AS author_avatar,
+        c.name AS category_name
+        FROM articles a
+        INNER JOIN article_likes al ON a.id = al.article_id
+        LEFT JOIN users u ON a.create_by = u.id
+        LEFT JOIN categories c ON a.category_id = c.id
+        WHERE al.create_by = #{userId} AND al.deleted = 0
+        AND a.status = 1 AND a.deleted = 0
+        ORDER BY al.create_time DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 统计用户点赞文章数 -->
+    <select id="countLikedArticles" resultType="java.lang.Long">
+        SELECT COUNT(a.id)
+        FROM articles a
+        INNER JOIN article_likes al ON a.id = al.article_id
+        WHERE al.create_by = #{userId} AND al.deleted = 0
+        AND a.status = 1 AND a.deleted = 0
+    </select>
+
+    <!-- 查询用户收藏的文章列表 -->
+    <select id="selectFavoriteArticles" resultMap="ArticleListVOMap">
+        SELECT
+        a.id,
+        a.title,
+        a.summary,
+        a.cover_image,
+        a.views,
+        a.likes,
+        a.favorites,
+        a.comments_count,
+        a.is_top,
+        a.is_recommend,
+        a.status,
+        a.published_time,
+        a.create_time,
+        u.username AS author_name,
+        u.avatar AS author_avatar,
+        c.name AS category_name
+        FROM articles a
+        INNER JOIN article_favorites af ON a.id = af.article_id
+        LEFT JOIN users u ON a.create_by = u.id
+        LEFT JOIN categories c ON a.category_id = c.id
+        WHERE a.status = 1 AND a.deleted = 0
+        ORDER BY af.create_time DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 统计用户收藏的文章数 -->
+    <select id="countFavoriteArticles" resultType="java.lang.Long">
+        SELECT COUNT(a.id)
+        FROM articles a
+        INNER JOIN article_favorites af ON a.id = af.article_id
+        WHERE af.create_by = #{userId} AND af.deleted = 0
+        AND a.status = 1 AND a.deleted = 0
+    </select>
 </mapper>

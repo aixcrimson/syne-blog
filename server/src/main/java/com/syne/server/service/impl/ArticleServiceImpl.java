@@ -624,4 +624,46 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 //     return Result.success("浏览量增加成功");
 // }
 
+    @Override
+    public PageResult<ArticleListVO> getLikedArticleList(PageQuery pageQuery) {
+        // 获取当前用户ID
+        Long userId = SecurityUtils.getCurrentUserId();
+
+        // 查询点赞的文章列表
+        List<ArticleListVO> list = articleMapper.selectLikedArticles(
+                pageQuery.getOffset(),
+                pageQuery.getPageSize(),
+                userId
+        );
+
+        // 处理标签
+        list.forEach(article -> article.setTags(tagService.getTagsByArticleId(article.getId())));
+
+        // 查询总数
+        Long total = articleMapper.countLikedArticles(userId);
+
+        return PageResult.build(pageQuery.getPage(), pageQuery.getPageSize(), total, list);
+    }
+
+    @Override
+    public PageResult<ArticleListVO> getFavoriteArticleList(PageQuery pageQuery){
+        // 获取当前用户ID
+        Long userId = SecurityUtils.getCurrentUserId();
+
+        // 查询收藏的文章列表
+        List<ArticleListVO> list = articleMapper.selectFavoriteArticles(
+            pageQuery.getOffset(),
+            pageQuery.getPageSize(),
+            userId
+        );
+
+        // 处理标签
+        list.forEach(article -> article.setTags(tagService.getTagsByArticleId(article.getId())));
+
+        // 查询总数
+        Long total = articleMapper.countFavoriteArticles(userId);
+
+        return PageResult.build(pageQuery.getPage(), pageQuery.getPageSize(), total, list);
+    }
+
 }

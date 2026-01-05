@@ -122,4 +122,18 @@ public interface ArticleService extends IService<Article> {
      * @return 结果
      */
     Result<Map<String, Object>> increaseViews(Long id);
+
+    /**
+     * 获取用户点赞的文章列表
+     * @param pageQuery 分页参数
+     * @return 分页结果
+     */
+    PageResult<ArticleListVO> getLikedArticleList(PageQuery pageQuery);
+
+    /**
+     * 获取用户收藏的文章列表
+     * @param pageQuery 分页参数
+     * @return 分页结果
+     */
+    PageResult<ArticleListVO> getFavoriteArticleList(PageQuery pageQuery);
 }

@@ -5,6 +5,7 @@ import com.syne.server.common.PageQuery;
 import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
 import com.syne.server.entity.User;
+import com.syne.server.entity.dto.ChangePasswordDTO;
 import com.syne.server.entity.dto.UserDTO;
 import com.syne.server.entity.vo.UserListVO;
 
@@ -53,6 +54,14 @@ public interface UserService extends IService<User> {
      * @return 更新后的用户
      */
     User updateUser(UserDTO userUpdateDTO, Long id);
+
+    /**
+     * 修改密码
+     *
+     * @param changePasswordDTO 修改密码参数
+     * @param id                用户ID
+     */
+    void updatePassword(ChangePasswordDTO changePasswordDTO, Long id);
 
     /**
      * 删除用户

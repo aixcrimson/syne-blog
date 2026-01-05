@@ -73,6 +73,58 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
 
     @Override
     @Transactional
+    public Result<String> updateCommentStatus(String ids, Integer status){
+        log.info("更新评论状态：ids={}, status={}", ids, status);
+        
+        // 验证状态值
+        if(status == null || (status != 1 && status != 3)){
+            throw new BusinessException("无效的状态值");
+        }
+
+        if(!StringUtils.hasText(ids)){
+            throw new BusinessException("评论ID不能为空");
+        }
+
+        String[] idArray = ids.split(",");
+        if(idArray.length > 100){
+            throw new BusinessException("单次操作数量不能超过100个");
+        }
+
+        // 批量删除评论逻辑
+        List<String> failedIds = new ArrayList<>();
+        int successCount = 0;
+
+        for(String idStr : idArray) {
+            try{ 
+                Long id = Long.parseLong(idStr.trim());
+                Comment comment = this.getById(id);
+                if(comment == null || comment.getDeleted() == 1){
+                    failedIds.add(idStr + "(评论不存在)");
+                    continue;
+                }
+                comment.setStatus(status);
+                this.updateById(comment);
+                successCount++;
+            } catch(NumberFormatException e){
+                failedIds.add(idStr + "(格式错误)");
+                log.warn("无效的评论ID格式：{}", idStr);
+            }
+        }
+
+        // 构建返回消息
+        String statusText = status == 1 ? "审核通过" : "驳回";
+        String message;
+        if(failedIds.isEmpty()){
+            message = successCount == 1 ? "评论" + statusText + "成功" : "成功" + statusText + " " + successCount + "条评论";
+            return Result.success(message);
+        }else {
+            message = "成功" + statusText + " " + successCount + "条评论，失败：" + String.join(", ", failedIds);
+            return Result.success(message);
+        }
+    }
+
+    @Override
+    @Transactional
     public Result<String> deleteComments(String ids) {
         log.info("删除评论：ids={}", ids);
         if (!StringUtils.hasText(ids)) {

@@ -47,6 +47,15 @@ public interface CommentService extends IService<Comment> {
      */
     Result<String> deleteComments(String ids);
 
+    /**
+     * 更新评论状态（审核通过/驳回）
+     *
+     * @param ids    评论ID，多个用逗号分隔
+     * @param status 目标状态（1-通过，3-驳回）
+     * @return 操作结果
+     */
+    Result<String> updateCommentStatus(String ids, Integer status);
+
     // ==================== 用户端接口 ====================
 
     /**

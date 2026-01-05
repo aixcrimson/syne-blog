@@ -12,10 +12,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.syne.server.entity.vo.UserInfoVO;
 
 /**
  * 认证控制器
@@ -29,6 +31,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+
+    /**
+     * 获取当前登录用户信息
+     * @return 当前用户信息
+     */
+    @Operation(summary = "获取当前用户信息", description = "根据JWT Token获取当前登录用户信息")
+    @GetMapping("/me")
+    public Result<UserInfoVO> getCurrentUser() {
+        log.info("获取当前用户信息");
+        UserInfoVO userInfo = authService.getCurrentUser();
+        return Result.success(userInfo);
+    }
 
     /**
      * 用户注册
