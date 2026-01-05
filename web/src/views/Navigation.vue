@@ -67,7 +67,7 @@
                       :alt="site.name"
                       class="object-cover w-full h-full rounded-lg"
                     />
-                    <span v-else>{{ site.icon || site.name.charAt(0) }}</span>
+                    <span v-else>{{ site.icon || site.name?.charAt(0) }}</span>
                   </div>
                 </div>
                 <div class="flex-1 min-w-0">
