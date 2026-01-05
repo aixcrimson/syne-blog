@@ -163,11 +163,7 @@
           <el-dropdown
             v-else
             trigger="click"
-            @command="
-              (cmd: string) => {
-                if (cmd === 'logout') handleLogout();
-              }
-            "
+            @command="handleUserCommand"
           >
             <div
               class="flex gap-2 items-center pr-2 rounded-full transition-colors cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -455,6 +451,14 @@ const submitSearch = () => {
   searchVisible.value = false;
   searchKeyword.value = "";
 };
+const handleUserCommand = (command: string) => {
+  if (command === "profile") {
+    router.push("/profile");
+  } else if (command === "logout") {
+    handleLogout();
+  }
+};
+
 
 const handleLogout = () => {
   userStore.logout();

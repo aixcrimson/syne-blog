@@ -44,7 +44,10 @@ public class SecurityConfig {
                                 "/categories",
                                 "/navigations",
                                 "/tags",
-                                "/stats"
+                                "/stats",
+                                "/site/**",
+                                "/comments",
+                                "/comments/**"
                         ).permitAll()
                         // 放行 Swagger 相关路径
                         .requestMatchers(
