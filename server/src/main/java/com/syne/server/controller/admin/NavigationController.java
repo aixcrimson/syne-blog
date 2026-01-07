@@ -27,7 +27,7 @@ import java.util.List;
  */
 @Tag(name = "管理员-导航管理", description = "管理员端导航分类和导航站点管理接口")
 @RestController
-@RequestMapping("/admin/navigations")
+@RequestMapping("/admin/navigation")
 @RequiredArgsConstructor
 public class NavigationController {
 

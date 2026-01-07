@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @Tag(name = "Web - 站点内容接口", description = "获取公告、技能、项目、时间线等内容")
-@RestController
+@RestController("webSiteContentController")
 @RequestMapping("/site")
 @RequiredArgsConstructor
 public class SiteContentController {

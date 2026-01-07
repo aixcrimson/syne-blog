@@ -48,7 +48,7 @@ export const navigationApi = {
    * @requirements 10.1
    */
   getCategories(): Promise<NavigationCategory[]> {
-    return get<NavigationCategory[]>('/admin/navigation/categories')
+    return get<NavigationCategory[]>('/admin/navigation/categories/all')
   },
 
   /**
@@ -141,7 +141,7 @@ export const navigationApi = {
   parseBookmarkFile(file: File): Promise<BookmarkPreviewDTO> {
     const formData = new FormData()
     formData.append('file', file)
-    return post<BookmarkPreviewDTO>('/admin/navigations/bookmarks/parse', formData, {
+    return post<BookmarkPreviewDTO>('/admin/navigation/bookmarks/parse', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -154,7 +154,7 @@ export const navigationApi = {
    * @returns 导入结果
    */
   importBookmarks(mapping: BookmarkMappingDTO): Promise<string> {
-    return post<string>('/admin/navigations/bookmarks/import', mapping)
+    return post<string>('/admin/navigation/bookmarks/import', mapping)
   }
 }
 

@@ -61,7 +61,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/",
                                 "/static/**",
-                                "/login",
+                                "/admin/auth/login",
                                 "/login.html"
                         ).permitAll()
                         // 其他请求需要认证
