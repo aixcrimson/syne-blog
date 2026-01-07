@@ -541,3 +541,158 @@ export interface BookmarkMappingDTO {
   /** 要导入的书签列表 */
   bookmarks: BookmarkItem[]
 }
+
+// ==================== 作者信息相关 ====================
+
+/**
+ * 公告接口
+ */
+export interface Notice {
+  /** 公告ID */
+  id: number
+  /** 公告内容 */
+  content: string
+  /** 是否显示: 0-隐藏, 1-显示 */
+  isShow: number
+  /** 排序权重 */
+  sortOrder: number
+  /** 创建时间 */
+  createTime: string
+}
+
+/**
+ * 公告表单接口
+ */
+export interface NoticeForm {
+  /** 公告内容 */
+  content: string
+  /** 是否显示 */
+  isShow: number
+  /** 排序权重 */
+  sortOrder: number
+}
+
+/**
+ * 技能接口
+ */
+export interface Skill {
+  /** 技能ID */
+  id: number
+  /** 技能名称 */
+  name: string
+  /** 技能图标 */
+  icon: string
+  /** 熟练度百分比 (0-100) */
+  percentage: number
+  /** 进度条颜色 */
+  color: string
+  /** 排序权重 */
+  sortOrder: number
+  /** 创建时间 */
+  createTime: string
+}
+
+/**
+ * 技能表单接口
+ */
+export interface SkillForm {
+  /** 技能名称 */
+  name: string
+  /** 技能图标 */
+  icon?: string
+  /** 熟练度百分比 */
+  percentage: number
+  /** 进度条颜色 */
+  color: string
+  /** 排序权重 */
+  sortOrder: number
+}
+
+/**
+ * 项目接口
+ */
+export interface Project {
+  /** 项目ID */
+  id: number
+  /** 项目标题 */
+  title: string
+  /** 项目描述 */
+  description: string
+  /** 封面图片 */
+  coverImage: string
+  /** GitHub链接 */
+  githubUrl: string
+  /** 预览链接 */
+  previewUrl: string
+  /** 技术栈（逗号分隔） */
+  techStack: string
+  /** 是否精选: 0-普通, 1-精选 */
+  isFeatured: number
+  /** 排序权重 */
+  sortOrder: number
+  /** 创建时间 */
+  createTime: string
+}
+
+/**
+ * 项目表单接口
+ */
+export interface ProjectForm {
+  /** 项目标题 */
+  title: string
+  /** 项目描述 */
+  description: string
+  /** 封面图片 */
+  coverImage?: string
+  /** GitHub链接 */
+  githubUrl?: string
+  /** 预览链接 */
+  previewUrl?: string
+  /** 技术栈 */
+  techStack?: string
+  /** 是否精选 */
+  isFeatured: number
+  /** 排序权重 */
+  sortOrder: number
+}
+
+/**
+ * 时间线接口
+ */
+export interface Timeline {
+  /** 时间线ID */
+  id: number
+  /** 年份或时间点 */
+  year: string
+  /** 标题 */
+  title: string
+  /** 描述 */
+  description: string
+  /** 图标名称 */
+  icon: string
+  /** 节点颜色类型 */
+  color: string
+  /** 排序权重 */
+  sortOrder: number
+  /** 创建时间 */
+  createTime: string
+}
+
+/**
+ * 时间线表单接口
+ */
+export interface TimelineForm {
+  /** 年份或时间点 */
+  year: string
+  /** 标题 */
+  title: string
+  /** 描述 */
+  description?: string
+  /** 图标名称 */
+  icon?: string
+  /** 节点颜色类型 */
+  color: string
+  /** 排序权重 */
+  sortOrder: number
+}
+

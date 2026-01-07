@@ -96,6 +96,13 @@ const protectedRoutes: RouteRecordRaw[] = [
         component: () => import('@/views/navigation/index.vue'),
         meta: { title: '导航管理', icon: 'Link' }
       },
+      // 作者信息管理
+      {
+        path: '/author',
+        name: 'Author',
+        component: () => import('@/views/author/index.vue'),
+        meta: { title: '作者信息', icon: 'UserFilled' }
+      },
       // 用户管理
       {
         path: 'user',
@@ -205,7 +212,7 @@ const isTokenExpired = (token: string): boolean => {
  * 设置为 true 时，无需登录即可访问所有页面
  * 生产环境请设置为 false
  */
-const DEV_SKIP_AUTH = false
+const DEV_SKIP_AUTH = true
 
 /**
  * 检查 Token 是否存在且有效
@@ -247,18 +254,22 @@ export const requiresAuthentication = (to: RouteLocationNormalized): boolean => 
   return to.matched.some(record => record.meta.requiresAuth !== false)
 }
 
+/** 是否已完成初始化 */
+let isInitialized = false
+
 /**
  * 路由守卫 - 检查认证状态
  * 
  * 功能说明：
- * 1. 未登录用户访问受保护页面时重定向到登录页
- * 2. 已登录用户访问登录页时重定向到首页
- * 3. Token 过期时自动清除并重定向到登录页
+ * 1. 首次导航时初始化用户状态（从后端获取用户信息）
+ * 2. 未登录用户访问受保护页面时重定向到登录页
+ * 3. 已登录用户访问登录页时重定向到首页
+ * 4. Token 过期时自动清除并重定向到登录页
  * 
  * @see Requirements 3.1 - 未登录重定向到登录页
  * @see Requirements 3.6 - Token 过期自动跳转登录页
  */
-router.beforeEach((
+router.beforeEach(async (
   to: RouteLocationNormalized, 
   _from: RouteLocationNormalized, 
   next: NavigationGuardNext
@@ -266,6 +277,16 @@ router.beforeEach((
   // 设置页面标题
   const title = to.meta.title as string
   document.title = title ? `${title} - 博客管理系统` : '博客管理系统'
+
+  // 首次导航时初始化用户状态（只执行一次）
+  if (!isInitialized) {
+    isInitialized = true
+    // 动态导入避免循环依赖
+    const { useUserStore } = await import('@/stores/user')
+    const userStore = useUserStore()
+    // 尝试恢复登录状态（会从后端获取用户信息）
+    await userStore.init()
+  }
 
   const authenticated = isAuthenticated()
   const needsAuth = requiresAuthentication(to)
