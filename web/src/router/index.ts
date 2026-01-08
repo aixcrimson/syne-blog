@@ -61,7 +61,7 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(_to, _from, savedPosition) {
     if (savedPosition) {
       return savedPosition
     } else {
@@ -71,7 +71,7 @@ const router = createRouter({
 })
 
 // 路由守卫 - 更新页面标题
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const title = to.meta.title as string
   if (title) {
     document.title = `${title} - syne's blog`

@@ -3,10 +3,14 @@ import hljs from 'highlight.js'
 import 'highlight.js/styles/github-dark.css'
 
 // 创建 Markdown 解析器实例
+// 创建 Markdown 解析器实例
 const md = new MarkdownIt({
   html: true,
   linkify: true,
-  typographer: true,
+  typographer: true
+})
+
+md.set({
   highlight: function (str, lang) {
     if (lang && hljs.getLanguage(lang)) {
       try {
