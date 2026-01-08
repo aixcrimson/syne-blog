@@ -10,13 +10,12 @@
     >
       <div class="flex items-center gap-3 overflow-hidden">
         <!-- Logo 图标 -->
-        <div
-          class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center flex-shrink-0"
-        >
-          <el-icon class="text-white text-lg">
-            <Promotion />
-          </el-icon>
-        </div>
+        <!-- Logo 图标 -->
+        <img
+          :src="logo"
+          alt="Logo"
+          class="w-8 h-8 rounded-lg object-contain flex-shrink-0"
+        />
         <!-- 系统名称 -->
         <transition name="fade">
           <span
@@ -92,6 +91,7 @@
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import type { MenuItem } from "@/types";
+import logo from "@/assets/common/logo.png";
 
 /**
  * 组件属性

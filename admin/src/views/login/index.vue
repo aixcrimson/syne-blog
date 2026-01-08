@@ -10,8 +10,12 @@
     <div class="glass-card p-8 w-full max-w-md relative z-10">
       <!-- Logo 和标题 -->
       <div class="text-center mb-8">
-        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg">
-          <span class="text-white text-2xl font-bold">B</span>
+        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white flex items-center justify-center p-1 shadow-lg border border-gray-100">
+          <img
+            :src="logo"
+            alt="Logo"
+            class="w-full h-full object-contain rounded-xl"
+          />
         </div>
         <h1 class="text-2xl font-bold text-gray-800">博客管理系统</h1>
         <p class="text-gray-500 mt-2">请登录您的账号</p>
@@ -90,6 +94,7 @@ import { User, Lock, View, Hide } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { authApi } from '@/api/auth'
 import type { LoginParams, UserInfo } from '@/types'
+import logo from '@/assets/common/logo.png'
 
 // ==================== 路由 ====================
 const router = useRouter()
