@@ -14,20 +14,17 @@
         <result property="commentsCount" column="comments_count"/>
         <result property="isTop" column="is_top"/>
         <result property="isRecommend" column="is_recommend"/>
+        <result property="status" column="status"/>
         <result property="publishedTime" column="published_time"/>
         <result property="authorName" column="author_name"/>
         <result property="authorAvatar" column="author_avatar"/>
         <result property="categoryName" column="category_name"/>
         <result property="createTime" column="create_time"/>
-        <collection property="tags" ofType="java.lang.String" javaType="java.util.ArrayList">
-            <constructor>
-                <arg column="tags"/>
-            </constructor>
-        </collection>
+
     </resultMap>
 
-    <!-- 查询文章列表（包含作者、分类、标签信息）-->
-    <select id="selectArticleList" resultMap="ArticleListVOMap">
+    <!-- 管理员查询文章列表 -->
+    <select id="selectAdminArticleList" resultMap="ArticleListVOMap">
         SELECT
         a.id,
         a.title,
@@ -39,12 +36,33 @@
         a.comments_count,
         a.is_top,
         a.is_recommend,
+        a.status,
         a.published_time,
         a.create_time,
         u.username AS author_name,
         u.avatar AS author_avatar,
-        c.name AS category_name,
-        STRING_AGG(t.name, ',') AS tags
+        c.name AS category_name
+        FROM articles a
+        LEFT JOIN users u ON a.create_by = u.id
+        LEFT JOIN categories c ON a.category_id = c.id
+        WHERE a.deleted = 0
+        <if test="status != null">
+            AND a.status = #{status}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND ( a.title ILIKE CONCAT('%', #{keyword}, '%')
+            OR a.summary ILIKE CONCAT('%', #{keyword}, '%')
+            OR a.content ILIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        GROUP BY a.id, u.username, u.avatar, c.name
+        ORDER BY a.is_top DESC, a.create_time DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 管理员查询文章总数 -->
+    <select id="countAdminArticles" resultType="java.lang.Long">
+        SELECT COUNT(DISTINCT a.id)
         FROM articles a
         LEFT JOIN users u ON a.create_by = u.id
         LEFT JOIN categories c ON a.category_id = c.id
@@ -54,23 +72,16 @@
         <if test="status != null">
             AND a.status = #{status}
         </if>
-        GROUP BY a.id, u.username, u.avatar, c.name
-        ORDER BY a.is_top DESC, a.published_time DESC, a.create_time DESC
-        LIMIT #{pageSize} OFFSET #{offset}
-    </select>
-
-    <!-- 查询文章总数 -->
-    <select id="countArticles" resultType="java.lang.Long">
-        SELECT COUNT(*)
-        FROM articles
-        WHERE deleted = 0
-        <if test="status != null">
-            AND status = #{status}
+        <if test="keyword != null and keyword != ''">
+            AND ( a.title ILIKE CONCAT('%', #{keyword}, '%')
+            OR a.summary ILIKE CONCAT('%', #{keyword}, '%')
+            OR a.content ILIKE CONCAT('%', #{keyword}, '%')
+            )
         </if>
     </select>
 
-    <!-- 管理员查询文章列表 -->
-    <select id="selectAdminArticleList" resultMap="ArticleListVOMap"> 
+    <!-- 用户端查询文章列表（包含作者、分类、标签信息）-->
+    <select id="selectUserArticleList" resultMap="ArticleListVOMap">
         SELECT
         a.id,
         a.title,
@@ -82,49 +93,140 @@
         a.comments_count,
         a.is_top,
         a.is_recommend,
+        a.status,
         a.published_time,
         a.create_time,
         u.username AS author_name,
         u.avatar AS author_avatar,
-        c.name AS category_name,
-        STRING_AGG(t.name, ',') AS tags
+        c.name AS category_name
         FROM articles a
         LEFT JOIN users u ON a.create_by = u.id
         LEFT JOIN categories c ON a.category_id = c.id
-        LEFT JOIN article_tags at ON a.id = at.article_id
-        LEFT JOIN tags t ON at.tag_id = t.id
         WHERE a.deleted = 0
-        <if test="status != null">
-        AND a.status = #{status}
-        </if>
+        AND a.status = 1
         <if test="keyword != null and keyword != ''">
-        AND ( a.title ILIKE CONCAT('%', #{keyword}, '%')
-        OR a.summary ILIKE CONCAT('%', #{keyword}, '%')
-        OR a.content ILIKE CONCAT('%', #{keyword}, '%')
-        )
+            AND (a.title ILIKE CONCAT('%', #{keyword}, '%')
+            OR a.summary ILIKE CONCAT('%', #{keyword}, '%')
+            OR a.content ILIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        <if test="categoryId != null">
+            AND a.category_id = #{categoryId}
+        </if>
+        <if test="tagIds != null and tagIds.size() > 0">
+            AND a.id IN (
+            SELECT DISTINCT at2.article_id
+            FROM article_tags at2
+            WHERE at2.deleted = 0
+            AND at2.tag_id IN
+            <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+                #{tagId}
+            </foreach>
+            )
         </if>
         GROUP BY a.id, u.username, u.avatar, c.name
-        ORDER BY a.is_top DESC, a.create_time DESC
+        ORDER BY a.is_top DESC, a.published_time DESC, a.create_time DESC
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
-    <!-- 管理员查询文章总数 -->
-    <select id="countAdminArticles" resultType="java.lang.Long">
-    SELECT COUNT(DISTINCT a.id)
-    FROM articles a
+    <!-- 查询文章总数 -->
+    <select id="countUserArticles" resultType="java.lang.Long">
+        SELECT COUNT(DISTINCT a.id)
+        FROM articles a
+        <if test="tagIds != null and tagIds.size() > 0">
+            INNER JOIN article_tags at ON a.id = at.article_id AND at.deleted = 0
+        </if>
+        WHERE a.deleted = 0
+        AND a.status = 1
+        <if test="keyword != null and keyword != ''">
+            AND (a.title ILIKE CONCAT('%', #{keyword}, '%')
+            OR a.summary ILIKE CONCAT('%', #{keyword}, '%')
+            OR a.content ILIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        <if test="categoryId != null">
+            AND a.category_id = #{categoryId}
+        </if>
+        <if test="tagIds != null and tagIds.size() > 0">
+            AND at.tag_id IN
+            <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+                #{tagId}
+            </foreach>
+        </if>
+    </select>
+
+    <!-- 查询用户点赞的文章列表 -->
+    <select id="selectLikedArticles" resultMap="ArticleListVOMap">
+        SELECT
+        a.id,
+        a.title,
+        a.summary,
+        a.cover_image,
+        a.views,
+        a.likes,
+        a.favorites,
+        a.comments_count,
+        a.is_top,
+        a.is_recommend,
+        a.status,
+        a.published_time,
+        a.create_time,
+        u.username AS author_name,
+        u.avatar AS author_avatar,
+        c.name AS category_name
+        FROM articles a
+        INNER JOIN article_likes al ON a.id = al.article_id
         LEFT JOIN users u ON a.create_by = u.id
         LEFT JOIN categories c ON a.category_id = c.id
-        LEFT JOIN article_tags at ON a.id = at.article_id
-        LEFT JOIN tags t ON at.tag_id = t.id
-        WHERE a.deleted = 0
-        <if test="status != null">
-        AND a.status = #{status}
-        </if>
-        <if test="keyword != null and keyword != ''">
-        AND ( a.title ILIKE CONCAT('%', #{keyword}, '%')
-        OR a.summary ILIKE CONCAT('%', #{keyword}, '%')
-        OR a.content ILIKE CONCAT('%', #{keyword}, '%')
-        )
-        </if>
+        WHERE al.create_by = #{userId} AND al.deleted = 0
+        AND a.status = 1 AND a.deleted = 0
+        ORDER BY al.create_time DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 统计用户点赞文章数 -->
+    <select id="countLikedArticles" resultType="java.lang.Long">
+        SELECT COUNT(a.id)
+        FROM articles a
+        INNER JOIN article_likes al ON a.id = al.article_id
+        WHERE al.create_by = #{userId} AND al.deleted = 0
+        AND a.status = 1 AND a.deleted = 0
+    </select>
+
+    <!-- 查询用户收藏的文章列表 -->
+    <select id="selectFavoriteArticles" resultMap="ArticleListVOMap">
+        SELECT
+        a.id,
+        a.title,
+        a.summary,
+        a.cover_image,
+        a.views,
+        a.likes,
+        a.favorites,
+        a.comments_count,
+        a.is_top,
+        a.is_recommend,
+        a.status,
+        a.published_time,
+        a.create_time,
+        u.username AS author_name,
+        u.avatar AS author_avatar,
+        c.name AS category_name
+        FROM articles a
+        INNER JOIN article_favorites af ON a.id = af.article_id
+        LEFT JOIN users u ON a.create_by = u.id
+        LEFT JOIN categories c ON a.category_id = c.id
+        WHERE a.status = 1 AND a.deleted = 0
+        ORDER BY af.create_time DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 统计用户收藏的文章数 -->
+    <select id="countFavoriteArticles" resultType="java.lang.Long">
+        SELECT COUNT(a.id)
+        FROM articles a
+        INNER JOIN article_favorites af ON a.id = af.article_id
+        WHERE af.create_by = #{userId} AND af.deleted = 0
+        AND a.status = 1 AND a.deleted = 0
     </select>
 </mapper>

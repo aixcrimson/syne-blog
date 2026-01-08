@@ -6,6 +6,7 @@ import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
 import com.syne.server.entity.User;
 import com.syne.server.entity.dto.UserDTO;
+import com.syne.server.entity.dto.ChangePasswordDTO;
 import com.syne.server.entity.vo.UserListVO;
 import com.syne.server.exception.BusinessException;
 import com.syne.server.mapper.UserMapper;
@@ -134,6 +135,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         log.info("更新用户：id={}, {}", id, user.getUsername());
         return this.getById(user.getId());
+    }
+
+    @Override
+    @Transactional
+    public void updatePassword(ChangePasswordDTO changePasswordDTO, Long id) {
+        // 获取用户
+        User user = this.getById(id);
+        if (user == null || user.getDeleted() == 1) {
+            throw new BusinessException("用户不存在");
+        }
+
+        // 验证旧密码
+        if (!passwordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPasswordHash())) {
+            throw new BusinessException("旧密码错误");
+        }
+
+        // 加密新密码
+        String newPasswordHash = passwordEncoder.encode(changePasswordDTO.getNewPassword());
+        user.setPasswordHash(newPasswordHash);
+
+        // 更新用户
+        this.updateById(user);
+
+        log.info("用户修改密码成功：id={}, username={}", id, user.getUsername());
     }
 
     @Override

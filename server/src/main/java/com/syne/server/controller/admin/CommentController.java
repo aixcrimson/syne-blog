@@ -100,6 +100,26 @@ public class CommentController {
     }
 
     /**
+     * 审核评论（通过/驳回）
+     *
+     * @param ids    评论ID，多个用逗号分隔
+     * @param status 目标状态：1-通过，3-驳回
+     * @return 操作结果
+     */
+    @Operation(summary = "审核评论", description = "审核评论，支持批量操作，status=1为通过，status=3为驳回")
+    @PutMapping("/status")
+    public Result<String> updateStatus(
+        @Parameter(description = "评论ID，单个或多个用英文逗号分隔", required = true, example = "1,2,3")
+        @RequestParam String ids,
+
+        @Parameter(description = "目标状态：1-通过，3-驳回", required = true, example = "1")
+        @RequestParam Integer status
+    ) {
+        log.info("审核评论：ids={}, status={}", ids, status);
+        return commentService.updateCommentStatus(ids, status);
+    }
+
+    /**
      * 删除评论
      *
      * @param ids 评论ID字符串

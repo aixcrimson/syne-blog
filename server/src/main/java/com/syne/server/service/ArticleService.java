@@ -7,19 +7,17 @@ import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
 import com.syne.server.entity.Article;
 import com.syne.server.entity.dto.ArticleDTO;
+import com.syne.server.entity.vo.ArticleDetailVO;
 import com.syne.server.entity.vo.ArticleListVO;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 文章服务接口
  */
 public interface ArticleService extends IService<Article> {
-    /**
-     * 分页查询文章列表
-     * @param pageQuery 分页参数
-     * @param status 文章状态（可选，null 表示查询所有状态）
-     * @return 分页结果
-     */
-    PageResult<ArticleListVO> getArticleList(PageQuery pageQuery, Integer status);
+
 
     /**
      * 管理端分页查询文章列表
@@ -31,11 +29,11 @@ public interface ArticleService extends IService<Article> {
     PageResult<ArticleListVO> getAdminArticleList(PageQuery pageQuery, Integer status, String keyword);
 
     /**
-     * 管理员根据ID获取管理员文章
+     * 管理员根据ID获取管理员文章详情
      * @param id 文章ID
-     * @return 文章实体
+     * @return 文章详情
      */
-    Article getAdminArticleById(Long id);
+    ArticleDetailVO getAdminArticleById(Long id);
 
     /**
      * 创建文章
@@ -79,4 +77,63 @@ public interface ArticleService extends IService<Article> {
      * @return 更新结果
      */
     Result<String> updateStatus(Long id, Integer status);
+
+    /**
+     * 用户端分页查询文章列表
+     * @param pageQuery 分页参数
+     * @param keyword 搜索关键字
+     * @param categoryId 文章分类ID
+     * @param tagIds 文章标签ID列表
+     * @return 分页结果
+     */
+    PageResult<ArticleListVO> getUserArticleList(PageQuery pageQuery, String keyword, Long categoryId, List<Long> tagIds);
+
+    /**
+     * 用户端获取文章详情
+     * @param id 文章ID
+     * @return 文章详情
+     */
+    ArticleDetailVO getUserArticleById(Long id);
+
+    /**
+     * 获取推荐文章列表
+     * @param limit 限制数量
+     * @return 文章列表
+     */
+    List<ArticleListVO> getRecommendedArticleList(Integer limit);
+
+    /**
+     * 切换文章喜欢或不喜欢
+     * @param id 文章ID
+     * @return 切换结果
+     */
+    Result<Map<String, Object>> toggleArticleLike(Long id);
+
+    /**
+     * 切换文章收藏或不收藏
+     * @param id 文章ID
+     * @return 切换结果
+     */
+    Result<Map<String, Object>> toggleArticleFavorite(Long id);
+
+    /**
+     * 给文章增加浏览量
+     * @param id 文章ID
+     * @return 结果
+     */
+    Result<Map<String, Object>> increaseViews(Long id);
+
+    /**
+     * 获取用户点赞的文章列表
+     * @param pageQuery 分页参数
+     * @return 分页结果
+     */
+    PageResult<ArticleListVO> getLikedArticleList(PageQuery pageQuery);
+
+    /**
+     * 获取用户收藏的文章列表
+     * @param pageQuery 分页参数
+     * @return 分页结果
+     */
+    PageResult<ArticleListVO> getFavoriteArticleList(PageQuery pageQuery);
 }

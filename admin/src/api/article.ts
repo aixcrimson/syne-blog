@@ -77,7 +77,7 @@ export const articleApi = {
    * @param status 新状态（已发布、草稿、已下架）
    */
   updateStatus(id: number, status: ArticleStatus): Promise<void> {
-    return put(`/admin/articles/${id}/status`, { status })
+    return put(`/admin/articles/${id}/status?status=${status}`)
   }
 }
 

@@ -51,4 +51,9 @@ public interface NavigationCategoryService {
      * 检查分类下是否有站点
      */
     boolean hasSites(Long categoryId);
+
+    /**
+     * 获取分类总数
+     */
+    long count();
 }

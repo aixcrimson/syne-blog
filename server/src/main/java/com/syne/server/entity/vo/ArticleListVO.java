@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import com.syne.server.entity.Tags;
 import java.util.List;
 
 /**
@@ -46,6 +47,9 @@ public class ArticleListVO implements Serializable {
     @Schema(description = "是否推荐")
     private Integer isRecommend;
 
+    @Schema(description = "文章状态")
+    private Integer status;
+
     @Schema(description = "发布时间")
     private LocalDateTime publishedTime;
 
@@ -59,7 +63,7 @@ public class ArticleListVO implements Serializable {
     private String categoryName;
 
     @Schema(description = "标签列表")
-    private List<String> tags;
+    private List<Tags> tags;
 
     @Schema(description = "创建时间")
     private LocalDateTime createTime;

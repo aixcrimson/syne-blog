@@ -285,6 +285,12 @@ export interface UserInfo {
   email: string
   /** 头像URL */
   avatar: string
+  /** 个人简介 */
+  bio?: string
+  /** GitHub链接 */
+  github?: string
+  /** Bilibili链接 */
+  bilibili?: string
   /** 用户角色 */
   role: UserRole
 }
@@ -446,6 +452,247 @@ export interface LoginParams {
 export interface LoginResponse {
   /** 访问令牌 */
   token: string
-  /** 用户信息 */
-  user: UserInfo
+  /** Token类型 */
+  tokenType?: string
+  /** 用户ID */
+  userId: number
+  /** 用户名 */
+  username: string
+  /** 邮箱 */
+  email: string
+  /** 用户角色 */
+  role: UserRole
+  /** 头像 */
+  avatar?: string
+  /** 个人简介 */
+  bio: string
+  /** GitHub链接 */
+  github: string
+  /** B站链接 */
+  bilibili: string
+  /** 过期时间（秒） */
+  expiresIn?: number
 }
+
+// ==================== 书签导入相关 ====================
+
+/**
+ * 书签项
+ */
+export interface BookmarkItem {
+  /** 书签名称 */
+  name: string
+  /** 书签URL */
+  url: string
+  /** 所属文件夹 */
+  folder: string
+  /** 书签描述 */
+  description?: string
+}
+
+/**
+ * 文件夹统计
+ */
+export interface FolderStats {
+  /** 文件夹名称 */
+  name: string
+  /** 文件夹路径 */
+  path: string
+  /** 书签数量 */
+  count: number
+}
+
+/**
+ * 书签预览响应
+ */
+export interface BookmarkPreviewDTO {
+  /** 文件夹统计列表 */
+  categories: FolderStats[]
+  /** 书签列表 */
+  bookmarks: BookmarkItem[]
+  /** 书签总数 */
+  totalBookmarks: number
+  /** 文件夹总数 */
+  totalFolders: number
+}
+
+/**
+ * 文件夹映射
+ */
+export interface FolderMapping {
+  /** 文件夹名称 */
+  folder: string
+  /** 映射的分类ID */
+  categoryId: number
+  /** 是否创建新分类 */
+  createNew?: boolean
+  /** 新分类名称 */
+  newCategoryName?: string
+  /** 新分类图标 */
+  newCategoryIcon?: string
+}
+
+/**
+ * 书签映射请求
+ */
+export interface BookmarkMappingDTO {
+  /** 文件夹与分类的映射关系 */
+  mappings: FolderMapping[]
+  /** 要导入的书签列表 */
+  bookmarks: BookmarkItem[]
+}
+
+// ==================== 作者信息相关 ====================
+
+/**
+ * 公告接口
+ */
+export interface Notice {
+  /** 公告ID */
+  id: number
+  /** 公告内容 */
+  content: string
+  /** 是否显示: 0-隐藏, 1-显示 */
+  isShow: number
+  /** 排序权重 */
+  sortOrder: number
+  /** 创建时间 */
+  createTime: string
+}
+
+/**
+ * 公告表单接口
+ */
+export interface NoticeForm {
+  /** 公告内容 */
+  content: string
+  /** 是否显示 */
+  isShow: number
+  /** 排序权重 */
+  sortOrder: number
+}
+
+/**
+ * 技能接口
+ */
+export interface Skill {
+  /** 技能ID */
+  id: number
+  /** 技能名称 */
+  name: string
+  /** 技能图标 */
+  icon: string
+  /** 熟练度百分比 (0-100) */
+  percentage: number
+  /** 进度条颜色 */
+  color: string
+  /** 排序权重 */
+  sortOrder: number
+  /** 创建时间 */
+  createTime: string
+}
+
+/**
+ * 技能表单接口
+ */
+export interface SkillForm {
+  /** 技能名称 */
+  name: string
+  /** 技能图标 */
+  icon?: string
+  /** 熟练度百分比 */
+  percentage: number
+  /** 进度条颜色 */
+  color: string
+  /** 排序权重 */
+  sortOrder: number
+}
+
+/**
+ * 项目接口
+ */
+export interface Project {
+  /** 项目ID */
+  id: number
+  /** 项目标题 */
+  title: string
+  /** 项目描述 */
+  description: string
+  /** 封面图片 */
+  coverImage: string
+  /** GitHub链接 */
+  githubUrl: string
+  /** 预览链接 */
+  previewUrl: string
+  /** 技术栈（逗号分隔） */
+  techStack: string
+  /** 是否精选: 0-普通, 1-精选 */
+  isFeatured: number
+  /** 排序权重 */
+  sortOrder: number
+  /** 创建时间 */
+  createTime: string
+}
+
+/**
+ * 项目表单接口
+ */
+export interface ProjectForm {
+  /** 项目标题 */
+  title: string
+  /** 项目描述 */
+  description: string
+  /** 封面图片 */
+  coverImage?: string
+  /** GitHub链接 */
+  githubUrl?: string
+  /** 预览链接 */
+  previewUrl?: string
+  /** 技术栈 */
+  techStack?: string
+  /** 是否精选 */
+  isFeatured: number
+  /** 排序权重 */
+  sortOrder: number
+}
+
+/**
+ * 时间线接口
+ */
+export interface Timeline {
+  /** 时间线ID */
+  id: number
+  /** 年份或时间点 */
+  year: string
+  /** 标题 */
+  title: string
+  /** 描述 */
+  description: string
+  /** 图标名称 */
+  icon: string
+  /** 节点颜色类型 */
+  color: string
+  /** 排序权重 */
+  sortOrder: number
+  /** 创建时间 */
+  createTime: string
+}
+
+/**
+ * 时间线表单接口
+ */
+export interface TimelineForm {
+  /** 年份或时间点 */
+  year: string
+  /** 标题 */
+  title: string
+  /** 描述 */
+  description?: string
+  /** 图标名称 */
+  icon?: string
+  /** 节点颜色类型 */
+  color: string
+  /** 排序权重 */
+  sortOrder: number
+}
+

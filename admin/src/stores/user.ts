@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { UserInfo } from '@/types'
+import { authApi } from '@/api/auth'
 
 /** Token 存储的 key */
 const TOKEN_KEY = 'token'
@@ -18,6 +19,9 @@ export const useUserStore = defineStore('user', () => {
   
   /** 用户信息 */
   const userInfo = ref<UserInfo | null>(null)
+  
+  /** 是否正在初始化中 */
+  const isInitializing = ref(false)
 
   // ==================== 计算属性 ====================
 
@@ -44,32 +48,37 @@ export const useUserStore = defineStore('user', () => {
   // ==================== 动作 ====================
 
   /**
-   * 开发模式：跳过登录验证时使用的模拟用户
-   */
-  const DEV_SKIP_AUTH = false
-  const mockUser: UserInfo = {
-    id: 1,
-    username: 'admin',
-    email: 'admin@example.com',
-    avatar: '',
-    role: 1
-  }
-
-  /**
    * 初始化用户状态
-   * 从 localStorage 读取 Token
+   * 从 localStorage 读取 Token，并从后端获取用户信息
+   * @returns Promise<boolean> 初始化是否成功
    */
-  const init = () => {
-    // 开发模式：自动设置模拟用户
-    if (DEV_SKIP_AUTH && !userInfo.value) {
-      userInfo.value = mockUser
-      token.value = 'dev-mock-token'
-      return
-    }
-
+  const init = async (): Promise<boolean> => {
     const savedToken = localStorage.getItem(TOKEN_KEY)
-    if (savedToken) {
-      token.value = savedToken
+    if (!savedToken) {
+      return false
+    }
+    
+    token.value = savedToken
+    
+    // 如果已有用户信息，无需重复获取
+    if (userInfo.value) {
+      return true
+    }
+    
+    // 从后端获取用户信息
+    isInitializing.value = true
+    try {
+      const info = await authApi.getCurrentUser()
+      userInfo.value = info
+      return true
+    } catch (error) {
+      // 获取用户信息失败（如 token 无效），清除登录状态
+      console.error('获取用户信息失败:', error)
+      token.value = null
+      localStorage.removeItem(TOKEN_KEY)
+      return false
+    } finally {
+      isInitializing.value = false
     }
   }
 
@@ -154,6 +163,7 @@ export const useUserStore = defineStore('user', () => {
     // 状态
     token,
     userInfo,
+    isInitializing,
     // 计算属性
     isLoggedIn,
     isAdmin,

@@ -282,7 +282,7 @@ CREATE TABLE comments (
 COMMENT ON TABLE comments IS '评论表';
 COMMENT ON COLUMN comments.user_id IS '用户ID（保留原字段，与create_by可能不同）';
 COMMENT ON COLUMN comments.parent_id IS '父评论ID，用于多级回复';
-COMMENT ON COLUMN comments.status IS '评论状态: 1-正常, 2-待审核, 3-已删除';
+COMMENT ON COLUMN comments.status IS '评论状态: 1-正常(通过), 2-待审核, 3-驳回';
 COMMENT ON COLUMN comments.ip_address IS 'IP地址';
 COMMENT ON COLUMN comments.create_by IS '创建者ID';
 COMMENT ON COLUMN comments.update_by IS '更新者ID';
@@ -362,6 +362,120 @@ CREATE INDEX idx_navigation_sites_update_by ON navigation_sites(update_by);
 CREATE INDEX idx_navigation_sites_deleted ON navigation_sites(deleted);
 
 -- ============================================
+-- 11. 公告表 (notices)
+-- 网站首页滚动的公告栏
+-- ============================================
+DROP TABLE IF EXISTS notices CASCADE;
+CREATE TABLE notices (
+  id BIGSERIAL PRIMARY KEY,
+  content TEXT NOT NULL,
+  is_show SMALLINT NOT NULL DEFAULT 1 CHECK (is_show IN (0, 1)),
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  create_by BIGINT DEFAULT NULL,
+  update_by BIGINT DEFAULT NULL,
+  create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  deleted SMALLINT NOT NULL DEFAULT 0 CHECK (deleted IN (0, 1))
+);
+
+COMMENT ON TABLE notices IS '公告表';
+COMMENT ON COLUMN notices.content IS '公告内容';
+COMMENT ON COLUMN notices.is_show IS '是否显示: 0-否, 1-是';
+COMMENT ON COLUMN notices.sort_order IS '排序权重';
+COMMENT ON COLUMN notices.deleted IS '逻辑删除';
+
+CREATE INDEX idx_notices_is_show ON notices(is_show);
+CREATE INDEX idx_notices_sort_order ON notices(sort_order);
+CREATE INDEX idx_notices_deleted ON notices(deleted);
+
+-- ============================================
+-- 12. 技能栈表 (skills)
+-- 展示博主的技能掌握情况
+-- ============================================
+DROP TABLE IF EXISTS skills CASCADE;
+CREATE TABLE skills (
+  id BIGSERIAL PRIMARY KEY,
+  name VARCHAR(50) NOT NULL,
+  icon VARCHAR(255) DEFAULT NULL,
+  percentage INTEGER NOT NULL DEFAULT 0 CHECK (percentage BETWEEN 0 AND 100),
+  color VARCHAR(20) DEFAULT NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  create_by BIGINT DEFAULT NULL,
+  update_by BIGINT DEFAULT NULL,
+  create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  deleted SMALLINT NOT NULL DEFAULT 0 CHECK (deleted IN (0, 1))
+);
+
+COMMENT ON TABLE skills IS '技能栈表';
+COMMENT ON COLUMN skills.name IS '技能名称';
+COMMENT ON COLUMN skills.icon IS '技能图标';
+COMMENT ON COLUMN skills.percentage IS '熟练度百分比';
+COMMENT ON COLUMN skills.color IS '进度条颜色';
+COMMENT ON COLUMN skills.sort_order IS '排序权重';
+
+CREATE INDEX idx_skills_sort_order ON skills(sort_order);
+CREATE INDEX idx_skills_deleted ON skills(deleted);
+
+-- ============================================
+-- 13. 精选项目表 (projects)
+-- 展示博主的作品集
+-- ============================================
+DROP TABLE IF EXISTS projects CASCADE;
+CREATE TABLE projects (
+  id BIGSERIAL PRIMARY KEY,
+  title VARCHAR(100) NOT NULL,
+  description TEXT NOT NULL,
+  cover_image VARCHAR(500) DEFAULT NULL,
+  github_url VARCHAR(500) DEFAULT NULL,
+  preview_url VARCHAR(500) DEFAULT NULL,
+  tech_stack VARCHAR(500) DEFAULT NULL,
+  is_featured SMALLINT NOT NULL DEFAULT 0 CHECK (is_featured IN (0, 1)),
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  create_by BIGINT DEFAULT NULL,
+  update_by BIGINT DEFAULT NULL,
+  create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  deleted SMALLINT NOT NULL DEFAULT 0 CHECK (deleted IN (0, 1))
+);
+
+COMMENT ON TABLE projects IS '精选项目表';
+COMMENT ON COLUMN projects.tech_stack IS '技术栈，逗号分隔';
+COMMENT ON COLUMN projects.is_featured IS '是否推荐/精选: 0-否, 1-是';
+
+CREATE INDEX idx_projects_is_featured ON projects(is_featured);
+CREATE INDEX idx_projects_sort_order ON projects(sort_order);
+CREATE INDEX idx_projects_deleted ON projects(deleted);
+
+-- ============================================
+-- 14. 时间线表 (timelines)
+-- 展示博主的经历或大事记
+-- ============================================
+DROP TABLE IF EXISTS timelines CASCADE;
+CREATE TABLE timelines (
+  id BIGSERIAL PRIMARY KEY,
+  year VARCHAR(20) NOT NULL,
+  title VARCHAR(100) NOT NULL,
+  description TEXT DEFAULT NULL,
+  icon VARCHAR(50) DEFAULT NULL,
+  color VARCHAR(20) DEFAULT 'primary',
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  create_by BIGINT DEFAULT NULL,
+  update_by BIGINT DEFAULT NULL,
+  create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  deleted SMALLINT NOT NULL DEFAULT 0 CHECK (deleted IN (0, 1))
+);
+
+COMMENT ON TABLE timelines IS '时间线表';
+COMMENT ON COLUMN timelines.year IS '年份或时间点';
+COMMENT ON COLUMN timelines.icon IS '图标名称';
+COMMENT ON COLUMN timelines.color IS '节点颜色类型';
+
+CREATE INDEX idx_timelines_sort_order ON timelines(sort_order);
+CREATE INDEX idx_timelines_deleted ON timelines(deleted);
+
+-- ============================================
 -- 触发器函数：自动更新 update_time 字段
 -- ============================================
 CREATE OR REPLACE FUNCTION update_update_time_column()
@@ -392,6 +506,18 @@ CREATE TRIGGER trigger_navigation_categories_update_time BEFORE UPDATE ON naviga
   FOR EACH ROW EXECUTE FUNCTION update_update_time_column();
 
 CREATE TRIGGER trigger_navigation_sites_update_time BEFORE UPDATE ON navigation_sites
+  FOR EACH ROW EXECUTE FUNCTION update_update_time_column();
+
+CREATE TRIGGER trigger_notices_update_time BEFORE UPDATE ON notices
+  FOR EACH ROW EXECUTE FUNCTION update_update_time_column();
+
+CREATE TRIGGER trigger_skills_update_time BEFORE UPDATE ON skills
+  FOR EACH ROW EXECUTE FUNCTION update_update_time_column();
+
+CREATE TRIGGER trigger_projects_update_time BEFORE UPDATE ON projects
+  FOR EACH ROW EXECUTE FUNCTION update_update_time_column();
+
+CREATE TRIGGER trigger_timelines_update_time BEFORE UPDATE ON timelines
   FOR EACH ROW EXECUTE FUNCTION update_update_time_column();
 
 -- ============================================
@@ -481,6 +607,31 @@ INSERT INTO navigation_sites (category_id, name, description, url, icon, sort_or
 (2, '菜鸟教程', '编程学习入门网站', 'https://www.runoob.com/', '/icons/runoob.png', 90, 1, 1),
 (3, 'GitHub', '全球最大的代码托管平台', 'https://github.com/', '/icons/github.png', 100, 1, 1),
 (3, 'Stack Overflow', '程序员问答社区', 'https://stackoverflow.com/', '/icons/stackoverflow.png', 90, 1, 1);
+
+-- 插入公告
+INSERT INTO notices (content, is_show, sort_order, create_by, update_by) VALUES
+('欢迎来到 Syne 的博客，这里记录了我的技术成长之路！🚀', 1, 100, 1, 1),
+('本站源码已在 GitHub 开源，欢迎 Star！⭐', 1, 90, 1, 1);
+
+-- 插入技能栈
+INSERT INTO skills (name, icon, percentage, color, sort_order, create_by, update_by) VALUES
+('Vue.js', 'fab fa-vuejs', 90, '#42b883', 100, 1, 1),
+('React', 'fab fa-react', 85, '#61dafb', 90, 1, 1),
+('Java', 'fab fa-java', 80, '#f89820', 80, 1, 1),
+('Spring Boot', 'fas fa-leaf', 85, '#6DB33F', 70, 1, 1),
+('Docker', 'fab fa-docker', 75, '#2496ED', 60, 1, 1);
+
+-- 插入项目
+INSERT INTO projects (title, description, cover_image, github_url, preview_url, tech_stack, is_featured, sort_order, create_by, update_by) VALUES
+('Syne Blog', '基于 Spring Boot 和 Vue 3 的全栈博客系统', '/projects/blog.jpg', 'https://github.com/aixcrimson/syne-blog', 'https://syne.site', 'Vue 3,TypeScript,Spring Boot,PostgreSQL', 1, 100, 1, 1),
+('React Admin', '基于 React 的后台管理系统模板', '/projects/admin.jpg', 'https://github.com/aixcrimson/react-admin', NULL, 'React,Ant Design,Vite', 1, 90, 1, 1);
+
+-- 插入时间线
+INSERT INTO timelines (year, title, description, icon, color, sort_order, create_by, update_by) VALUES
+('2025', '技术沉淀', '深入研究云原生技术，开始全栈开发之路', 'Star', 'primary', 100, 1, 1),
+('2024', '开源贡献', '参与多个开源项目，贡献代码', 'GitFork', 'success', 90, 1, 1),
+('2023', '初入职场', '加入某互联网大厂，担任前端开发工程师', 'Briefcase', 'warning', 80, 1, 1),
+('2022', '毕业季', '获得计算机科学与技术学士学位', 'School', 'info', 70, 1, 1);
 
 -- ============================================
 -- 常用查询示例

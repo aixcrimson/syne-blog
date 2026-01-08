@@ -8,6 +8,8 @@ import com.syne.server.entity.Tags;
 import com.syne.server.entity.dto.TagDTO;
 import com.syne.server.entity.vo.TagListVO;
 
+import java.util.List;
+
 /**
  * 标签服务接口
  */
@@ -56,4 +58,19 @@ public interface TagService extends IService<Tags> {
      * @return 删除结果
      */
     Result<String> deleteTags(String ids);
+
+    /**
+     * 根据文章ID获取标签列表
+     *
+     * @param articleId 文章ID
+     * @return 标签列表
+     */
+    List<Tags> getTagsByArticleId(Long articleId);
+
+    /**
+     * 获取所有标签列表
+     *
+     * @return 标签列表
+     */
+    List<TagListVO> getAllTagList();
 }

@@ -1,23 +1,32 @@
 <template>
-  <aside class="sidebar">
-    <div class="flex flex-col gap-6 sticky top-20">
+  <aside class="w-full sidebar">
+    <div class="flex sticky top-20 flex-col gap-6">
       <!-- 公告栏 -->
       <div
-        class="notice-card rounded-xl p-5 shoadow-sm border border-primary-100"
+        class="p-5 bg-white border-b transition-all duration-300 md:bg-gradient-to-br md:to-white md:rounded-xl md:border md:shadow-sm md:from-primary-50 md:border-primary-100 dark:bg-gray-800 dark:border-gray-700 md:dark:from-gray-800 md:dark:to-gray-800 md:hover:-translate-y-0.5 md:hover:shadow-md"
       >
-        <div class="flex items-center gap-2 mb-3">
-          <div class="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></div>
-          <p class="font-bold text-primary-600 text-lg">公告栏</p>
+        <div class="flex gap-2 items-center mb-3">
+          <div class="w-2 h-2 rounded-full animate-pulse bg-primary-500"></div>
+          <p class="text-lg font-bold text-primary-600">公告栏</p>
         </div>
-        <p class="text-sm text-gray-700 leading-relaxed">
-          📢 天行健，君子以自强不息
-        </p>
+        <div v-if="notices.length > 0" class="space-y-2">
+          <p
+            v-for="notice in notices"
+            :key="notice.id"
+            class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+          >
+            📢 {{ notice.content }}
+          </p>
+        </div>
+        <p v-else class="text-sm leading-relaxed text-gray-500">暂无公告</p>
       </div>
 
       <!-- 标签页切换卡片 -->
-      <div class="tab-card glass-section rounded-xl shadow-sm overflow-hidden">
+      <div
+        class="overflow-hidden tab-card md:rounded-xl md:shadow-sm glass-section"
+      >
         <!-- 标签页头部 -->
-        <div class="flex border-b border-gray-200">
+        <div class="flex border-b border-gray-200 dark:border-gray-700">
           <button
             v-for="tab in tabs"
             :key="tab.key"
@@ -39,26 +48,27 @@
           <div v-show="activeTab === 'categories'" class="categories-content">
             <div class="space-y-2">
               <div
-                v-for="category in categoriesWithCount"
-                :key="category.name"
-                class="category-item flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-                @click="handleCategoryClick(category.name)"
+                v-for="category in categories"
+                :key="category.id"
+                class="flex justify-between items-center p-3 rounded-lg transition-colors cursor-pointer category-item hover:bg-gray-50 dark:hover:bg-gray-800"
+                @click="handleCategoryClick(category.id)"
               >
-                <div class="flex items-center gap-3">
+                <div class="flex gap-3 items-center">
                   <div class="w-2 h-2 rounded-full bg-primary-500"></div>
-                  <span class="text-sm font-medium text-gray-700">{{
-                    category.name
-                  }}</span>
+                  <span
+                    class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >{{ category.name }}</span
+                  >
                 </div>
                 <span
-                  class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full"
+                  class="px-2 py-1 text-xs text-gray-500 bg-gray-100 rounded-full dark:text-gray-400 dark:bg-gray-700"
                 >
-                  {{ category.count }}
+                  {{ category.articleCount }}
                 </span>
               </div>
 
               <el-empty
-                v-if="categoriesWithCount.length === 0"
+                v-if="categories.length === 0"
                 description="暂无分类"
                 :image-size="60"
               />
@@ -70,55 +80,63 @@
               <!-- 头像 -->
               <div class="relative mb-4">
                 <img
-                  :src="appStore.userInfo.avatar"
-                  :alt="appStore.userInfo.name"
+                  :src="siteStore.authorInfo.avatar || defaultAvatar"
+                  :alt="siteStore.authorInfo.username"
                   class="w-24 h-24 rounded-full border-4 border-white shadow-lg"
                 />
                 <div
-                  class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white"
+                  class="absolute -right-1 -bottom-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white"
                 ></div>
               </div>
 
               <!-- 名称 -->
-              <h3 class="text-xl font-bold text-gray-900 mb-2">
-                {{ appStore.userInfo.name }}
+              <h3
+                class="mb-2 text-xl font-bold text-gray-900 dark:text-gray-100"
+              >
+                {{ siteStore.authorInfo.username }}
               </h3>
-              <p class="text-sm text-gray-600 mb-4">
-                {{ appStore.userInfo.bio || "热爱技术,热爱分享" }}
+              <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+                {{ siteStore.authorInfo.bio || "热爱技术,热爱分享" }}
               </p>
 
               <!-- 统计信息 -->
-              <div class="w-full grid grid-cols-3 gap-3 mb-4">
+              <div class="grid grid-cols-3 gap-3 mb-4 w-full">
                 <div class="stat-item">
                   <div class="text-2xl font-bold text-primary-600">
-                    {{ articleStore.totalArticles }}
+                    {{ stats.totalArticles }}
                   </div>
-                  <div class="text-xs text-gray-600 mt-1">文章</div>
+                  <div class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                    文章
+                  </div>
                 </div>
                 <div class="stat-item">
                   <div class="text-2xl font-bold text-primary-600">
-                    {{ articleStore.getAllCategories.length }}
+                    {{ stats.totalCategories }}
                   </div>
-                  <div class="text-xs text-gray-600 mt-1">分类</div>
+                  <div class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                    分类
+                  </div>
                 </div>
                 <div class="stat-item">
                   <div class="text-2xl font-bold text-primary-600">
-                    {{ totalViews }}
+                    {{ stats.totalViews }}
                   </div>
-                  <div class="text-xs text-gray-600 mt-1">浏览</div>
+                  <div class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                    浏览
+                  </div>
                 </div>
               </div>
 
               <!-- GitHub 按钮 -->
               <a
-                v-if="appStore.userInfo.github"
-                :href="appStore.userInfo.github"
+                v-if="siteStore.authorInfo.github"
+                :href="siteStore.authorInfo.github"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="w-full"
               >
                 <el-button type="primary" class="w-full" size="default">
-                  <span class="flex items-center justify-center gap-2">
+                  <span class="flex gap-2 justify-center items-center">
                     <svg
                       class="w-5 h-5"
                       fill="currentColor"
@@ -140,14 +158,29 @@
   </aside>
 </template>
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
-import { useArticleStore } from "@/stores/article";
-import { useAppStore } from "@/stores/app";
+import { ref, onMounted } from "vue";
+import { useSiteStore } from "@/stores/site";
+import { articleApi } from "@/api/article";
+import { siteApi } from "@/api/site";
+import type { CategoryInfo, StatsInfo, Notice } from "@/types";
+import defaultAvatar from "@/assets/images/avatar/defalutAvatar.jpg";
 
-const router = useRouter();
-const articleStore = useArticleStore();
-const appStore = useAppStore();
+const siteStore = useSiteStore();
+
+const emit = defineEmits<{
+  (e: "category-click", id: number): void;
+}>();
+
+// 分类数据
+const categories = ref<CategoryInfo[]>([]);
+// 统计数据
+const stats = ref<StatsInfo>({
+  totalArticles: 0,
+  totalCategories: 0,
+  totalViews: 0,
+});
+// 公告数据
+const notices = ref<Notice[]>([]);
 
 /**
  * 标签页配置
@@ -169,58 +202,63 @@ const tabs = [
 const activeTab = ref<"categories" | "profile">("categories");
 
 /**
- * 总浏览量
+ * 获取分类列表
  */
-const totalViews = computed(() => {
-    return articleStore.articles.reduce((sum, article) => sum + article.views, 0)
-})
+const fetchCategories = async () => {
+  try {
+    categories.value = await articleApi.getCategories();
+  } catch (e) {
+    console.error("获取分类失败:", e);
+  }
+};
 
 /**
- * 分类机器文章数量
+ * 获取统计信息
  */
-const categoriesWithCount = computed(() => {
-  const categories = articleStore.getAllCategories;
-  return categories.map((category) => ({
-    name: category,
-    count: articleStore.articles.filter(
-      (article) => article.category === category
-    ).length,
-  }));
-});
+const fetchStats = async () => {
+  try {
+    stats.value = await articleApi.getStats();
+  } catch (e) {
+    console.error("获取统计信息失败:", e);
+  }
+};
+
+/**
+ * 获取公告列表
+ */
+const fetchNotices = async () => {
+  try {
+    notices.value = await siteApi.getNotices();
+  } catch (e) {
+    console.error("获取公告失败:", e);
+  }
+};
 
 /**
  * 点击分类,跳转到文章列表页并筛选该分类
  */
-const handleCategoryClick = (category: string): void => {
-  router.push({
-    path: "/articles",
-    query: { category },
-  });
+const handleCategoryClick = (id: number): void => {
+  emit("category-click", id);
 };
+
+onMounted(() => {
+  fetchCategories();
+  fetchStats();
+  fetchNotices();
+});
 </script>
 <style scoped>
 /* 毛玻璃效果 */
-.glass-section {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+@media (min-width: 768px) {
+  .glass-section {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+  }
 }
 
-/* 公告栏 */
-.notice-card {
-  background: linear-gradient(
-    135deg,
-    var(--color-primary-50) 0%,
-    rgba(255, 255, 255, 0.9) 100%
-  );
-  transform: all 0.3s ease;
-}
-
-.notice-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
+/* 公告栏 - 已改为 Tailwind 类控制 */
 
 /* 标签页卡片 */
 .tab-card {

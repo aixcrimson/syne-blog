@@ -4,6 +4,7 @@ import com.syne.server.common.PageQuery;
 import com.syne.server.common.PageResult;
 import com.syne.server.entity.NavigationSite;
 import com.syne.server.entity.dto.NavigationSiteDTO;
+import com.syne.server.entity.vo.NavigationSiteShowVO;
 import com.syne.server.entity.vo.NavigationSiteVO;
 
 import java.util.List;
@@ -62,4 +63,9 @@ public interface NavigationSiteService {
      * 获取所有导航站点VO列表
      */
     List<NavigationSiteVO> listAllSiteVOs();
+
+    /**
+     * 用户端获取所有导航站点展示VO列表
+     */
+    List<NavigationSiteShowVO> listAllSiteShowVOs();
 }

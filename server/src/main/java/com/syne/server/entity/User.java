@@ -55,7 +55,7 @@ public class User extends BaseEntity {
     @TableField("role")
     private Integer role;
 
-    @Schema(description = "帐号状态：1-正常，2-禁用")
+    @Schema(description = "帐号状态：1-正常，0-禁用")
     @TableField("status")
     private Integer status;
 

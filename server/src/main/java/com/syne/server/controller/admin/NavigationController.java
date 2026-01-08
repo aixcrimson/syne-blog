@@ -5,9 +5,12 @@ import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
 import com.syne.server.entity.NavigationCategory;
 import com.syne.server.entity.NavigationSite;
+import com.syne.server.entity.dto.BookmarkMappingDTO;
+import com.syne.server.entity.dto.BookmarkPreviewDTO;
 import com.syne.server.entity.dto.NavigationCategoryDTO;
 import com.syne.server.entity.dto.NavigationSiteDTO;
 import com.syne.server.entity.vo.NavigationSiteVO;
+import com.syne.server.service.BookmarkImportService;
 import com.syne.server.service.NavigationCategoryService;
 import com.syne.server.service.NavigationSiteService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,12 +27,13 @@ import java.util.List;
  */
 @Tag(name = "管理员-导航管理", description = "管理员端导航分类和导航站点管理接口")
 @RestController
-@RequestMapping("/admin/navigations")
+@RequestMapping("/admin/navigation")
 @RequiredArgsConstructor
 public class NavigationController {
 
     private final NavigationCategoryService navigationCategoryService;
     private final NavigationSiteService navigationSiteService;
+    private final BookmarkImportService bookmarkImportService;
 
     // ========== 导航分类相关接口 ==========
 
@@ -239,6 +244,44 @@ public class NavigationController {
             return Result.success("成功删除 " + idList.size() + " 个导航站点");
         } else {
             return Result.error("批量删除失败");
+        }
+    }
+
+    // ========== 书签导入相关接口 ==========
+
+    /**
+     * 解析书签文件
+     */
+    @Operation(summary = "解析Chrome书签文件")
+    @PostMapping("/bookmarks/parse")
+    public Result<BookmarkPreviewDTO> parseBookmarkFile(@RequestParam("file") MultipartFile file) {
+        try {
+            BookmarkPreviewDTO preview = bookmarkImportService.parseBookmarkFile(file);
+            return Result.success(preview);
+        } catch (Exception e) {
+            return Result.error("解析失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 导入书签数据
+     */
+    @Operation(summary = "导入书签数据")
+    @PostMapping("/bookmarks/import")
+    public Result<String> importBookmarks(@Valid @RequestBody BookmarkMappingDTO mappingDTO) {
+        try {
+            BookmarkImportService.ImportResult result = bookmarkImportService.importBookmarks(mappingDTO);
+
+            if (result.hasErrors()) {
+                return Result.error(result.getErrorMessage());
+            }
+
+            String message = String.format("导入完成：成功 %d 个，跳过 %d 个，失败 %d 个",
+                    result.getSuccessCount(), result.getSkipCount(), result.getErrorCount());
+
+            return Result.success(message);
+        } catch (Exception e) {
+            return Result.error("导入失败：" + e.getMessage());
         }
     }
 }

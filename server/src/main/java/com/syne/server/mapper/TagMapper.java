@@ -25,11 +25,11 @@ public interface TagMapper extends BaseMapper<Tags> {
      * @return 标签列表
      */
     List<TagListVO> selectTagList(
-        @Param("keyword") String keyword,
-        @Param("sortBy") String sortBy,
-        @Param("sortOrder") String sortOrder,
-        @Param("offset") Integer offset,
-        @Param("pageSize") Integer pageSize
+            @Param("keyword") String keyword,
+            @Param("sortBy") String sortBy,
+            @Param("sortOrder") String sortOrder,
+            @Param("offset") Integer offset,
+            @Param("pageSize") Integer pageSize
     );
 
     /**
@@ -47,4 +47,11 @@ public interface TagMapper extends BaseMapper<Tags> {
      * @return 使用次数
      */
     Integer countArticleTagsByTagId(@Param("tagId") Long tagId);
+
+    /**
+     * 查询所有标签列表
+     *
+     * @return 标签列表
+     */
+    List<TagListVO> selectAllTagList();
 }

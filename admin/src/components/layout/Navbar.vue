@@ -130,6 +130,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useUserStore } from '@/stores/user'
 
 /**
  * 组件属性
@@ -150,6 +151,7 @@ const emit = defineEmits<{
 }>()
 
 const router = useRouter()
+const userStore = useUserStore()
 
 /**
  * 主题色配置
@@ -186,11 +188,11 @@ const currentThemeColor = computed(() => {
 const isDarkMode = computed(() => themeMode.value === 'dark')
 
 /**
- * 模拟用户信息（后续会从 store 获取）
+ * 用户信息（从 store 获取）
  */
 const userInfo = computed(() => ({
-  username: '管理员',
-  avatar: ''
+  username: userStore.username,
+  avatar: userStore.userInfo?.avatar || ''
 }))
 
 /**
@@ -243,10 +245,10 @@ const handleLogout = async () => {
       cancelButtonText: '取消',
       type: 'warning'
     })
-    
-    // 清除 token
-    localStorage.removeItem('token')
-    
+
+    // 调用 store 的退出登录方法
+    userStore.logout()
+
     ElMessage.success('已退出登录')
     router.push('/login')
   } catch {

@@ -1,20 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { ThemeColor, UserInfo } from '@/types'
-import authorAvatar from '@/assets/images/avatar/author.jpg'
+import type { ThemeColor } from '@/types'
 
 export const useAppStore = defineStore('app', () => {
   // 状态
   const themeColor = ref<ThemeColor>('blue')
   const themeMode = ref<'light' | 'dark'>('light')
-  const userInfo = ref<UserInfo>({
-    name: 'Syne',
-    avatar: authorAvatar,
-    bio: '热爱技术,专注于软件开发',
-    email: 'hitori150221@outlook.com',
-    github: 'https://github.com/aixcrimson',
-    bilibili: 'https://space.bilibili.com/366835700?spm_id_from=333.1007.0.0'
-  })
   const loading = ref(false)
 
   // 计算属性
@@ -91,22 +82,16 @@ export const useAppStore = defineStore('app', () => {
     loading.value = value
   }
 
-  const updateUserInfo = (info: Partial<UserInfo>) => {
-    userInfo.value = { ...userInfo.value, ...info }
-  }
-
   return {
     themeColor,
     themeMode,
     isDarkMode,
-    userInfo,
     loading,
     init,
     setThemeColor,
     toggleThemeMode,
     setThemeMode,
-    setLoading,
-    updateUserInfo
+    setLoading
   }
 })
 

@@ -21,18 +21,18 @@
     <!-- 查询评论列表 -->
     <select id="selectCommentList" resultMap="CommentListVOMap">
         SELECT
-            c.id,
-            c.article_id,
-            a.title AS article_title,
-            c.user_id,
-            COALESCE(u.username, '访客') AS username,
-            u.avatar AS user_avatar,
-            c.parent_id,
-            pc.content AS parent_content,
-            c.content,
-            c.ip_address,
-            c.status,
-            c.create_time
+        c.id,
+        c.article_id,
+        a.title AS article_title,
+        c.user_id,
+        COALESCE(u.username, '访客') AS username,
+        u.avatar AS user_avatar,
+        c.parent_id,
+        pc.content AS parent_content,
+        c.content,
+        c.ip_address,
+        c.status,
+        c.create_time
         FROM comments c
         LEFT JOIN articles a ON c.article_id = a.id
         LEFT JOIN users u ON c.user_id = u.id
@@ -46,7 +46,7 @@
         </if>
         <if test="keyword != null and keyword != ''">
             AND (c.content ILIKE CONCAT('%', #{keyword}, '%')
-                 OR COALESCE(u.username, '访客') ILIKE CONCAT('%', #{keyword}, '%'))
+            OR COALESCE(u.username, '访客') ILIKE CONCAT('%', #{keyword}, '%'))
         </if>
         <if test="startTime != null">
             AND c.create_time >= #{startTime}
@@ -96,8 +96,8 @@
             c.status,
             c.create_time
         FROM comments c
-        LEFT JOIN articles a ON c.article_id = a.id
-        LEFT JOIN users u ON c.user_id = u.id
+                 LEFT JOIN articles a ON c.article_id = a.id
+                 LEFT JOIN users u ON c.user_id = u.id
         WHERE c.parent_id = #{parentId} AND c.deleted = 0
         ORDER BY c.create_time ASC
     </select>
@@ -106,10 +106,79 @@
     <update id="updateArticleCommentCount">
         UPDATE articles
         SET comments_count = CASE
-            WHEN comments_count + #{increment} &lt; 0 THEN 0
-            ELSE comments_count + #{increment}
-        END
+                                 WHEN comments_count + #{increment} &lt; 0 THEN 0
+                                 ELSE comments_count + #{increment}
+            END
         WHERE id = #{articleId}
     </update>
+
+    <!-- ==================== 用户端查询 ==================== -->
+
+    <!-- 用户端评论结果映射 -->
+    <resultMap id="CommentShowVOMap" type="com.syne.server.entity.vo.CommentShowVO">
+        <id property="id" column="id"/>
+        <result property="articleId" column="article_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="userAvatar" column="user_avatar"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="replyToUsername" column="reply_to_username"/>
+        <result property="content" column="content"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <!-- 查询文章的顶级评论（用户端，只查已审核通过的，status=1） -->
+    <select id="selectArticleTopComments" resultMap="CommentShowVOMap">
+        SELECT
+            c.id,
+            c.article_id,
+            c.user_id,
+            COALESCE(u.username, '访客') AS username,
+            u.avatar AS user_avatar,
+            c.parent_id,
+            NULL AS reply_to_username,
+            c.content,
+            c.create_time
+        FROM comments c
+                 LEFT JOIN users u ON c.user_id = u.id
+        WHERE c.article_id = #{articleId}
+          AND c.parent_id IS NULL
+          AND c.status = 1
+          AND c.deleted = 0
+        ORDER BY c.create_time DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 统计文章的顶级评论数量（用户端，只统计已审核通过的） -->
+    <select id="countArticleTopComments" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM comments c
+        WHERE c.article_id = #{articleId}
+          AND c.parent_id IS NULL
+          AND c.status = 1
+          AND c.deleted = 0
+    </select>
+
+    <!-- 查询某评论的所有子评论（用户端，只查已审核通过的） -->
+    <select id="selectCommentReplies" resultMap="CommentShowVOMap">
+        SELECT
+            c.id,
+            c.article_id,
+            c.user_id,
+            COALESCE(u.username, '访客') AS username,
+            u.avatar AS user_avatar,
+            c.parent_id,
+            COALESCE(pu.username, '访客') AS reply_to_username,
+            c.content,
+            c.create_time
+        FROM comments c
+                 LEFT JOIN users u ON c.user_id = u.id
+                 LEFT JOIN comments pc ON c.parent_id = pc.id
+                 LEFT JOIN users pu ON pc.user_id = pu.id
+        WHERE c.parent_id = #{parentId}
+          AND c.status = 1
+          AND c.deleted = 0
+        ORDER BY c.create_time ASC
+    </select>
 
 </mapper>

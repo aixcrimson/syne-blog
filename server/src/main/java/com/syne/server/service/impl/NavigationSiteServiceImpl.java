@@ -9,6 +9,7 @@ import com.syne.server.common.PageResult;
 import com.syne.server.entity.NavigationCategory;
 import com.syne.server.entity.NavigationSite;
 import com.syne.server.entity.dto.NavigationSiteDTO;
+import com.syne.server.entity.vo.NavigationSiteShowVO;
 import com.syne.server.entity.vo.NavigationSiteVO;
 import com.syne.server.exception.BusinessException;
 import com.syne.server.mapper.NavigationCategoryMapper;
@@ -185,5 +186,10 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
             vo.setUpdateTime(site.getUpdateTime());
             return vo;
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<NavigationSiteShowVO> listAllSiteShowVOs(){
+        return navigationSiteMapper.listAllSiteShowVOs();
     }
 }

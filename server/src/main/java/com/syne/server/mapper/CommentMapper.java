@@ -3,6 +3,7 @@ package com.syne.server.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.syne.server.entity.Comment;
 import com.syne.server.entity.vo.CommentListVO;
+import com.syne.server.entity.vo.CommentShowVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -28,13 +29,13 @@ public interface CommentMapper extends BaseMapper<Comment> {
      * @return 评论列表
      */
     List<CommentListVO> selectCommentList(
-        @Param("status") Integer status,
-        @Param("articleId") Long articleId,
-        @Param("keyword") String keyword,
-        @Param("startTime") LocalDateTime startTime,
-        @Param("endTime") LocalDateTime endTime,
-        @Param("offset") Integer offset,
-        @Param("pageSize") Integer pageSize
+            @Param("status") Integer status,
+            @Param("articleId") Long articleId,
+            @Param("keyword") String keyword,
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime,
+            @Param("offset") Integer offset,
+            @Param("pageSize") Integer pageSize
     );
 
     /**
@@ -48,11 +49,11 @@ public interface CommentMapper extends BaseMapper<Comment> {
      * @return 评论数量
      */
     Long countComments(
-        @Param("status") Integer status,
-        @Param("articleId") Long articleId,
-        @Param("keyword") String keyword,
-        @Param("startTime") LocalDateTime startTime,
-        @Param("endTime") LocalDateTime endTime
+            @Param("status") Integer status,
+            @Param("articleId") Long articleId,
+            @Param("keyword") String keyword,
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime
     );
 
     /**
@@ -70,4 +71,36 @@ public interface CommentMapper extends BaseMapper<Comment> {
      * @param increment 增量（正数增加，负数减少）
      */
     void updateArticleCommentCount(@Param("articleId") Long articleId, @Param("increment") Integer increment);
+
+    // ==================== 用户端查询 ====================
+
+    /**
+     * 查询文章的顶级评论（用户端，只查已审核通过的）
+     *
+     * @param articleId 文章ID
+     * @param offset    分页偏移量
+     * @param pageSize  分页大小
+     * @return 顶级评论列表
+     */
+    List<CommentShowVO> selectArticleTopComments(
+            @Param("articleId") Long articleId,
+            @Param("offset") Integer offset,
+            @Param("pageSize") Integer pageSize
+    );
+
+    /**
+     * 统计文章的顶级评论数量（用户端，只统计已审核通过的）
+     *
+     * @param articleId 文章ID
+     * @return 顶级评论数量
+     */
+    Long countArticleTopComments(@Param("articleId") Long articleId);
+
+    /**
+     * 查询某评论的所有子评论（用户端，只查已审核通过的）
+     *
+     * @param parentId 父评论ID
+     * @return 子评论列表
+     */
+    List<CommentShowVO> selectCommentReplies(@Param("parentId") Long parentId);
 }

@@ -35,8 +35,26 @@ const routes: RouteRecordRaw[] = [
         name: 'About',
         component: () => import('@/views/About.vue'),
         meta: { title: '关于我' }
+      },
+      {
+        path: '/profile',
+        name: 'Profile',
+        component: () => import('@/views/Profile.vue'),
+        meta: { title: '个人中心', requiresAuth: true }
       }
     ]
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/views/Login.vue'),
+    meta: { title: '登录 / 注册' }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/NotFound.vue'),
+    meta: { title: '404 - 页面未找到' }
   }
 ]
 

@@ -37,16 +37,16 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                 pageQuery.getPageSize()
         );
 
-    // 查询总数
-    Long total = categoryMapper.countCategories();
+        // 查询总数
+        Long total = categoryMapper.countCategories();
 
-    // 构建分页结果返回
-    return PageResult.build(
-        pageQuery.getPage(),
-        pageQuery.getPageSize(),
-        total,
-        list
-    );
+        // 构建分页结果返回
+        return PageResult.build(
+                pageQuery.getPage(),
+                pageQuery.getPageSize(),
+                total,
+                list
+        );
     }
 
 
@@ -114,7 +114,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         List<String> failedIds = new ArrayList<>();
         int successCount = 0;
 
-        for(String idStr : idArray) { 
+        for(String idStr : idArray) {
             try {
                 Long id = Long.parseLong(idStr.trim());
                 this.deleteCategory(id);
@@ -133,11 +133,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         // 构建返回消息
         String message;
         if(failedIds.isEmpty()) {
-            message = successCount == 1 ? "删除分类成功" : 
-                String.format("成功删除 %d 个分类", successCount);
+            message = successCount == 1 ? "删除分类成功" :
+                    String.format("成功删除 %d 个分类", successCount);
         } else {
-            message = String.format("成功删除 %d 个分类，失败 %s", 
-                successCount, String.join(", ", failedIds)
+            message = String.format("成功删除 %d 个分类，失败 %s",
+                    successCount, String.join(", ", failedIds)
             );
         }
 
@@ -153,15 +153,24 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         if(category == null || category.getDeleted() == 1) {
             throw new BusinessException("分类不存在");
         }
-        
+
         // 逻辑删除
         LambdaUpdateWrapper<Category> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(Category::getId, id)
-        .set(Category::getDeleted, 1)
-        .set(Category::getUpdateTime, LocalDateTime.now());
+                .set(Category::getDeleted, 1)
+                .set(Category::getUpdateTime, LocalDateTime.now());
 
         this.update(updateWrapper);
 
         log.info("删除分类成功：id={}, name={}", id, category.getName());
+    }
+
+    @Override
+    public List<CategoryListVO> getAllCategoryList(){
+        // 查询文章列表
+        List<CategoryListVO> list = categoryMapper.selectAllCategoryList();
+
+        // 构建分页结果返回
+        return list;
     }
 }

@@ -25,7 +25,7 @@ public interface CategoryService extends IService<Category> {
 
     /**
      * 根据id查询分类
-     * 
+     *
      * @param id 分类ID
      * @return 分类信息
      */
@@ -55,5 +55,12 @@ public interface CategoryService extends IService<Category> {
      * @return 删除结果
      */
     Result<String> deleteCategories(String ids);
+
+    /**
+     * 获取所有分类列表
+     *
+     * @return 分类列表
+     */
+    List<CategoryListVO> getAllCategoryList();
 
 }

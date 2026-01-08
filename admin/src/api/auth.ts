@@ -17,7 +17,7 @@ export const authApi = {
    * @requirements 3.2
    */
   login: (params: LoginParams): Promise<LoginResponse> => {
-    return post<LoginResponse>('/auth/login', params)
+    return post<LoginResponse>('/admin/auth/login', params)
   },
 
   /**
@@ -26,7 +26,7 @@ export const authApi = {
    * @requirements 3.5
    */
   logout: (): Promise<void> => {
-    return post('/auth/logout')
+    return post('/admin/auth/logout')
   },
 
   /**
@@ -34,7 +34,7 @@ export const authApi = {
    * @returns 用户信息
    */
   getCurrentUser: (): Promise<UserInfo> => {
-    return get<UserInfo>('/auth/current')
+    return get<UserInfo>('/admin/auth/current')
   }
 }
 

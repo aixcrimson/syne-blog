@@ -5,22 +5,31 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.syne.server.common.PageQuery;
 import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
-import com.syne.server.entity.Article;
+import com.syne.server.entity.*;
 import com.syne.server.entity.dto.ArticleDTO;
+import com.syne.server.entity.vo.ArticleDetailVO;
 import com.syne.server.entity.vo.ArticleListVO;
 import com.syne.server.exception.BusinessException;
-import com.syne.server.mapper.ArticleMapper;
+import com.syne.server.mapper.*;
 import com.syne.server.service.ArticleService;
+import com.syne.server.service.TagService;
+import com.syne.server.utils.IpUtils;
+import com.syne.server.utils.SecurityUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -28,37 +37,12 @@ import java.util.List;
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> implements ArticleService {
 
     private final ArticleMapper articleMapper;
-
-    @Override
-    public PageResult<ArticleListVO> getArticleList(PageQuery pageQuery, Integer status) {
-        // 查询文章列表
-        List<ArticleListVO> list = articleMapper.selectArticleList(
-                pageQuery.getOffset(),
-                pageQuery.getPageSize(),
-                status
-        );
-
-        // 处理标签字段：将都好分隔得字符串转为 List
-        list.forEach(article -> {
-            if(article.getTags() != null && !article.getTags().isEmpty()) {
-                String tagsStr = article.getTags().get(0);
-                if(tagsStr != null && !tagsStr.isEmpty()) {
-                    article.setTags(Arrays.asList(tagsStr.split(",")));
-                }
-            }
-        });
-
-        // 查询总数
-        Long total = articleMapper.countArticles(status);
-
-        // 构建分页结果
-        return PageResult.build(
-                pageQuery.getPage(),
-                pageQuery.getPageSize(),
-                total,
-                list
-        );
-    }
+    private final ArticleLikeMapper articleLikeMapper;
+    private final ArticleFavoriteMapper articleFavoriteMapper;
+    private final ArticleTagMapper articleTagMapper;
+    private final TagMapper tagMapper;
+    private final CategoryMapper categoryMapper;
+    private final TagService tagService;
 
     @Override
     public PageResult<ArticleListVO> getAdminArticleList(PageQuery pageQuery, Integer status, String keyword) {
@@ -70,14 +54,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 keyword
         );
 
-        // 处理标签字段：将逗号分隔的字符串转为 List
+        // 处理标签字段
         list.forEach(article -> {
-            if(article.getTags() != null && !article.getTags().isEmpty()) {
-                String tagsStr = article.getTags().get(0);
-                if(tagsStr != null && !tagsStr.isEmpty()) {
-                    article.setTags(Arrays.asList(tagsStr.split(",")));
-                }
-            }
+            article.setTags(tagService.getTagsByArticleId(article.getId()));
         });
 
         // 查询总数
@@ -85,23 +64,49 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
         // 构建分页结果
         return PageResult.build(
-            pageQuery.getPage(),
-            pageQuery.getPageSize(),
-            total,
-            list
+                pageQuery.getPage(),
+                pageQuery.getPageSize(),
+                total,
+                list
         );
     }
 
     @Override
-    public Article getAdminArticleById(Long id) {
+    public ArticleDetailVO getAdminArticleById(Long id) {
+        // 获取文章基本信息
         Article article = this.getById(id);
         if(article == null || article.getDeleted() == 1) {
             throw new BusinessException("文章不存在");
         }
-        return article;
+
+        // 获取文章标签列表
+        List<Tags> tags = tagService.getTagsByArticleId(id);
+
+        // 构建文章详情VO
+        ArticleDetailVO articleDetailVO = new ArticleDetailVO();
+        articleDetailVO.setId(article.getId());
+        articleDetailVO.setCategoryId(article.getCategoryId());
+        articleDetailVO.setTitle(article.getTitle());
+        articleDetailVO.setSummary(article.getSummary());
+        articleDetailVO.setContent(article.getContent());
+        articleDetailVO.setCoverImage(article.getCoverImage());
+        articleDetailVO.setViews(article.getViews());
+        articleDetailVO.setLikes(article.getLikes());
+        articleDetailVO.setFavorites(article.getFavorites());
+        articleDetailVO.setCommentsCount(article.getCommentsCount());
+        articleDetailVO.setStatus(article.getStatus());
+        articleDetailVO.setIsTop(article.getIsTop());
+        articleDetailVO.setIsRecommend(article.getIsRecommend());
+        articleDetailVO.setPublishedTime(article.getPublishedTime());
+        articleDetailVO.setCreateTime(article.getCreateTime());
+        articleDetailVO.setUpdateTime(article.getUpdateTime());
+        articleDetailVO.setTags(tags);
+
+        return articleDetailVO;
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Article createArticle(ArticleDTO articleDTO) {
         // 1.转换DTO为实体
         Article article = new Article();
@@ -126,16 +131,20 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             article.setPublishedTime(LocalDateTime.now());
         }
 
-        // 3.保存
+        // 3.保存文章
         this.save(article);
 
-        // TODO 4.处理标签关联
+        // 4.处理标签关联
+        if(articleDTO.getTagIds() != null && !articleDTO.getTagIds().isEmpty()) {
+            processArticleTags(article.getId(), null, articleDTO.getTagIds());
+        }
 
         log.info("创建文章成功：id={}, title={}", article.getId(), article.getTitle());
         return article;
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Article updateArticle(ArticleDTO articleDTO) {
         // 1.检查文章是否存在
         Article existingArticle = this.getById(articleDTO.getId());
@@ -155,17 +164,18 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         article.setIsTop(articleDTO.getIsTop() != null ? articleDTO.getIsTop() : 0); // 默认不置顶
         article.setIsRecommend(articleDTO.getIsRecommend() != null ? articleDTO.getIsRecommend() : 0); // 默认不推荐
 
-
         // 如果状态从未发布改为发布，设置发布时间
         if(article.getStatus() != null && article.getStatus() == 1
                 && (existingArticle.getStatus() != null && existingArticle.getStatus() != 1)
-            ) {
+        ) {
             article.setPublishedTime(LocalDateTime.now());
         }
 
         this.updateById(article);
 
-        // TODO 4.处理标签关联
+        // 3.处理标签关联
+        List<Long> newTagIds = articleDTO.getTagIds() != null ? articleDTO.getTagIds() : new ArrayList<>();
+        processArticleTags(article.getId(), null, newTagIds);
 
         log.info("更新文章成功：id={}, title={}", article.getId(), article.getTitle());
         return this.getById(article.getId());
@@ -187,7 +197,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         List<String> failedIds = new ArrayList<>();
         int successCount = 0;
 
-        for(String idStr : idArray) { 
+        for(String idStr : idArray) {
             try {
                 Long id = Long.parseLong(idStr.trim());
                 this.deleteArticle(id);
@@ -206,11 +216,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         // 构建返回消息
         String message;
         if(failedIds.isEmpty()) {
-            message = successCount == 1 ? "删除文章成功" : 
-                String.format("成功删除 %d 篇文章", successCount);
+            message = successCount == 1 ? "删除文章成功" :
+                    String.format("成功删除 %d 篇文章", successCount);
         } else {
-            message = String.format("成功删除 %d 篇文章，失败 %s", 
-                successCount, String.join(", ", failedIds)
+            message = String.format("成功删除 %d 篇文章，失败 %s",
+                    successCount, String.join(", ", failedIds)
             );
         }
 
@@ -272,6 +282,70 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return Result.success("文章状态更新成功");
     }
 
+    /**
+     * 处理文章标签关联
+     *
+     * @param articleId   文章ID
+     * @param oldTagIds   旧标签ID列表（更新时使用，创建时传null）
+     * @param newTagIds   新标签ID列表
+     */
+    private void processArticleTags(Long articleId, List<Long> oldTagIds, List<Long> newTagIds) {
+        // 1.验证标签ID列表
+        if(newTagIds != null && !newTagIds.isEmpty()) {
+            // 去重并检查标签是否存在
+            newTagIds = newTagIds.stream()
+                    .distinct()
+                    .filter(tagId -> tagId != null && tagId > 0)
+                    .collect(Collectors.toList());
+
+            if(!newTagIds.isEmpty()) {
+                // 批量验证标签是否存在
+                for(Long tagId : newTagIds) {
+                    if(tagMapper.selectById(tagId) == null) {
+                        throw new BusinessException("标签不存在：tagId=" + tagId);
+                    }
+                }
+            }
+        }
+
+        // 2.如果是更新操作，先删除旧的关联
+        if(oldTagIds != null) {
+            // 删除所有旧的关联
+            articleTagMapper.deleteByArticleId(articleId);
+        }
+
+        // 3.插入新的关联（如果存在）
+        if(newTagIds != null && !newTagIds.isEmpty()) {
+            // 检查是否有关联变更（更新时）
+            if(oldTagIds != null) {
+                List<Long> oldTagIdsSorted = oldTagIds.stream()
+                        .filter(id -> id != null)
+                        .sorted()
+                        .collect(Collectors.toList());
+                List<Long> newTagIdsSorted = newTagIds.stream()
+                        .filter(id -> id != null)
+                        .sorted()
+                        .collect(Collectors.toList());
+
+                // 如果没有变化，直接返回
+                if(oldTagIdsSorted.equals(newTagIdsSorted)) {
+                    return;
+                }
+            }
+
+            // 批量插入新的关联
+            int insertCount = articleTagMapper.insertByArticleAndTags(articleId, newTagIds);
+            if(insertCount != newTagIds.size()) {
+                throw new BusinessException("标签关联插入失败");
+            }
+        } else if(oldTagIds == null) {
+            // 创建时如果没有标签，不做任何操作
+        } else {
+            // 更新时如果新标签为空，确保删除所有旧关联
+            articleTagMapper.deleteByArticleId(articleId);
+        }
+    }
+
     public void deleteArticle(Long id) {
         // 检查文章是否存在
         Article article = this.getById(id);
@@ -282,11 +356,314 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         // 逻辑删除
         LambdaUpdateWrapper<Article> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(Article::getId, id)
-        .set(Article::getDeleted, 1)
-        .set(Article::getUpdateTime, LocalDateTime.now());
+                .set(Article::getDeleted, 1)
+                .set(Article::getUpdateTime, LocalDateTime.now());
 
         this.update(updateWrapper);
 
         log.info("删除文章成功：id={}, title={}", id, article.getTitle());
     }
+
+
+    /* ========================================用户端相关接口======================================== */
+
+
+    @Override
+    public PageResult<ArticleListVO> getUserArticleList(PageQuery pageQuery, String keyword, Long categoryId, List<Long> tagIds){
+        // 查询文章列表
+        List<ArticleListVO> list = articleMapper.selectUserArticleList(
+                pageQuery.getOffset(),
+                pageQuery.getPageSize(),
+                keyword,
+                categoryId,
+                tagIds
+        );
+
+        // 处理标签字段
+        list.forEach(article -> {
+            article.setTags(tagService.getTagsByArticleId(article.getId()));
+        });
+
+        // 查询总数
+        Long total = articleMapper.countUserArticles(keyword, categoryId, tagIds);
+
+        // 构建分页结果
+        return PageResult.build(
+                pageQuery.getPage(),
+                pageQuery.getPageSize(),
+                total,
+                list
+        );
+    }
+
+    @Override
+    public ArticleDetailVO getUserArticleById(Long id) {
+        // 获取文章基本信息
+        Article article = this.getById(id);
+        if(article == null || article.getDeleted() == 1) {
+            throw new BusinessException("文章不存在");
+        }
+
+        // 获取文章分类名称
+        Category category = categoryMapper.selectById(article.getCategoryId());
+
+        // 获取文章标签列表
+        List<Tags> tags = tagService.getTagsByArticleId(id);
+
+        // 构建文章详情VO
+        ArticleDetailVO articleDetailVO = new ArticleDetailVO();
+        articleDetailVO.setId(article.getId());
+        articleDetailVO.setCategoryId(article.getCategoryId());
+        articleDetailVO.setCategoryName(category != null ? category.getName() : null);
+        articleDetailVO.setTitle(article.getTitle());
+        articleDetailVO.setSummary(article.getSummary());
+        articleDetailVO.setContent(article.getContent());
+        articleDetailVO.setCoverImage(article.getCoverImage());
+        articleDetailVO.setViews(article.getViews());
+        articleDetailVO.setLikes(article.getLikes());
+        articleDetailVO.setFavorites(article.getFavorites());
+        articleDetailVO.setCommentsCount(article.getCommentsCount());
+        articleDetailVO.setStatus(article.getStatus());
+        articleDetailVO.setIsTop(article.getIsTop());
+        articleDetailVO.setIsRecommend(article.getIsRecommend());
+        articleDetailVO.setPublishedTime(article.getPublishedTime());
+        articleDetailVO.setCreateTime(article.getCreateTime());
+        articleDetailVO.setUpdateTime(article.getUpdateTime());
+        articleDetailVO.setTags(tags);
+
+        return articleDetailVO;
+    }
+
+    @Override
+    public List<ArticleListVO> getRecommendedArticleList(Integer limit){
+        // 查询推荐文章列表（不传筛选条件）
+        List<ArticleListVO> list = articleMapper.selectUserArticleList(
+                0,
+                limit,
+                null,
+                null,
+                null
+        );
+
+        // 处理标签字段
+        list.forEach(article -> {
+            article.setTags(tagService.getTagsByArticleId(article.getId()));
+        });
+
+        return list;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result<Map<String, Object>> toggleArticleLike(Long id){
+        // 检查文章是否存在
+        Article article = this.getById(id);
+        if(article == null || article.getDeleted() == 1) {
+            throw new BusinessException("文章不存在");
+        }
+
+        // 获取当前用户ID（如果已登录）
+        Long userId = SecurityUtils.getCurrentUserId();
+
+        // 获取客户端IP地址
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String ipAddress = IpUtils.getClientIp(request);
+
+        ArticleLike existingLike;
+        boolean isLiked;
+
+        if (userId != null) {
+            // 登录用户：根据用户ID查询
+            existingLike = articleLikeMapper.selectByArticleAndUser(id, userId);
+        } else {
+            // 游客：根据IP地址查询
+            existingLike = articleLikeMapper.selectByArticleAndIp(id, ipAddress);
+        }
+
+        if (existingLike != null) {
+            // 已有记录
+            if (existingLike.getDeleted() == 0) {
+                // 已点赞，取消点赞
+                articleLikeMapper.softDeleteLike(existingLike.getId());
+                // 文章点赞数 -1
+                article.setLikes(article.getLikes() - 1);
+                this.updateById(article);
+                isLiked = false;
+                log.info("取消点赞成功：articleId={}, userId={}, ip={}", id, userId, ipAddress);
+            } else {
+                // 已取消点赞，恢复点赞
+                articleLikeMapper.restoreLike(existingLike.getId());
+                // 文章点赞数 +1
+                article.setLikes(article.getLikes() + 1);
+                this.updateById(article);
+                isLiked = true;
+                log.info("恢复点赞成功：articleId={}, userId={}, ip={}", id, userId, ipAddress);
+            }
+        } else {
+            // 没有记录，新增点赞
+            ArticleLike newLike = new ArticleLike();
+            newLike.setArticleId(id);
+            newLike.setIpAddress(ipAddress);
+            newLike.setCreateBy(userId); // 登录用户设置userId，游客为null
+            newLike.setDeleted(0);
+            articleLikeMapper.insert(newLike);
+            // 文章点赞数 +1
+            article.setLikes(article.getLikes() + 1);
+            this.updateById(article);
+            isLiked = true;
+            log.info("新增点赞成功：articleId={}, userId={}, ip={}", id, userId, ipAddress);
+        }
+
+        Map<String, Object> data = new java.util.HashMap<>();
+        data.put("liked", isLiked);
+        data.put("likes", article.getLikes());
+
+        return Result.success(data);
+    }
+
+    @Override
+    public Result<Map<String, Object>> toggleArticleFavorite(Long id){
+        // 检查文章是否存在
+        Article article = this.getById(id);
+        if(article == null || article.getDeleted() == 1) {
+            throw new BusinessException("文章不存在");
+        }
+
+        // 获取当前用户ID（需要登录才能收藏）
+        Long userId = SecurityUtils.getCurrentUserId();
+
+        // 根据用户ID和文章ID是否已收藏
+        ArticleFavorite existingFavorite = articleFavoriteMapper.selectByArticleAndUser(id, userId);
+        boolean isFavorite;
+
+        if(existingFavorite != null) {
+            // 已有记录
+            if(existingFavorite.getDeleted() == 0){
+                // 已收藏，取消收藏
+                articleFavoriteMapper.softDeleteFavorite(existingFavorite.getId());
+                // 文章收藏数 - 1
+                article.setFavorites(article.getFavorites() - 1);
+                this.updateById(article);
+                isFavorite = false;
+                log.info("取消收藏成功：articleId={}, userId={}", id, userId);
+            }else{
+                // 已取消收藏，恢复收藏
+                articleFavoriteMapper.restoreFavorite(existingFavorite.getId());
+                // 文章收藏数 + 1
+                article.setFavorites(article.getFavorites() + 1);
+                this.updateById(article);
+                isFavorite = true;
+                log.info("恢复收藏成功：articleId={}, userId={}", id, userId);
+            }
+        } else {
+            // 没有记录，新增收藏
+            ArticleFavorite newFavorite = new ArticleFavorite();
+            newFavorite.setArticleId(id);
+            newFavorite.setCreateBy(userId);
+            newFavorite.setDeleted(0);
+            articleFavoriteMapper.insert(newFavorite);
+            // 文章收藏数 + 1
+            article.setFavorites(article.getFavorites() + 1);
+            this.updateById(article);
+            isFavorite = true;
+            log.info("新增收藏成功：articleId={}, userId={}", id, userId);
+        }
+
+        Map<String, Object> data = new java.util.HashMap<>();
+        data.put("favorited", isFavorite);
+        data.put("favorites", article.getFavorites());
+
+        return Result.success(data);
+    }
+
+    @Override
+    public Result<Map<String, Object>> increaseViews(Long id){
+        // 检查文章是否存在
+        Article article = this.getById(id);
+        if(article == null || article.getDeleted() == 1) {
+            throw new BusinessException("文章不存在");
+        }
+
+        // TODO 改为Redis时间窗口防刷
+        article.setViews(article.getViews() + 1);
+        this.updateById(article);
+
+        Map<String, Object> data = new java.util.HashMap<>();
+        data.put("views", article.getViews());
+
+        return Result.success(data);
+    }
+
+//     @Override
+// public Result<String> increaseViews(Long id) {
+//     // 1. 检查文章是否存在
+//     Article article = this.getById(id);
+//     if(article == null || article.getDeleted() == 1) {
+//         throw new BusinessException("文章不存在");
+//     }
+
+//     // 2. 获取客户端IP
+//     HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+//     String ipAddress = IpUtils.getClientIp(request);
+
+//     // 3. 检查是否在时间窗口内（例如：同一IP 5分钟内只能增加1次浏览量）
+//     String cacheKey = "article:view:" + id + ":" + ipAddress;
+//     if (redisTemplate.hasKey(cacheKey)) {
+//         // 5分钟内已经访问过，不增加浏览量
+//         return Result.success("浏览量已记录");
+//     }
+
+//     // 4. 增加浏览量
+//     article.setViews(article.getViews() + 1);
+//     this.updateById(article);
+
+//     // 5. 设置缓存（5分钟过期）
+//     redisTemplate.opsForValue().set(cacheKey, "1", 5, TimeUnit.MINUTES);
+
+//     log.info("增加浏览量成功：articleId={}, ip={}, newViews={}", id, ipAddress, article.getViews());
+//     return Result.success("浏览量增加成功");
+// }
+
+    @Override
+    public PageResult<ArticleListVO> getLikedArticleList(PageQuery pageQuery) {
+        // 获取当前用户ID
+        Long userId = SecurityUtils.getCurrentUserId();
+
+        // 查询点赞的文章列表
+        List<ArticleListVO> list = articleMapper.selectLikedArticles(
+                pageQuery.getOffset(),
+                pageQuery.getPageSize(),
+                userId
+        );
+
+        // 处理标签
+        list.forEach(article -> article.setTags(tagService.getTagsByArticleId(article.getId())));
+
+        // 查询总数
+        Long total = articleMapper.countLikedArticles(userId);
+
+        return PageResult.build(pageQuery.getPage(), pageQuery.getPageSize(), total, list);
+    }
+
+    @Override
+    public PageResult<ArticleListVO> getFavoriteArticleList(PageQuery pageQuery){
+        // 获取当前用户ID
+        Long userId = SecurityUtils.getCurrentUserId();
+
+        // 查询收藏的文章列表
+        List<ArticleListVO> list = articleMapper.selectFavoriteArticles(
+            pageQuery.getOffset(),
+            pageQuery.getPageSize(),
+            userId
+        );
+
+        // 处理标签
+        list.forEach(article -> article.setTags(tagService.getTagsByArticleId(article.getId())));
+
+        // 查询总数
+        Long total = articleMapper.countFavoriteArticles(userId);
+
+        return PageResult.build(pageQuery.getPage(), pageQuery.getPageSize(), total, list);
+    }
+
 }
