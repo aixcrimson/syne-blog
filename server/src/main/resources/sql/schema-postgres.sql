@@ -600,13 +600,13 @@ INSERT INTO navigation_categories (name, icon, sort_order, create_by, update_by)
 ('设计资源', 'design', 70, 1, 1);
 
 -- 插入导航站点
-INSERT INTO navigation_sites (category_id, name, description, url, icon, sort_order, create_by, update_by) VALUES
-(1, 'VS Code', '微软开发的代码编辑器', 'https://code.visualstudio.com/', '/icons/vscode.png', 100, 1, 1),
-(1, 'JetBrains', '专业的开发工具套件', 'https://www.jetbrains.com/', '/icons/jetbrains.png', 90, 1, 1),
-(2, 'MDN', 'Web 开发权威文档', 'https://developer.mozilla.org/', '/icons/mdn.png', 100, 1, 1),
-(2, '菜鸟教程', '编程学习入门网站', 'https://www.runoob.com/', '/icons/runoob.png', 90, 1, 1),
-(3, 'GitHub', '全球最大的代码托管平台', 'https://github.com/', '/icons/github.png', 100, 1, 1),
-(3, 'Stack Overflow', '程序员问答社区', 'https://stackoverflow.com/', '/icons/stackoverflow.png', 90, 1, 1);
+INSERT INTO navigation_sites (category_id, name, description, url, sort_order, create_by, update_by) VALUES
+(1, 'VS Code', '微软开发的代码编辑器', 'https://code.visualstudio.com/', 100, 1, 1),
+(1, 'JetBrains', '专业的开发工具套件', 'https://www.jetbrains.com/', 90, 1, 1),
+(2, 'MDN', 'Web 开发权威文档', 'https://developer.mozilla.org/', 100, 1, 1),
+(2, '菜鸟教程', '编程学习入门网站', 'https://www.runoob.com/',, 90, 1, 1),
+(3, 'GitHub', '全球最大的代码托管平台', 'https://github.com/',, 100, 1, 1),
+(3, 'Stack Overflow', '程序员问答社区', 'https://stackoverflow.com/',, 90, 1, 1);
 
 -- 插入公告
 INSERT INTO notices (content, is_show, sort_order, create_by, update_by) VALUES
