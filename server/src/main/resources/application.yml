@@ -1,7 +1,7 @@
 spring:
   application:
     name: syne-blog-server
-  
+
   # 激活的 profile
   profiles:
     active: dev,dev-local
@@ -58,13 +58,13 @@ mybatis-plus:
 # JWT 配置
 jwt:
   secret: your-secret-key-change-this-in-production-at-least-256-bits
-  expiration: 86400  # 24小时，单位秒
+  expiration: 86400 # 24小时，单位秒
   header: Authorization
-  prefix: Bearer 
+  prefix: Bearer
 
 # 服务器配置
 server:
-  port: 8080
+  port: ${PORT:8080}
   servlet:
     context-path: /api
     encoding:
