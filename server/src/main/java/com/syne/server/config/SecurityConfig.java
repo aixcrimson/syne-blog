@@ -27,6 +27,7 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
                 // 禁用 CSRF (前后端分离项目通常禁用)
                 .csrf(AbstractHttpConfigurer::disable)
                 // 开启 CORS 跨域支持
