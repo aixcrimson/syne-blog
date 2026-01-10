@@ -27,9 +27,10 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
                 // 禁用 CSRF (前后端分离项目通常禁用)
                 .csrf(AbstractHttpConfigurer::disable)
+                // 开启 CORS 跨域支持
+                .cors(org.springframework.security.config.Customizer.withDefaults())
                 // 添加JWT认证过滤器
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 // 配置授权规则
@@ -68,6 +69,28 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 );
         return http.build();
+    }
+
+    /**
+     * CORS 配置
+     */
+    @Bean
+    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+        org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
+        // 允许所有来源（生产环境建议指定具体域名）
+        configuration.addAllowedOriginPattern("*");
+        // 允许所有请求头
+        configuration.addAllowedHeader("*");
+        // 允许所有请求方法 (GET, POST, PUT, DELETE, OPTIONS等)
+        configuration.addAllowedMethod("*");
+        // 允许携带凭证 (Cookie等)
+        configuration.setAllowCredentials(true);
+        // 暴露响应头
+        configuration.addExposedHeader("Authorization");
+
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     /**
