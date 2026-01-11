@@ -8,21 +8,21 @@
 
     <!-- 搜索区域 -->
     <div class="glass-card p-4 mb-6 rounded-lg">
-      <div class="flex flex-wrap items-center gap-4">
+      <div class="flex flex-wrap items-center gap-4" :class="isMobile ? 'flex-col items-stretch' : ''">
         <!-- 用户名搜索 -->
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2" :class="isMobile ? 'flex-col items-start' : ''">
           <span class="text-gray-600">用户名：</span>
           <el-input
             v-model="searchKeyword"
             placeholder="请输入用户名搜索"
             clearable
-            style="width: 220px"
+            :style="isMobile ? 'width: 100%' : 'width: 220px'"
             :prefix-icon="Search"
             @keyup.enter="handleSearch"
             @clear="handleSearch"
           />
         </div>
-        <el-button type="primary" :icon="Search" @click="handleSearch">
+        <el-button type="primary" :icon="Search" @click="handleSearch" :class="isMobile ? 'w-full' : ''">
           搜索
         </el-button>
       </div>
@@ -37,26 +37,30 @@
         style="width: 100%"
       >
         <!-- 用户名 -->
-        <el-table-column label="用户名" min-width="120">
+        <el-table-column label="用户名" min-width="150">
           <template #default="{ row }">
             <div class="flex items-center gap-2">
-              <el-avatar :size="32" :src="row.avatar">
+              <el-avatar :size="isMobile ? 28 : 32" :src="row.avatar">
                 {{ row.username?.charAt(0)?.toUpperCase() }}
               </el-avatar>
-              <span class="text-gray-800 font-medium">{{ row.username }}</span>
+              <div class="flex flex-col">
+                 <span class="text-gray-800 font-medium">{{ row.username }}</span>
+                 <!-- 移动端在此显示邮箱 -->
+                 <span v-if="isMobile && row.email" class="text-xs text-gray-400">{{ row.email }}</span>
+              </div>
             </div>
           </template>
         </el-table-column>
         
-        <!-- 邮箱 -->
-        <el-table-column label="邮箱" min-width="180">
+        <!-- 邮箱 (移动端隐藏) -->
+        <el-table-column v-if="!isMobile" label="邮箱" min-width="180">
           <template #default="{ row }">
             <span class="text-gray-600">{{ row.email || '-' }}</span>
           </template>
         </el-table-column>
         
         <!-- 角色 -->
-        <el-table-column label="角色" width="100" align="center">
+        <el-table-column label="角色" :width="isMobile ? 80 : 100" align="center">
           <template #default="{ row }">
             <el-tag :type="row.role === UserRole.ADMIN ? 'danger' : 'info'" size="small">
               {{ getRoleLabel(row.role) }}
@@ -65,7 +69,7 @@
         </el-table-column>
 
         <!-- 状态 -->
-        <el-table-column label="状态" width="100" align="center">
+        <el-table-column label="状态" :width="isMobile ? 80 : 100" align="center">
           <template #default="{ row }">
             <el-tag :type="row.status === UserStatus.NORMAL ? 'success' : 'danger'" size="small">
               {{ getStatusLabel(row.status) }}
@@ -73,17 +77,17 @@
           </template>
         </el-table-column>
         
-        <!-- 注册时间 -->
-        <el-table-column label="注册时间" width="170">
+        <!-- 注册时间 (移动端隐藏) -->
+        <el-table-column v-if="!isMobile" label="注册时间" width="170">
           <template #default="{ row }">
             <span class="text-gray-500 text-sm">{{ formatDate(row.createTime) }}</span>
           </template>
         </el-table-column>
         
         <!-- 操作 -->
-        <el-table-column label="操作" width="120" fixed="right">
+        <el-table-column label="操作" :width="isMobile ? 80 : 120" fixed="right">
           <template #default="{ row }">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 justify-center">
               <!-- 启用/禁用按钮 -->
               <el-tooltip :content="row.status === UserStatus.NORMAL ? '禁用用户' : '启用用户'">
                 <el-button 
@@ -95,8 +99,8 @@
                   @click="handleToggleStatus(row)" 
                 />
               </el-tooltip>
-              <!-- 当前用户提示 -->
-              <el-tooltip v-if="isCurrentUser(row.id)" content="不能禁用自己">
+              <!-- 当前用户提示 (桌面端显示图标，移动端可能空间不足，按钮已disabled) -->
+              <el-tooltip v-if="isCurrentUser(row.id) && !isMobile" content="不能禁用自己">
                 <el-icon class="text-gray-400"><Warning /></el-icon>
               </el-tooltip>
             </div>
@@ -111,7 +115,8 @@
           v-model:page-size="pagination.pageSize"
           :page-sizes="[10, 20, 50, 100]"
           :total="pagination.total"
-          layout="total, sizes, prev, pager, next, jumper"
+          :layout="isMobile ? 'prev, pager, next' : 'total, sizes, prev, pager, next, jumper'"
+          :small="isMobile"
           @size-change="handleSizeChange"
           @current-change="handlePageChange"
         />
@@ -134,9 +139,14 @@ import { useUserStore } from '@/stores/user'
 import type { User } from '@/types'
 import { UserRole, UserStatus } from '@/types'
 import dayjs from 'dayjs'
+import { useResponsive } from '@/utils/useResponsive'
+
+// 响应式状态
+const { isMobile } = useResponsive()
 
 /** 用户 Store */
 const userStore = useUserStore()
+
 
 /** 加载状态 */
 const loading = ref(false)

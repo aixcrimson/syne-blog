@@ -18,13 +18,13 @@
           ref="profileFormRef"
           :model="profileForm"
           :rules="profileRules"
-          label-width="80px"
-          label-position="left"
+          :label-width="isMobile ? 'auto' : '80px'"
+          :label-position="isMobile ? 'top' : 'left'"
         >
           <!-- 头像上传 -->
           <el-form-item label="头像" prop="avatar">
-            <div class="flex items-center gap-4">
-              <div class="relative w-20 h-20 overflow-hidden rounded-full group">
+            <div class="flex items-center gap-4" :class="isMobile ? 'flex-col items-start' : ''">
+              <div class="relative w-20 h-20 overflow-hidden rounded-full group flex-shrink-0">
                 <el-avatar
                   :size="80"
                   :src="avatarPreview || profileForm.avatar"
@@ -124,18 +124,21 @@
 
           <!-- 保存按钮 -->
           <el-form-item>
-            <el-button 
-              type="primary" 
-              :loading="profileLoading"
-              @click="handleSaveProfile"
-            >
-              <el-icon class="mr-1"><Check /></el-icon>
-              保存修改
-            </el-button>
-            <el-button @click="resetProfileForm">
-              <el-icon class="mr-1"><RefreshLeft /></el-icon>
-              重置
-            </el-button>
+            <div class="flex gap-2" :class="isMobile ? 'w-full' : ''">
+              <el-button 
+                type="primary" 
+                :loading="profileLoading"
+                :class="isMobile ? 'flex-1' : ''"
+                @click="handleSaveProfile"
+              >
+                <el-icon class="mr-1"><Check /></el-icon>
+                保存修改
+              </el-button>
+              <el-button @click="resetProfileForm" :class="isMobile ? 'flex-1' : ''">
+                <el-icon class="mr-1"><RefreshLeft /></el-icon>
+                重置
+              </el-button>
+            </div>
           </el-form-item>
         </el-form>
       </div>
@@ -151,8 +154,8 @@
           ref="passwordFormRef"
           :model="passwordForm"
           :rules="passwordRules"
-          label-width="100px"
-          label-position="left"
+          :label-width="isMobile ? 'auto' : '100px'"
+          :label-position="isMobile ? 'top' : 'left'"
         >
           <!-- 原密码 -->
           <el-form-item label="原密码" prop="oldPassword">
@@ -198,18 +201,21 @@
 
           <!-- 修改按钮 -->
           <el-form-item>
-            <el-button 
-              type="primary" 
-              :loading="passwordLoading"
-              @click="handleChangePassword"
-            >
-              <el-icon class="mr-1"><Check /></el-icon>
-              修改密码
-            </el-button>
-            <el-button @click="resetPasswordForm">
-              <el-icon class="mr-1"><RefreshLeft /></el-icon>
-              重置
-            </el-button>
+            <div class="flex gap-2" :class="isMobile ? 'w-full' : ''">
+              <el-button 
+                type="primary" 
+                :loading="passwordLoading"
+                :class="isMobile ? 'flex-1' : ''"
+                @click="handleChangePassword"
+              >
+                <el-icon class="mr-1"><Check /></el-icon>
+                修改密码
+              </el-button>
+              <el-button @click="resetPasswordForm" :class="isMobile ? 'flex-1' : ''">
+                <el-icon class="mr-1"><RefreshLeft /></el-icon>
+                重置
+              </el-button>
+            </div>
           </el-form-item>
         </el-form>
 
@@ -243,9 +249,14 @@ import {
 import { useUserStore } from '@/stores/user'
 import { userApi } from '@/api/user'
 import type { UpdateProfileParams, ChangePasswordParams } from '@/types'
+import { useResponsive } from '@/utils/useResponsive'
+
+// 响应式状态
+const { isMobile } = useResponsive()
 
 // ==================== Store ====================
 const userStore = useUserStore()
+
 
 // ==================== 表单引用 ====================
 const profileFormRef = ref<FormInstance>()

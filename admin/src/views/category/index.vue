@@ -28,19 +28,19 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="别名" width="150">
+        <el-table-column v-if="!isMobile" label="别名" width="150">
           <template #default="{ row }">
             <el-tag type="info" size="small">{{ row.slug }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="描述" min-width="200">
+        <el-table-column v-if="!isMobile" label="描述" min-width="200">
           <template #default="{ row }">
             <span class="text-gray-500 text-sm truncate" :title="row.description">
               {{ row.description || '-' }}
             </span>
           </template>
         </el-table-column>
-        <el-table-column label="排序" width="80" align="center">
+        <el-table-column v-if="!isMobile" label="排序" width="80" align="center">
           <template #default="{ row }">
             <span class="text-gray-600">{{ row.sortOrder }}</span>
           </template>
@@ -53,12 +53,12 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="创建时间" width="170">
+        <el-table-column v-if="!isMobile" label="创建时间" width="170">
           <template #default="{ row }">
             <span class="text-gray-500 text-sm">{{ formatDate(row.createTime) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="150" fixed="right">
+        <el-table-column label="操作" :width="isMobile ? 120 : 150" fixed="right">
           <template #default="{ row }">
             <div class="flex items-center gap-2">
               <el-tooltip content="编辑">
@@ -74,8 +74,14 @@
     </div>
 
     <!-- 新建/编辑对话框 -->
-    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="500px" :close-on-click-modal="false" @closed="handleDialogClose">
-      <el-form ref="formRef" :model="formData" :rules="formRules" label-width="80px" label-position="right">
+    <el-dialog 
+      v-model="dialogVisible" 
+      :title="dialogTitle" 
+      :width="isMobile ? '90%' : '500px'" 
+      :close-on-click-modal="false" 
+      @closed="handleDialogClose"
+    >
+      <el-form ref="formRef" :model="formData" :rules="formRules" :label-width="isMobile ? 'auto' : '80px'" :label-position="isMobile ? 'top' : 'right'">
         <el-form-item label="名称" prop="name">
           <el-input v-model="formData.name" placeholder="请输入分类名称" maxlength="50" show-word-limit />
         </el-form-item>
@@ -121,8 +127,13 @@ import type { Category, CategoryForm } from '@/types'
 import { isCategoryNameUnique, isCategorySlugUnique, canDeleteCategory } from '@/utils/validate'
 import dayjs from 'dayjs'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import { useResponsive } from '@/utils/useResponsive'
+
+// 响应式状态
+const { isMobile } = useResponsive()
 
 const loading = ref(false)
+
 const categoryList = ref<Category[]>([])
 const dialogVisible = ref(false)
 const dialogTitle = computed(() => isEdit.value ? '编辑分类' : '新建分类')

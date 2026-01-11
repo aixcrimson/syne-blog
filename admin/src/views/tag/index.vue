@@ -30,7 +30,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="别名" width="150">
+        <el-table-column v-if="!isMobile" label="别名" width="150">
           <template #default="{ row }">
             <el-tag type="info" size="small">{{ row.slug }}</el-tag>
           </template>
@@ -53,12 +53,12 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" width="170">
+        <el-table-column v-if="!isMobile" label="创建时间" width="170">
           <template #default="{ row }">
             <span class="text-gray-500 text-sm">{{ formatDate(row.createTime) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="150" fixed="right">
+        <el-table-column label="操作" :width="isMobile ? 120 : 150" fixed="right">
           <template #default="{ row }">
             <div class="flex items-center gap-2">
               <el-tooltip content="编辑">
@@ -89,7 +89,7 @@
     <el-dialog 
       v-model="dialogVisible" 
       :title="dialogTitle" 
-      width="500px" 
+      :width="isMobile ? '90%' : '500px'" 
       :close-on-click-modal="false" 
       @closed="handleDialogClose"
     >
@@ -97,8 +97,8 @@
         ref="formRef" 
         :model="formData" 
         :rules="formRules" 
-        label-width="80px" 
-        label-position="right"
+        :label-width="isMobile ? 'auto' : '80px'" 
+        :label-position="isMobile ? 'top' : 'right'"
       >
         <el-form-item label="名称" prop="name">
           <el-input 
@@ -160,9 +160,14 @@ import { tagApi } from '@/api/tag'
 import type { Tag, TagForm } from '@/types'
 import { isTagNameUnique, isTagSlugUnique } from '@/utils/validate'
 import dayjs from 'dayjs'
+import { useResponsive } from '@/utils/useResponsive'
+
+// 响应式状态
+const { isMobile } = useResponsive()
 
 /** 加载状态 */
 const loading = ref(false)
+
 
 /** 标签列表 */
 const tagList = ref<Tag[]>([])
