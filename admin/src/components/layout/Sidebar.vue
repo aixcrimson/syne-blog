@@ -1,15 +1,17 @@
 <template>
   <aside
-    class="sidebar fixed left-0 top-0 h-screen z-50 transition-all duration-300 glass-sidebar"
-    :class="collapsed ? 'w-16' : 'w-60'"
+    class="sidebar fixed left-0 top-0 h-screen z-50 transition-transform duration-300 glass-sidebar"
+    :class="[
+      sidebarClass,
+      isMobile ? 'shadow-2xl' : ''
+    ]"
   >
     <!-- Logo 区域 -->
     <div
       class="logo-area h-16 flex items-center border-b border-gray-200/50 px-4"
-      :class="collapsed ? 'justify-center' : 'justify-start'"
+      :class="(collapsed && !isMobile) ? 'justify-center' : 'justify-start'"
     >
       <div class="flex items-center gap-3 overflow-hidden">
-        <!-- Logo 图标 -->
         <!-- Logo 图标 -->
         <img
           :src="logo"
@@ -19,7 +21,7 @@
         <!-- 系统名称 -->
         <transition name="fade">
           <span
-            v-show="!collapsed"
+            v-show="!collapsed || isMobile"
             class="text-lg font-bold text-gray-800 whitespace-nowrap"
           >
             博客管理
@@ -41,9 +43,9 @@
               activeMenu === item.path
                 ? 'bg-primary-500 text-white shadow-md'
                 : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
-              collapsed ? 'justify-center' : '',
+              (collapsed && !isMobile) ? 'justify-center' : '',
             ]"
-            :title="collapsed ? item.name : ''"
+            :title="(collapsed && !isMobile) ? item.name : ''"
             @click="handleMenuClick(item)"
           >
             <el-icon class="text-lg flex-shrink-0">
@@ -51,7 +53,7 @@
             </el-icon>
             <transition name="fade">
               <span
-                v-show="!collapsed"
+                v-show="!collapsed || isMobile"
                 class="text-sm font-medium whitespace-nowrap"
               >
                 {{ item.name }}
@@ -62,8 +64,8 @@
       </ul>
     </nav>
 
-    <!-- 收起/展开按钮 -->
-    <div class="collapse-btn absolute bottom-4 left-0 right-0 px-2">
+    <!-- 收起/展开按钮 (仅桌面端显示) -->
+    <div v-if="!isMobile" class="collapse-btn absolute bottom-4 left-0 right-0 px-2">
       <div
         class="flex items-center justify-center py-2 rounded-lg cursor-pointer text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-all"
         :class="collapsed ? 'px-0' : 'px-3'"
@@ -87,6 +89,7 @@
 /**
  * 侧边栏导航组件
  * 实现 Logo 显示、菜单项渲染、高亮和展开/收起功能
+ * 响应式支持：移动端抽屉模式
  */
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -97,21 +100,48 @@ import logo from "@/assets/common/logo.png";
  * 组件属性
  */
 interface Props {
-  /** 是否收起状态 */
+  /** 是否收起状态（桌面端） */
   collapsed: boolean;
+  /** 是否为移动端 */
+  isMobile?: boolean;
+  /** 移动端侧边栏是否打开 */
+  isOpen?: boolean;
 }
 
-defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  isMobile: false,
+  isOpen: false
+});
 
 /**
  * 组件事件
  */
 const emit = defineEmits<{
   (e: "toggle"): void;
+  (e: "close"): void;
 }>();
 
 const route = useRoute();
 const router = useRouter();
+
+/**
+ * 侧边栏样式类
+ */
+const sidebarClass = computed(() => {
+  if (props.isMobile) {
+    // 移动端：根据 isOpen 控制显示隐藏
+    // w-64 稍微宽一点适应手指操作
+    return [
+      'w-64',
+      props.isOpen ? 'translate-x-0' : '-translate-x-full'
+    ]
+  }
+  // 桌面端：根据 collapsed 控制宽度
+  return [
+    props.collapsed ? 'w-16' : 'w-60',
+    'translate-x-0'
+  ]
+})
 
 /**
  * 菜单配置列表
@@ -142,17 +172,21 @@ const activeMenu = computed(() => {
  */
 const handleMenuClick = (item: MenuItem) => {
   router.push(item.path);
+  // 移动端点击菜单后关闭侧边栏
+  if (props.isMobile) {
+    emit('close');
+  }
 };
 </script>
 
 <style scoped>
 /* 毛玻璃侧边栏 */
 .glass-sidebar {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-right: 1px solid rgba(229, 231, 235, 0.5);
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.05);
+  /* 移动端需要更高的 z-index */
 }
 
 /* 菜单项激活状态阴影 */

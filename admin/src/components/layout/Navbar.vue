@@ -1,36 +1,36 @@
 <template>
   <header 
     class="navbar fixed top-0 right-0 h-16 z-40 glass-navbar transition-all duration-300"
-    :class="collapsed ? 'left-16' : 'left-60'"
+    :class="navbarClass"
   >
-    <div class="h-full flex items-center justify-between px-6">
+    <div class="h-full flex items-center justify-between px-4 md:px-6">
       <!-- 左侧：折叠按钮 + 面包屑 -->
       <div class="flex items-center gap-4">
-        <!-- 折叠按钮 -->
+        <!-- 折叠/展开按钮 -->
         <el-icon 
           class="text-xl text-gray-600 cursor-pointer hover:text-primary-500 transition-colors"
           @click="emit('toggle')"
         >
-          <Fold v-if="!collapsed" />
-          <Expand v-else />
+          <Expand v-if="isMobile || collapsed" />
+          <Fold v-else />
         </el-icon>
         
-        <!-- 面包屑（可选，后续扩展） -->
-        <el-breadcrumb separator="/">
+        <!-- 面包屑 (仅桌面端显示) -->
+        <el-breadcrumb v-if="!isMobile" separator="/">
           <el-breadcrumb-item :to="{ path: '/dashboard' }">首页</el-breadcrumb-item>
         </el-breadcrumb>
       </div>
 
       <!-- 右侧：主题切换 + 用户信息 -->
-      <div class="flex items-center gap-4">
-        <!-- 主题色切换 -->
+      <div class="flex items-center gap-2 md:gap-4">
+        <!-- 主题色切换 (仅大屏显示名称) -->
         <el-dropdown trigger="click" @command="handleThemeChange">
-          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+          <div class="flex items-center gap-2 px-2 md:px-3 py-1.5 rounded-lg cursor-pointer hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
             <div
-              class="w-4 h-4 rounded-full"
+              class="w-4 h-4 rounded-full flex-shrink-0"
               :style="{ backgroundColor: currentThemeColor }"
             ></div>
-            <span class="text-sm text-gray-600 dark:text-gray-300">主题</span>
+            <span v-if="!isMobile" class="text-sm text-gray-600 dark:text-gray-300">主题</span>
             <el-icon class="text-gray-400 dark:text-gray-500">
               <ArrowDown />
             </el-icon>
@@ -58,12 +58,19 @@
         </el-dropdown>
 
         <!-- 明暗模式切换开关 -->
-        <el-tooltip content="切换明暗模式" placement="bottom">
+        <el-tooltip content="切换明暗模式" placement="bottom" :disabled="isMobile">
           <div
             class="cursor-pointer p-2 rounded-lg transition-all duration-300 hover:bg-bg-tertiary"
             @click="toggleThemeMode"
           >
+            <!-- 移动端用图标，桌面端用开关 -->
+            <el-icon v-if="isMobile" size="20" class="text-gray-600 dark:text-gray-300">
+              <Sunny v-if="!isDarkMode" />
+              <Moon v-else />
+            </el-icon>
+
             <div
+              v-else
               class="w-12 h-6 bg-bg-tertiary rounded-full relative transition-all duration-300 border border-border-primary"
               :style="{
                 '--toggle-position': isDarkMode ? '24px' : '2px',
@@ -89,23 +96,28 @@
 
         <!-- 用户信息下拉菜单 -->
         <el-dropdown trigger="click">
-          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+          <div class="flex items-center gap-2 px-2 md:px-3 py-1.5 rounded-lg cursor-pointer hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
             <!-- 头像 -->
             <el-avatar
-              :size="32"
+              :size="isMobile ? 28 : 32"
               :src="userInfo.avatar"
-              class="bg-primary-500"
+              class="bg-primary-500 flex-shrink-0"
             >
               <el-icon><UserFilled /></el-icon>
             </el-avatar>
             <!-- 用户名 -->
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ userInfo.username }}</span>
+            <span v-if="!isMobile" class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ userInfo.username }}</span>
             <el-icon class="text-gray-400 dark:text-gray-500">
               <ArrowDown />
             </el-icon>
           </div>
           <template #dropdown>
             <el-dropdown-menu>
+              <!-- 移动端在下拉菜单显示用户名 -->
+              <el-dropdown-item v-if="isMobile" disabled>
+                <span class="text-gray-500">{{ userInfo.username }}</span>
+              </el-dropdown-item>
+              
               <el-dropdown-item @click="router.push('/settings')">
                 <el-icon><Setting /></el-icon>
                 <span class="ml-2">个人设置</span>
@@ -126,6 +138,7 @@
 /**
  * 顶部导航栏组件
  * 实现用户信息显示、主题色切换和退出登录功能
+ * 响应式支持：移动端适配
  */
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -137,10 +150,24 @@ import { useUserStore } from '@/stores/user'
  */
 interface Props {
   /** 侧边栏是否收起 */
-  collapsed: boolean
+  collapsed: boolean;
+  /** 是否为移动端 */
+  isMobile?: boolean;
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  isMobile: false
+})
+
+/**
+ * 导航栏样式类
+ */
+const navbarClass = computed(() => {
+  if (props.isMobile) {
+    return 'left-0'
+  }
+  return props.collapsed ? 'left-16' : 'left-60'
+})
 
 /**
  * 组件事件

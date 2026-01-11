@@ -251,3 +251,17 @@
 .dark ::-webkit-scrollbar-thumb:hover {
   background-color: var(--color-text-tertiary);
 }
+
+/* ========================================
+   移动端响应式优化
+======================================== */
+@media (max-width: 768px) {
+  /* 隐藏滚动条但保留滚动功能（优化移动端体验） */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

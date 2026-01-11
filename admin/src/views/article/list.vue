@@ -8,63 +8,68 @@
 
     <!-- 搜索和筛选区域 -->
     <div class="glass-card p-4 mb-6 rounded-lg">
-      <div class="flex flex-wrap items-center gap-4">
+      <div class="flex flex-wrap items-center gap-4" :class="isMobile ? 'flex-col items-stretch' : ''">
         <!-- 关键词搜索 -->
         <el-input
           v-model="searchParams.keyword"
           placeholder="搜索文章标题"
           clearable
-          class="w-64"
+          :class="isMobile ? 'w-full' : 'w-64'"
           :prefix-icon="Search"
           @keyup.enter="handleSearch"
           @clear="handleSearch"
         />
         
-        <!-- 分类筛选 -->
-        <el-select
-          v-model="searchParams.categoryId"
-          placeholder="选择分类"
-          clearable
-          class="w-40"
-          @change="handleSearch"
-        >
-          <el-option
-            v-for="category in categoryList"
-            :key="category.id"
-            :label="category.name"
-            :value="category.id"
-          />
-        </el-select>
+        <div class="flex gap-4" :class="isMobile ? 'w-full' : ''">
+          <!-- 分类筛选 -->
+          <el-select
+            v-model="searchParams.categoryId"
+            placeholder="选择分类"
+            clearable
+            :class="isMobile ? 'flex-1' : 'w-40'"
+            @change="handleSearch"
+          >
+            <el-option
+              v-for="category in categoryList"
+              :key="category.id"
+              :label="category.name"
+              :value="category.id"
+            />
+          </el-select>
+          
+          <!-- 状态筛选 -->
+          <el-select
+            v-model="searchParams.status"
+            placeholder="选择状态"
+            clearable
+            :class="isMobile ? 'flex-1' : 'w-32'"
+            @change="handleSearch"
+          >
+            <el-option
+              v-for="option in statusOptions"
+              :key="option.value"
+              :label="option.label"
+              :value="option.value"
+            />
+          </el-select>
+        </div>
         
-        <!-- 状态筛选 -->
-        <el-select
-          v-model="searchParams.status"
-          placeholder="选择状态"
-          clearable
-          class="w-32"
-          @change="handleSearch"
-        >
-          <el-option
-            v-for="option in statusOptions"
-            :key="option.value"
-            :label="option.label"
-            :value="option.value"
-          />
-        </el-select>
-        
-        <!-- 搜索按钮 -->
-        <el-button type="primary" :icon="Search" @click="handleSearch">
-          搜索
-        </el-button>
-        
-        <!-- 重置按钮 -->
-        <el-button @click="handleReset">重置</el-button>
+        <div class="flex gap-2" :class="isMobile ? 'w-full' : ''">
+          <!-- 搜索按钮 -->
+          <el-button type="primary" :icon="Search" @click="handleSearch" :class="isMobile ? 'flex-1' : ''">
+            搜索
+          </el-button>
+          
+          <!-- 重置按钮 -->
+          <el-button @click="handleReset" :class="isMobile ? 'flex-1' : ''">重置</el-button>
+        </div>
         
         <!-- 新建按钮 -->
         <el-button 
           type="primary" 
           :icon="Plus" 
           class="ml-auto"
+          :class="isMobile ? 'w-full ml-0 mt-2' : ''"
           @click="handleCreate"
         >
           新建文章
@@ -81,17 +86,19 @@
         style="width: 100%"
       >
         <!-- 标题列 -->
-        <el-table-column label="标题" min-width="280">
+        <el-table-column label="标题" min-width="200">
           <template #default="{ row }">
             <div class="flex items-center gap-2">
-              <!-- 置顶标记 -->
-              <el-tag v-if="row.isTop === 1" type="danger" size="small">
-                置顶
-              </el-tag>
-              <!-- 推荐标记 -->
-              <el-tag v-if="row.isRecommend === 1" type="warning" size="small">
-                推荐
-              </el-tag>
+              <!-- 置顶/推荐只在桌面端显示完整标签，移动端简化或隐藏 -->
+              <el-tag v-if="row.isTop === 1 && !isMobile" type="danger" size="small">置顶</el-tag>
+              <el-tag v-if="row.isRecommend === 1 && !isMobile" type="warning" size="small">推荐</el-tag>
+              
+              <!-- 移动端用小圆点表示状态 -->
+              <div v-if="isMobile && (row.isTop === 1 || row.isRecommend === 1)" class="flex gap-1">
+                <div v-if="row.isTop === 1" class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                <div v-if="row.isRecommend === 1" class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div>
+              </div>
+
               <!-- 标题文本 -->
               <span 
                 class="text-gray-800 hover:text-primary-500 cursor-pointer truncate"
@@ -104,8 +111,8 @@
           </template>
         </el-table-column>
         
-        <!-- 分类列 -->
-        <el-table-column label="分类" width="120">
+        <!-- 分类列 (移动端隐藏) -->
+        <el-table-column v-if="!isMobile" label="分类" width="120">
           <template #default="{ row }">
             <el-tag type="info" size="small">
               {{ row.categoryName || '未分类' }}
@@ -114,12 +121,13 @@
         </el-table-column>
         
         <!-- 状态列 -->
-        <el-table-column label="状态" width="100" align="center">
+        <el-table-column label="状态" :width="isMobile ? 80 : 100" align="center">
           <template #default="{ row }">
             <el-dropdown trigger="click" @command="(cmd: ArticleStatus) => handleStatusChange(row, cmd)">
               <el-tag 
                 :type="getStatusType(row.status)" 
                 class="cursor-pointer"
+                :size="isMobile ? 'small' : 'default'"
               >
                 {{ getStatusLabel(row.status) }}
               </el-tag>
@@ -129,7 +137,6 @@
                     v-for="option in statusOptions"
                     :key="option.value"
                     :command="option.value"
-                    :disabled="row.status === option.value"
                   >
                     {{ option.label }}
                   </el-dropdown-item>
@@ -139,15 +146,15 @@
           </template>
         </el-table-column>
         
-        <!-- 浏览量列 -->
-        <el-table-column label="浏览量" width="100" align="center">
+        <!-- 浏览量列 (移动端隐藏) -->
+        <el-table-column v-if="!isMobile" label="浏览量" width="100" align="center">
           <template #default="{ row }">
             <span class="text-gray-600">{{ row.views || 0 }}</span>
           </template>
         </el-table-column>
         
-        <!-- 发布时间列 -->
-        <el-table-column label="发布时间" width="170">
+        <!-- 发布时间列 (移动端隐藏) -->
+        <el-table-column v-if="!isMobile" label="发布时间" width="170">
           <template #default="{ row }">
             <span class="text-gray-500 text-sm">
               {{ formatDate(row.publishedTime) }}
@@ -156,52 +163,76 @@
         </el-table-column>
         
         <!-- 操作列 -->
-        <el-table-column label="操作" width="220" fixed="right">
+        <el-table-column label="操作" :width="isMobile ? 120 : 220" fixed="right">
           <template #default="{ row }">
-            <div class="flex items-center gap-1">
-              <!-- 置顶按钮 -->
-              <el-tooltip :content="row.isTop === 1 ? '取消置顶' : '置顶'">
-                <el-button
-                  :type="row.isTop === 1 ? 'warning' : 'default'"
-                  :icon="Top"
-                  size="small"
-                  circle
-                  @click="handleToggleTop(row)"
-                />
-              </el-tooltip>
+            <div class="flex items-center gap-1 justify-end">
+              <!-- 移动端只显示编辑和更多 -->
+              <template v-if="isMobile">
+                <el-button type="primary" :icon="Edit" size="small" circle @click="handleEdit(row)" />
+                <el-dropdown trigger="click">
+                  <el-button type="info" :icon="More" size="small" circle />
+                  <template #dropdown>
+                    <el-dropdown-menu>
+                      <el-dropdown-item @click="handleToggleTop(row)">
+                        {{ row.isTop === 1 ? '取消置顶' : '置顶' }}
+                      </el-dropdown-item>
+                      <el-dropdown-item @click="handleToggleRecommend(row)">
+                        {{ row.isRecommend === 1 ? '取消推荐' : '推荐' }}
+                      </el-dropdown-item>
+                      <el-dropdown-item divided class="text-red-500" @click="handleDelete(row)">
+                        删除
+                      </el-dropdown-item>
+                    </el-dropdown-menu>
+                  </template>
+                </el-dropdown>
+              </template>
               
-              <!-- 推荐按钮 -->
-              <el-tooltip :content="row.isRecommend === 1 ? '取消推荐' : '推荐'">
-                <el-button
-                  :type="row.isRecommend === 1 ? 'warning' : 'default'"
-                  :icon="row.isRecommend === 1 ? StarFilled : Star"
-                  size="small"
-                  circle
-                  @click="handleToggleRecommend(row)"
-                />
-              </el-tooltip>
-              
-              <!-- 编辑按钮 -->
-              <el-tooltip content="编辑">
-                <el-button
-                  type="primary"
-                  :icon="Edit"
-                  size="small"
-                  circle
-                  @click="handleEdit(row)"
-                />
-              </el-tooltip>
-              
-              <!-- 删除按钮 -->
-              <el-tooltip content="删除">
-                <el-button
-                  type="danger"
-                  :icon="Delete"
-                  size="small"
-                  circle
-                  @click="handleDelete(row)"
-                />
-              </el-tooltip>
+              <!-- 桌面端显示全部按钮 -->
+              <template v-else>
+                <!-- 置顶按钮 -->
+                <el-tooltip :content="row.isTop === 1 ? '取消置顶' : '置顶'">
+                  <el-button
+                    :type="row.isTop === 1 ? 'warning' : 'default'"
+                    :icon="Top"
+                    size="small"
+                    circle
+                    @click="handleToggleTop(row)"
+                  />
+                </el-tooltip>
+                
+                <!-- 推荐按钮 -->
+                <el-tooltip :content="row.isRecommend === 1 ? '取消推荐' : '推荐'">
+                  <el-button
+                    :type="row.isRecommend === 1 ? 'warning' : 'default'"
+                    :icon="row.isRecommend === 1 ? StarFilled : Star"
+                    size="small"
+                    circle
+                    @click="handleToggleRecommend(row)"
+                  />
+                </el-tooltip>
+                
+                <!-- 编辑按钮 -->
+                <el-tooltip content="编辑">
+                  <el-button
+                    type="primary"
+                    :icon="Edit"
+                    size="small"
+                    circle
+                    @click="handleEdit(row)"
+                  />
+                </el-tooltip>
+                
+                <!-- 删除按钮 -->
+                <el-tooltip content="删除">
+                  <el-button
+                    type="danger"
+                    :icon="Delete"
+                    size="small"
+                    circle
+                    @click="handleDelete(row)"
+                  />
+                </el-tooltip>
+              </template>
             </div>
           </template>
         </el-table-column>
@@ -214,7 +245,8 @@
           v-model:page-size="pagination.pageSize"
           :page-sizes="[10, 20, 50, 100]"
           :total="pagination.total"
-          layout="total, sizes, prev, pager, next, jumper"
+          :layout="isMobile ? 'prev, pager, next' : 'total, sizes, prev, pager, next, jumper'"
+          :small="isMobile"
           @size-change="handleSizeChange"
           @current-change="handlePageChange"
         />
@@ -239,13 +271,18 @@ import {
   Delete,
   Top,
   Star,
-  StarFilled
+  StarFilled,
+  More
 } from '@element-plus/icons-vue'
 import { articleApi } from '@/api/article'
 import { categoryApi } from '@/api/category'
 import type { Article, ArticleListParams, Category } from '@/types'
 import { ArticleStatus } from '@/types'
 import dayjs from 'dayjs'
+import { useResponsive } from '@/utils/useResponsive'
+
+// 响应式状态
+const { isMobile } = useResponsive()
 
 // ==================== 路由 ====================
 const router = useRouter()

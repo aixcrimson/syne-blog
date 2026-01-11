@@ -8,15 +8,16 @@
 
     <!-- 筛选和操作区域 -->
     <div class="glass-card p-4 mb-6 rounded-lg">
-      <div class="flex flex-wrap items-center justify-between gap-4">
+      <div class="flex flex-wrap items-center justify-between gap-4" :class="isMobile ? 'flex-col items-stretch' : ''">
         <!-- 状态筛选 -->
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-4" :class="isMobile ? 'justify-between' : ''">
           <span class="text-gray-600">状态筛选：</span>
           <el-select 
             v-model="filterStatus" 
             placeholder="全部状态" 
             clearable 
             style="width: 150px"
+            :class="isMobile ? 'flex-1' : ''"
             @change="handleFilterChange"
           >
             <el-option 
@@ -29,22 +30,28 @@
         </div>
         
         <!-- 批量操作按钮 -->
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2" :class="isMobile ? 'justify-end w-full' : ''">
           <el-button 
             type="success" 
             :icon="Check" 
             :disabled="selectedIds.length === 0"
+            :size="isMobile ? 'small' : 'default'"
             @click="handleBatchApprove"
           >
-            批量审核 ({{ selectedIds.length }})
+            <span v-if="!isMobile">批量审核</span>
+            <span v-else>审核</span>
+             ({{ selectedIds.length }})
           </el-button>
           <el-button 
             type="danger" 
             :icon="Delete" 
             :disabled="selectedIds.length === 0"
+            :size="isMobile ? 'small' : 'default'"
             @click="handleBatchDelete"
           >
-            批量删除 ({{ selectedIds.length }})
+            <span v-if="!isMobile">批量删除</span>
+             <span v-else>删除</span>
+             ({{ selectedIds.length }})
           </el-button>
         </div>
       </div>
@@ -66,11 +73,17 @@
         <el-table-column label="评论内容" min-width="250">
           <template #default="{ row }">
             <div class="text-gray-800 line-clamp-2">{{ row.content }}</div>
+            <!-- 移动端显示一些额外信息 -->
+            <div v-if="isMobile" class="text-xs text-gray-500 mt-1 flex items-center gap-2">
+               <span>{{ row.username }}</span>
+               <span>•</span>
+               <span>{{ formatDate(row.createTime) }}</span>
+            </div>
           </template>
         </el-table-column>
         
-        <!-- 文章标题 -->
-        <el-table-column label="所属文章" min-width="180">
+        <!-- 文章标题 (移动端隐藏) -->
+        <el-table-column v-if="!isMobile" label="所属文章" min-width="180">
           <template #default="{ row }">
             <el-tooltip :content="row.articleTitle" placement="top">
               <span class="text-primary-600 cursor-pointer truncate block">
@@ -80,15 +93,15 @@
           </template>
         </el-table-column>
         
-        <!-- 评论者 -->
-        <el-table-column label="评论者" width="120">
+        <!-- 评论者 (移动端隐藏) -->
+        <el-table-column v-if="!isMobile" label="评论者" width="120">
           <template #default="{ row }">
             <span class="text-gray-600">{{ row.username }}</span>
           </template>
         </el-table-column>
         
         <!-- 状态 -->
-        <el-table-column label="状态" width="100" align="center">
+        <el-table-column label="状态" :width="isMobile ? 80 : 100" align="center">
           <template #default="{ row }">
             <el-tag :type="getStatusTagType(row.status)" size="small">
               {{ getStatusLabel(row.status) }}
@@ -96,17 +109,17 @@
           </template>
         </el-table-column>
         
-        <!-- 评论时间 -->
-        <el-table-column label="评论时间" width="170">
+        <!-- 评论时间 (移动端隐藏) -->
+        <el-table-column v-if="!isMobile" label="评论时间" width="170">
           <template #default="{ row }">
             <span class="text-gray-500 text-sm">{{ formatDate(row.createTime) }}</span>
           </template>
         </el-table-column>
         
         <!-- 操作 -->
-        <el-table-column label="操作" width="150" fixed="right">
+        <el-table-column label="操作" :width="isMobile ? 120 : 150" fixed="right">
           <template #default="{ row }">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 justify-end">
               <!-- 审核通过按钮（仅待审核状态显示） -->
               <el-tooltip v-if="row.status === CommentStatus.PENDING" content="审核通过">
                 <el-button 
@@ -139,7 +152,8 @@
           v-model:page-size="pagination.pageSize"
           :page-sizes="[10, 20, 50, 100]"
           :total="pagination.total"
-          layout="total, sizes, prev, pager, next, jumper"
+          :layout="isMobile ? 'prev, pager, next' : 'total, sizes, prev, pager, next, jumper'"
+          :small="isMobile"
           @size-change="handleSizeChange"
           @current-change="handlePageChange"
         />
@@ -160,9 +174,14 @@ import { commentApi } from '@/api/comment'
 import type { Comment } from '@/types'
 import { CommentStatus } from '@/types'
 import dayjs from 'dayjs'
+import { useResponsive } from '@/utils/useResponsive'
+
+// 响应式状态
+const { isMobile } = useResponsive()
 
 /** 加载状态 */
 const loading = ref(false)
+
 
 /** 评论列表 */
 const commentList = ref<Comment[]>([])
