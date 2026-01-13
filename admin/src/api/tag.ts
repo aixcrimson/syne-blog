@@ -41,7 +41,7 @@ export const tagApi = {
    * @param id 标签ID
    */
   delete(id: number): Promise<void> {
-    return del(`/admin/tags/${id}`)
+    return del('/admin/tags', { ids: id })
   }
 }
 

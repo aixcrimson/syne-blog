@@ -363,7 +363,7 @@ const handleBatchApprove = async () => {
       }
     )
     const result = await commentApi.batchApprove(selectedIds.value)
-    ElMessage.success(`成功审核 ${result.successCount} 条评论`)
+    ElMessage.success(result as unknown as string)
     selectedIds.value = []
     loadCommentList()
   } catch (error: unknown) {

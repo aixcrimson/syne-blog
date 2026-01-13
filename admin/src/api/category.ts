@@ -41,7 +41,7 @@ export const categoryApi = {
    * @param id 分类ID
    */
   delete(id: number): Promise<void> {
-    return del(`/admin/categories/${id}`)
+    return del('/admin/categories', { ids: id })
   }
 }
 

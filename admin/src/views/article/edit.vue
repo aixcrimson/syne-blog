@@ -69,6 +69,7 @@
           <h3 class="text-lg font-semibold text-gray-800 mb-4">文章设置</h3>
           
           <el-form
+            ref="settingsFormRef"
             :model="formData"
             :rules="formRules"
             label-position="top"
@@ -201,6 +202,9 @@ const pageTitle = computed(() => isEdit.value ? '编辑文章' : '新建文章')
 /** 表单引用 */
 const formRef = ref<FormInstance>()
 
+/** 设置表单引用（右侧面板） */
+const settingsFormRef = ref<FormInstance>()
+
 /** 加载状态 */
 const loading = ref(false)
 
@@ -218,13 +222,18 @@ const formData = reactive<ArticleForm>({
   title: '',
   summary: '',
   content: '',
-  categoryId: 0,
+  categoryId: undefined,
   tagIds: [],
   coverImage: '',
   status: ArticleStatus.DRAFT,
   isTop: 0,
   isRecommend: 0
 })
+
+/** 初始表单数据（用于检查修改） */
+const initialFormData = ref<string>('')
+// 初始化时保存一份
+initialFormData.value = JSON.stringify(formData)
 
 // ==================== 表单验证规则 ====================
 
@@ -243,7 +252,7 @@ const formRules: FormRules = {
   categoryId: [
     { required: true, message: '请选择文章分类', trigger: 'change' },
     { 
-      validator: (_rule: unknown, value: number, callback: (error?: Error) => void) => {
+      validator: (_rule: unknown, value: number | undefined, callback: (error?: Error) => void) => {
         if (!value || value === 0) {
           callback(new Error('请选择文章分类'))
         } else {
@@ -294,12 +303,14 @@ const loadArticle = async () => {
     formData.title = article.title
     formData.summary = article.summary
     formData.content = article.content
-    formData.categoryId = article.categoryId
+    formData.categoryId = article.categoryId || undefined
     formData.tagIds = article.tags?.map(tag => tag.id) || []
     formData.coverImage = article.coverImage || ''
     formData.status = article.status
     formData.isTop = article.isTop
     formData.isRecommend = article.isRecommend
+    // 保存初始状态
+    initialFormData.value = JSON.stringify(formData)
   } catch (error) {
     console.error('加载文章详情失败:', error)
     ElMessage.error('加载文章失败')
@@ -314,7 +325,9 @@ const loadArticle = async () => {
  */
 const handleBack = async () => {
   // 检查是否有未保存的修改
-  if (formData.title || formData.content) {
+  const isModified = JSON.stringify(formData) !== initialFormData.value
+  
+  if (isModified) {
     try {
       await ElMessageBox.confirm(
         '当前有未保存的内容，确定要离开吗？',
@@ -339,12 +352,22 @@ const handleBack = async () => {
  * @returns 验证是否通过
  */
 const validateForm = async (): Promise<boolean> => {
-  if (!formRef.value) return false
+  if (!formRef.value || !settingsFormRef.value) return false
   
   try {
-    await formRef.value.validate()
+    // 同时校验左侧表单和右侧设置表单
+    await Promise.all([
+      formRef.value.validate(),
+      settingsFormRef.value.validate()
+    ])
     return true
-  } catch {
+  } catch (err: any) {
+    // 获取第一个校验错误的字段和提示信息
+    const errorFields = err as Record<string, { message: string }[]>
+    const firstField = Object.keys(errorFields)[0]
+    if (firstField && errorFields[firstField]?.[0]?.message) {
+      ElMessage.warning(errorFields[firstField][0].message)
+    }
     return false
   }
 }
@@ -393,7 +416,6 @@ const handlePublish = async () => {
   // 验证表单
   const valid = await validateForm()
   if (!valid) {
-    ElMessage.warning('请填写必填字段')
     return
   }
   

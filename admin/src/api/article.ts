@@ -52,7 +52,7 @@ export const articleApi = {
    * @param id 文章ID
    */
   delete(id: number): Promise<void> {
-    return del(`/admin/articles/${id}`)
+    return del('/admin/articles', { ids: id })
   },
 
   /**

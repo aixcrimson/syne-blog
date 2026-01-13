@@ -33,13 +33,15 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="图标类名" prop="icon" width="180">
+        <el-table-column label="图标" prop="icon" width="100" align="center">
           <template #default="{ row }">
-            <div class="flex items-center gap-2" v-if="row.icon">
-              <i :class="row.icon" class="text-lg"></i>
-              <span class="text-xs text-gray-500 truncate">{{ row.icon }}</span>
+             <div class="flex items-center justify-center">
+              <el-icon v-if="row.icon && isElementIcon(row.icon)" class="text-xl">
+                <component :is="row.icon" />
+              </el-icon>
+              <span v-else-if="row.icon" class="text-xl">{{ row.icon }}</span>
+              <span v-else class="text-gray-400">-</span>
             </div>
-            <span v-else class="text-gray-400">-</span>
           </template>
         </el-table-column>
 
@@ -117,18 +119,16 @@
             <el-input
               v-model="form.color"
               class="flex-1"
-              placeholder="#3b82f6"
+              placeholder="rgb(59, 130, 246)"
             />
           </div>
         </el-form-item>
         <el-form-item label="图标" prop="icon">
-          <el-input
+          <IconSelector
             v-model="form.icon"
-            placeholder="例如：fab fa-vuejs (FontAwesome)"
+            placeholder="请选择图标"
+            :clearable="true"
           />
-          <div class="text-xs text-gray-400 mt-1">
-            支持 FontAwesome 图标类名
-          </div>
         </el-form-item>
         <el-form-item label="排序" prop="sortOrder">
           <el-input-number
@@ -162,6 +162,8 @@ import {
 import dayjs from "dayjs";
 import { skillApi } from "@/api/siteContent";
 import type { Skill, SkillForm } from "@/types";
+import IconSelector from "@/components/IconSelector.vue";
+import * as ElementPlusIconsVue from "@element-plus/icons-vue";
 
 // ==================== 状态 ====================
 const loading = ref(false);
@@ -176,7 +178,7 @@ const form = reactive<SkillForm>({
   name: "",
   icon: "",
   percentage: 50,
-  color: "#3b82f6",
+  color: "rgb(59, 130, 246)",
   sortOrder: 0,
 });
 
@@ -190,22 +192,33 @@ const rules: FormRules<SkillForm> = {
 };
 
 const predefineColors = [
-  "#3b82f6",
-  "#8b5cf6",
-  "#10b981",
-  "#f59e0b",
-  "#ec4899",
-  "#ef4444",
-  "#06b6d4",
-  "#84cc16",
-  "#6366f1",
-  "#f97316",
+  "rgb(59, 130, 246)",
+  "rgb(139, 92, 246)",
+  "rgb(16, 185, 129)",
+  "rgb(245, 158, 11)",
+  "rgb(236, 72, 153)",
+  "rgb(239, 68, 68)",
+  "rgb(6, 182, 212)",
+  "rgb(132, 204, 22)",
+  "rgb(99, 102, 241)",
+  "rgb(249, 115, 22)",
 ];
 
 // ==================== 方法 ====================
 
 const formatDate = (date: string) => {
   return date ? dayjs(date).format("YYYY-MM-DD HH:mm") : "-";
+};
+
+/** 检测是否为 Element Plus 图标 */
+const isElementIcon = (icon: string): boolean => {
+  return !!(
+    icon &&
+    typeof icon === "string" &&
+    !/\p{Extended_Pictographic}/u.test(icon) &&
+    /^[A-Z]/.test(icon) &&
+    icon in ElementPlusIconsVue
+  );
 };
 
 const loadData = async () => {
@@ -263,7 +276,7 @@ const resetForm = () => {
   form.name = "";
   form.icon = "";
   form.percentage = 50;
-  form.color = "#3b82f6";
+  form.color = "rgb(59, 130, 246)";
   form.sortOrder = 0;
   formRef.value?.clearValidate();
 };
