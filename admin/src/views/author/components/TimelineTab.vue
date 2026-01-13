@@ -46,7 +46,14 @@
                 <el-tag :type="row.color" size="small">{{ row.color }}</el-tag>
               </div>
               <div class="text-xs text-gray-400">
-                图标: {{ row.icon || "-" }}
+                图标:
+                <el-icon
+                  v-if="row.icon && isElementIcon(row.icon)"
+                  class="align-text-top"
+                >
+                  <component :is="row.icon" />
+                </el-icon>
+                <span v-else>{{ row.icon || "-" }}</span>
               </div>
             </div>
           </template>
@@ -132,17 +139,8 @@
             >
               <span class="flex items-center gap-2">
                 <span
-                  :class="`bg-${
-                    item.value === 'primary'
-                      ? 'blue'
-                      : item.value === 'success'
-                      ? 'green'
-                      : item.value === 'warning'
-                      ? 'yellow'
-                      : item.value === 'danger'
-                      ? 'red'
-                      : 'gray'
-                  }-500 w-3 h-3 rounded-full display-block`"
+                  class="w-3 h-3 rounded-full display-block"
+                  :style="{ backgroundColor: item.color }"
                 ></span>
                 {{ item.label }}
               </span>
@@ -150,13 +148,11 @@
           </el-select>
         </el-form-item>
         <el-form-item label="图标" prop="icon">
-          <el-input
+          <IconSelector
             v-model="form.icon"
-            placeholder="Element Plus Icon Name (e.g. Star)"
+            placeholder="请选择图标"
+            :clearable="true"
           />
-          <div class="text-xs text-gray-400 mt-1">
-            请输入 Element Plus 图标名称
-          </div>
         </el-form-item>
         <el-form-item label="排序" prop="sortOrder">
           <el-input-number
@@ -189,6 +185,8 @@ import {
 import dayjs from "dayjs";
 import { timelineApi } from "@/api/siteContent";
 import type { Timeline, TimelineForm } from "@/types";
+import IconSelector from "@/components/IconSelector.vue";
+import * as ElementPlusIconsVue from "@element-plus/icons-vue";
 
 // ==================== 状态 ====================
 const loading = ref(false);
@@ -221,17 +219,28 @@ const rules: FormRules<TimelineForm> = {
 };
 
 const colorOptions = [
-  { label: "主要 (Primary)", value: "primary" },
-  { label: "成功 (Success)", value: "success" },
-  { label: "警告 (Warning)", value: "warning" },
-  { label: "危险 (Danger)", value: "danger" },
-  { label: "信息 (Info)", value: "info" },
+  { label: "主要 (Primary)", value: "primary", color: "rgb(59, 130, 246)" },
+  { label: "成功 (Success)", value: "success", color: "rgb(34, 197, 94)" },
+  { label: "警告 (Warning)", value: "warning", color: "rgb(234, 179, 8)" },
+  { label: "危险 (Danger)", value: "danger", color: "rgb(239, 68, 68)" },
+  { label: "信息 (Info)", value: "info", color: "rgb(107, 114, 128)" },
 ];
 
 // ==================== 方法 ====================
 
 const formatDate = (date: string) => {
   return date ? dayjs(date).format("YYYY-MM-DD HH:mm") : "-";
+};
+
+/** 检测是否为 Element Plus 图标 */
+const isElementIcon = (icon: string): boolean => {
+  return !!(
+    icon &&
+    typeof icon === "string" &&
+    !/\p{Extended_Pictographic}/u.test(icon) &&
+    /^[A-Z]/.test(icon) &&
+    icon in ElementPlusIconsVue
+  );
 };
 
 const loadData = async () => {

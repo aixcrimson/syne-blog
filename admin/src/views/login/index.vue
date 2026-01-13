@@ -75,7 +75,7 @@
 
       <!-- 底部提示 -->
       <div class="text-center text-sm text-gray-400 mt-6">
-        <p>© 2024 Blog Admin System</p>
+        <p>© Syne's Blog Admin System</p>
       </div>
     </div>
   </div>

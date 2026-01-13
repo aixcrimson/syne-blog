@@ -152,6 +152,20 @@
             <span class="text-gray-600">{{ row.views || 0 }}</span>
           </template>
         </el-table-column>
+
+        <!-- 点赞列 (移动端隐藏) -->
+        <el-table-column v-if="!isMobile" label="点赞" width="80" align="center">
+          <template #default="{ row }">
+            <span class="text-gray-600">{{ row.likes || 0 }}</span>
+          </template>
+        </el-table-column>
+
+        <!-- 收藏列 (移动端隐藏) -->
+        <el-table-column v-if="!isMobile" label="收藏" width="80" align="center">
+          <template #default="{ row }">
+            <span class="text-gray-600">{{ row.favorites || 0 }}</span>
+          </template>
+        </el-table-column>
         
         <!-- 发布时间列 (移动端隐藏) -->
         <el-table-column v-if="!isMobile" label="发布时间" width="170">

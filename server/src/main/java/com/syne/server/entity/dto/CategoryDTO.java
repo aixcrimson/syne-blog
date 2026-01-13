@@ -34,6 +34,6 @@ public class CategoryDTO implements Serializable {
     private String description;
 
     @Schema(description = "分类排序权重，数值越小越靠前", example = "1")
-    @NotBlank(message = "排序权重不能为空")
+    @NotNull(message = "排序权重不能为空")
     private Integer sortOrder;
 }

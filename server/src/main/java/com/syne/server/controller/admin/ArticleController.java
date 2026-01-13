@@ -36,10 +36,11 @@ public class ArticleController {
      * @param page 页码
      * @param pageSize 每页大小
      * @param status 文章状态（可选）
+     * @param categoryId 文章分类ID（可选）
      * @param keyword 搜索关键词（可选）
      * @return 文章分页列表
      */
-    @Operation(summary = "查询文章列表", description = "管理员分页查询文章列表，支持按状态和关键词筛选")
+    @Operation(summary = "查询文章列表", description = "管理员分页查询文章列表，支持按状态、分类和关键词筛选")
     @GetMapping
     public Result<PageResult<ArticleListVO>> getArticleList(
             @Parameter(description = "页码", example = "1")
@@ -51,15 +52,18 @@ public class ArticleController {
             @Parameter(description = "文章状态（1-已发布，2-草稿，3-已下架", example = "1")
             @RequestParam(required = false) Integer status,
 
+            @Parameter(description = "文章分类ID", example = "1")
+            @RequestParam(required = false) Long categoryId,
+
             @Parameter(description = "搜索关键词", example = "Vue")
             @RequestParam(required = false) String keyword
     ){
-        log.info("管理员查询文章列表：page={}, pageSize={}, status={}, keyword={}", page, pageSize, status, keyword);
+        log.info("管理员查询文章列表：page={}, pageSize={}, status={}, categoryId={}, keyword={}", page, pageSize, status, categoryId, keyword);
         PageQuery pageQuery = new PageQuery();
         pageQuery.setPage(page);
         pageQuery.setPageSize(pageSize);
 
-        PageResult<ArticleListVO> result = articleService.getAdminArticleList(pageQuery, status, keyword);
+        PageResult<ArticleListVO> result = articleService.getAdminArticleList(pageQuery, status, categoryId, keyword);
         return Result.success(result);
     }
 

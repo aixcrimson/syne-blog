@@ -49,6 +49,9 @@
         <if test="status != null">
             AND a.status = #{status}
         </if>
+        <if test="categoryId != null">
+            AND a.category_id = #{categoryId}
+        </if>
         <if test="keyword != null and keyword != ''">
             AND ( a.title ILIKE CONCAT('%', #{keyword}, '%')
             OR a.summary ILIKE CONCAT('%', #{keyword}, '%')
@@ -71,6 +74,9 @@
         WHERE a.deleted = 0
         <if test="status != null">
             AND a.status = #{status}
+        </if>
+        <if test="categoryId != null">
+            AND a.category_id = #{categoryId}
         </if>
         <if test="keyword != null and keyword != ''">
             AND ( a.title ILIKE CONCAT('%', #{keyword}, '%')

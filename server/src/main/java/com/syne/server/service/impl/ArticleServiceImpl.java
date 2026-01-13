@@ -45,12 +45,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private final TagService tagService;
 
     @Override
-    public PageResult<ArticleListVO> getAdminArticleList(PageQuery pageQuery, Integer status, String keyword) {
+    public PageResult<ArticleListVO> getAdminArticleList(PageQuery pageQuery, Integer status, Long categoryId, String keyword) {
         // 查询文章列表
         List<ArticleListVO> list = articleMapper.selectAdminArticleList(
                 pageQuery.getOffset(),
                 pageQuery.getPageSize(),
                 status,
+                categoryId,
                 keyword
         );
 
@@ -60,7 +61,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         });
 
         // 查询总数
-        Long total = articleMapper.countAdminArticles(status, keyword);
+        Long total = articleMapper.countAdminArticles(status, categoryId, keyword);
 
         // 构建分页结果
         return PageResult.build(

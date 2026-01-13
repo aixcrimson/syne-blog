@@ -125,7 +125,7 @@
             />
             <el-input 
               v-model="formData.color" 
-              placeholder="#3b82f6" 
+              placeholder="rgb(59, 130, 246)" 
               class="flex-1"
             />
           </div>
@@ -194,21 +194,21 @@ const submitting = ref(false)
 const formData = reactive<TagForm>({
   name: '',
   slug: '',
-  color: '#3b82f6'
+  color: 'rgb(59, 130, 246)'
 })
 
 /** 预定义颜色 @requirements 8.3 */
 const predefineColors = [
-  '#3b82f6', // 蓝色
-  '#8b5cf6', // 紫色
-  '#10b981', // 绿色
-  '#f59e0b', // 橙色
-  '#ec4899', // 粉色
-  '#ef4444', // 红色
-  '#06b6d4', // 青色
-  '#84cc16', // 黄绿色
-  '#6366f1', // 靛蓝色
-  '#f97316', // 深橙色
+  'rgb(59, 130, 246)', // 蓝色
+  'rgb(139, 92, 246)', // 紫色
+  'rgb(16, 185, 129)', // 绿色
+  'rgb(245, 158, 11)', // 橙色
+  'rgb(236, 72, 153)', // 粉色
+  'rgb(239, 68, 68)', // 红色
+  'rgb(6, 182, 212)', // 青色
+  'rgb(132, 204, 22)', // 黄绿色
+  'rgb(99, 102, 241)', // 靛蓝色
+  'rgb(249, 115, 22)', // 深橙色
 ]
 
 /**
@@ -289,7 +289,7 @@ const loadTagList = async () => {
 const resetForm = () => {
   formData.name = ''
   formData.slug = ''
-  formData.color = '#3b82f6'
+  formData.color = 'rgb(59, 130, 246)'
   formRef.value?.clearValidate()
 }
 

@@ -5,6 +5,7 @@
   "description": "Syne's Blog 博客网站前端",
   "scripts": {
     "dev": "vite",
+    "dev:prod": "vite --mode staging",
     "build": "vue-tsc && vite build",
     "preview": "vite preview"
   },

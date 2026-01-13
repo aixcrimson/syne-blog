@@ -144,6 +144,8 @@ export interface Article {
   views: number
   /** 点赞数 */
   likes: number
+  /** 收藏数 */
+  favorites: number
   /** 文章状态 */
   status: ArticleStatus
   /** 是否置顶 (0-否, 1-是) */
@@ -171,7 +173,7 @@ export interface ArticleForm {
   /** 文章内容 */
   content: string
   /** 分类ID */
-  categoryId: number
+  categoryId?: number
   /** 标签ID列表 */
   tagIds: number[]
   /** 封面图片URL */
