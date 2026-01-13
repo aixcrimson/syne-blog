@@ -23,10 +23,11 @@ public interface ArticleService extends IService<Article> {
      * 管理端分页查询文章列表
      * @param pageQuery 分页参数
      * @param status 文章状态（可选，null 表示查询所有状态）
+     * @param categoryId 文章分类ID（可选，null 表示查询所有分类）
      * @param keyword 搜索关键字
      * @return 分页结果
      */
-    PageResult<ArticleListVO> getAdminArticleList(PageQuery pageQuery, Integer status, String keyword);
+    PageResult<ArticleListVO> getAdminArticleList(PageQuery pageQuery, Integer status, Long categoryId, String keyword);
 
     /**
      * 管理员根据ID获取管理员文章详情

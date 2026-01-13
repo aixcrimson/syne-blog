@@ -19,6 +19,7 @@ public interface ArticleMapper extends BaseMapper<Article> {
      * @param offset   偏移量
      * @param pageSize 每页大小
      * @param status   文章状态（可选）
+     * @param categoryId 文章分类ID（可选）
      * @param keyword  搜索关键词（可选）
      * @return 文章列表
      */
@@ -26,16 +27,18 @@ public interface ArticleMapper extends BaseMapper<Article> {
             @Param("offset") Integer offset,
             @Param("pageSize") Integer pageSize,
             @Param("status") Integer status,
+            @Param("categoryId") Long categoryId,
             @Param("keyword") String keyword
     );
 
     /**
      * 查询文章总数
      * @param status 文章状态（可选）
+     * @param categoryId 文章分类ID（可选）
      * @param keyword  搜索关键词（可选）
      * @return 总数
      */
-    Long countAdminArticles(@Param("status") Integer status, @Param("keyword") String keyword);
+    Long countAdminArticles(@Param("status") Integer status, @Param("categoryId") Long categoryId, @Param("keyword") String keyword);
 
     /**
      * 用户端查询文章列表（包含作者、分类、标签信息）

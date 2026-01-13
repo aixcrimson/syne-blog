@@ -31,7 +31,6 @@ public class ArticleDTO implements Serializable {
     private String title;
 
     @Schema(description = "文章摘要", required = true, example = "本文详细介绍了 Vue 3 Composition API 的核心概念和使用方法")
-    @NotBlank(message = "文章摘要不能为空")
     private String summary;
 
     @Schema(description = "文章内容", required = true)

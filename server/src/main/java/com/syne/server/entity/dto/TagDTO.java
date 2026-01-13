@@ -32,6 +32,6 @@ public class TagDTO implements Serializable {
     private String slug;
 
     @Schema(description = "标签颜色", example = "#42b883")
-    @Pattern(regexp = "^#[0-9A-Fa-f]{6}$", message = "颜色值必须是有效的十六进制格式")
+    @Pattern(regexp = "^(#([0-9a-fA-F]{3}){1,2}|rgba?\\([^)]+\\)|hsla?\\([^)]+\\)|[a-zA-Z]+)$", message = "颜色值格式不正确（支持 Hex, RGB, HSL 或颜色名称）")
     private String color;
 }
