@@ -3,7 +3,7 @@ package com.syne.server.controller.web;
 import com.syne.server.common.Result;
 import com.syne.server.entity.User;
 import com.syne.server.entity.dto.ChangePasswordDTO;
-import com.syne.server.entity.dto.UserDTO;
+import com.syne.server.entity.dto.UserUpdateDTO;
 import com.syne.server.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -33,8 +33,8 @@ public class UserController {
     /**
      * 更新用户信息
      *
-     * @param userDTO 用户更新数据
-     * @param id      用户ID
+     * @param userUpdateDTO 用户更新数据
+     * @param id            用户ID
      * @return 更新结果
      */
     @Operation(summary = "更新用户信息", description = "更新当前登录用户的个人信息")
@@ -44,9 +44,9 @@ public class UserController {
             @PathVariable Long id,
 
             @Parameter(description = "用户更新数据", required = true)
-            @Valid @RequestBody UserDTO userDTO
+            @Valid @RequestBody UserUpdateDTO userUpdateDTO
     ) {
-        log.info("更新用户信息：id={}, userDTO={}", id, userDTO);
+        log.info("更新用户信息：id={}, userDTO={}", id, userUpdateDTO);
         
         // 校验当前登录用户是否是操作对象
         Long currentUserId = SecurityUtils.getCurrentUserId();
@@ -54,7 +54,7 @@ public class UserController {
             throw new BusinessException(403, "无权修改其他用户的资料");
         }
         
-        User updatedUser = userService.updateUser(userDTO, id);
+        User updatedUser = userService.updateUser(userUpdateDTO, id);
         return Result.success(updatedUser);
     }
 
