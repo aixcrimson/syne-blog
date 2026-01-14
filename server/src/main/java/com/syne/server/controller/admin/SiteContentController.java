@@ -266,7 +266,7 @@ public class SiteContentController {
     /**
      * 获取时间线列表
      */
-    @Operation(summary = "获取时间线列表", description = "获取所有时间线，按排序权重降序")
+    @Operation(summary = "获取时间线列表", description = "获取所有时间线，按年份降序")
     @GetMapping("/timelines")
     public Result<List<Timeline>> getTimelineList() {
         log.info("获取时间线列表");

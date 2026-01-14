@@ -9,6 +9,7 @@ import com.syne.server.entity.dto.BookmarkMappingDTO;
 import com.syne.server.entity.dto.BookmarkPreviewDTO;
 import com.syne.server.entity.dto.NavigationCategoryDTO;
 import com.syne.server.entity.dto.NavigationSiteDTO;
+import com.syne.server.entity.vo.NavigationCategoryWithSitesVO;
 import com.syne.server.entity.vo.NavigationSiteVO;
 import com.syne.server.service.BookmarkImportService;
 import com.syne.server.service.NavigationCategoryService;
@@ -159,13 +160,13 @@ public class NavigationController {
     }
 
     /**
-     * 获取所有导航站点
+     * 获取所有导航站点（按分类分组）
      */
-    @Operation(summary = "获取所有导航站点")
+    @Operation(summary = "获取所有导航站点（按分类分组）")
     @GetMapping("/sites/all")
-    public Result<List<NavigationSiteVO>> getAllNavigationSites() {
-        List<NavigationSiteVO> siteVOs = navigationSiteService.listAllSiteVOs();
-        return Result.success(siteVOs);
+    public Result<List<NavigationCategoryWithSitesVO>> getAllNavigationSites() {
+        List<NavigationCategoryWithSitesVO> categoryWithSites = navigationSiteService.listAllCategoryWithSites();
+        return Result.success(categoryWithSites);
     }
 
     /**

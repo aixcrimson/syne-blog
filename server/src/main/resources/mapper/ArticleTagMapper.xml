@@ -9,6 +9,10 @@
         <foreach collection="tagIds" item="tagId" separator=",">
             (#{articleId}, #{tagId}, NOW(), NOW(), 0)
         </foreach>
+        ON CONFLICT (article_id, tag_id)
+        DO UPDATE SET
+            deleted = 0,
+            update_time = NOW()
     </insert>
 
     <!-- 根据文章ID删除所有标签关联 -->

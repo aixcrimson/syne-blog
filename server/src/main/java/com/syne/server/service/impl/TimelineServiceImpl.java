@@ -32,7 +32,7 @@ public class TimelineServiceImpl extends ServiceImpl<TimelineMapper, Timeline> i
     public List<Timeline> getAllTimelines() {
         LambdaQueryWrapper<Timeline> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Timeline::getDeleted, 0)
-                .orderByDesc(Timeline::getSortOrder)
+                .orderByDesc(Timeline::getYear)
                 .orderByDesc(Timeline::getCreateTime);
         return this.list(queryWrapper);
     }
