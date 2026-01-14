@@ -10,6 +10,8 @@ import type { NavigationCategory, NavigationSite, SortOrderItem, BookmarkPreview
  * 导航分类表单接口
  */
 export interface NavigationCategoryForm {
+  /** 分类ID（更新时需要） */
+  id?: number
   /** 分类名称 */
   name: string
   /** 分类图标 */
@@ -22,6 +24,8 @@ export interface NavigationCategoryForm {
  * 导航站点表单接口
  */
 export interface NavigationSiteForm {
+  /** 站点ID（更新时需要） */
+  id?: number
   /** 分类ID */
   categoryId: number
   /** 站点名称 */
@@ -69,7 +73,7 @@ export const navigationApi = {
    * @requirements 10.2
    */
   updateCategory(id: number, data: NavigationCategoryForm): Promise<NavigationCategory> {
-    return put<NavigationCategory>(`/admin/navigation/categories/${id}`, data)
+    return put<NavigationCategory>('/admin/navigation/categories', { ...data, id })
   },
 
   /**
@@ -110,7 +114,7 @@ export const navigationApi = {
    * @requirements 10.3
    */
   updateSite(id: number, data: NavigationSiteForm): Promise<NavigationSite> {
-    return put<NavigationSite>(`/admin/navigation/sites/${id}`, data)
+    return put<NavigationSite>('/admin/navigation/sites', { ...data, id })
   },
 
   /**

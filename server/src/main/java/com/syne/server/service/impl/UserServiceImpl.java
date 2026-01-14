@@ -6,6 +6,7 @@ import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
 import com.syne.server.entity.User;
 import com.syne.server.entity.dto.UserDTO;
+import com.syne.server.entity.dto.UserUpdateDTO;
 import com.syne.server.entity.dto.ChangePasswordDTO;
 import com.syne.server.entity.vo.UserListVO;
 import com.syne.server.exception.BusinessException;
@@ -110,7 +111,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     @Transactional
-    public User updateUser(UserDTO userUpdateDTO, Long id) {
+    public User updateUser(UserUpdateDTO userUpdateDTO, Long id) {
         // 获取用户
         User user = this.getById(id);
         if (user == null || user.getDeleted() == 1) {
@@ -126,9 +127,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
         }
 
-        // 更新用户信息
-        BeanUtils.copyProperties(userUpdateDTO, user, "id", "username", "passwordHash");
-        user.setId(id);
+        // 手动更新非空字段
+        if(userUpdateDTO.getEmail() != null) user.setEmail(userUpdateDTO.getEmail());
+        if(userUpdateDTO.getRole() != null) user.setRole(userUpdateDTO.getRole());
+        if(userUpdateDTO.getStatus() != null) user.setStatus(userUpdateDTO.getStatus());
+        if(userUpdateDTO.getAvatar() != null) user.setAvatar(userUpdateDTO.getAvatar());
+        if(userUpdateDTO.getBio() != null) user.setBio(userUpdateDTO.getBio());
+        if(userUpdateDTO.getGithub() != null) user.setGithub(userUpdateDTO.getGithub());
+        if(userUpdateDTO.getBilibili() != null) user.setBilibili(userUpdateDTO.getBilibili());
 
         // 更新用户
         this.updateById(user);

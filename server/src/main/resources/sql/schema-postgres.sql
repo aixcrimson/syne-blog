@@ -459,7 +459,6 @@ CREATE TABLE timelines (
   description TEXT DEFAULT NULL,
   icon VARCHAR(50) DEFAULT NULL,
   color VARCHAR(20) DEFAULT 'primary',
-  sort_order INTEGER NOT NULL DEFAULT 0,
   create_by BIGINT DEFAULT NULL,
   update_by BIGINT DEFAULT NULL,
   create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -472,7 +471,7 @@ COMMENT ON COLUMN timelines.year IS '年份或时间点';
 COMMENT ON COLUMN timelines.icon IS '图标名称';
 COMMENT ON COLUMN timelines.color IS '节点颜色类型';
 
-CREATE INDEX idx_timelines_sort_order ON timelines(sort_order);
+
 CREATE INDEX idx_timelines_deleted ON timelines(deleted);
 
 -- ============================================
@@ -552,7 +551,7 @@ CREATE TRIGGER trigger_article_tags_delete AFTER DELETE ON article_tags
 
 -- 插入默认管理员用户（密码: admin123）
 INSERT INTO users (username, email, password_hash, avatar, bio, github, role, status, create_by, update_by)
-VALUES ('Syne', 'hitori150221@outlook.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z3rkKKvCbe9c4fO9rQg7UbiC', '/avatars/admin.jpg', '热爱技术，专注于软件开发', 'https://github.com/aixcrimson', 1, 1, 1, 1);
+VALUES ('Syne', 'hitori150221@outlook.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z3rkKKvCbe9c4fO9rQg7UbiC', NULL, '热爱技术，专注于软件开发', 'https://github.com/aixcrimson', 1, 1, 1, 1);
 
 -- 插入默认分类
 INSERT INTO categories (name, slug, description, sort_order, create_by, update_by) VALUES
@@ -578,11 +577,11 @@ INSERT INTO tags (name, slug, color, create_by, update_by) VALUES
 
 -- 插入测试文章
 INSERT INTO articles (create_by, category_id, title, summary, content, cover_image, status, is_top, is_recommend, published_time, update_by) VALUES
-(1, 1, 'Vue 3 Composition API 深度解析', '本文详细介绍了 Vue 3 Composition API 的核心概念和使用方法', '# Vue 3 Composition API 深度解析\n\nVue 3 引入了 Composition API，这是一种全新的组件逻辑组织方式...', '/covers/vue3.jpg', 1, 1, 1, CURRENT_TIMESTAMP, 1),
-(1, 2, 'Spring Boot 微服务架构实践', '从零开始构建 Spring Boot 微服务应用', '# Spring Boot 微服务架构实践\n\n本文将介绍如何使用 Spring Boot 构建微服务架构...', '/covers/springboot.jpg', 1, 0, 1, CURRENT_TIMESTAMP, 1),
-(1, 3, 'PostgreSQL 性能优化技巧', '深入探讨 PostgreSQL 数据库的性能优化方法', '# PostgreSQL 性能优化技巧\n\n本文总结了 PostgreSQL 性能优化的核心技巧...', '/covers/postgresql.jpg', 1, 0, 1, CURRENT_TIMESTAMP, 1),
-(1, 4, 'Docker 容器化部署实战', '使用 Docker 容器化部署应用的完整指南', '# Docker 容器化部署实战\n\n容器化已成为现代应用部署的标准方式...', '/covers/docker.jpg', 1, 0, 0, CURRENT_TIMESTAMP, 1),
-(1, 5, '常用算法与数据结构总结', '整理常用的算法和数据结构知识点', '# 常用算法与数据结构总结\n\n本文总结了常见的算法和数据结构...', '/covers/algorithm.jpg', 2, 0, 0, NULL, 1);
+(1, 1, 'Vue 3 Composition API 深度解析', '本文详细介绍了 Vue 3 Composition API 的核心概念和使用方法', '# Vue 3 Composition API 深度解析\n\nVue 3 引入了 Composition API，这是一种全新的组件逻辑组织方式...', NULL, 1, 1, 1, CURRENT_TIMESTAMP, 1),
+(1, 2, 'Spring Boot 微服务架构实践', '从零开始构建 Spring Boot 微服务应用', '# Spring Boot 微服务架构实践\n\n本文将介绍如何使用 Spring Boot 构建微服务架构...', NULL, 1, 0, 1, CURRENT_TIMESTAMP, 1),
+(1, 3, 'PostgreSQL 性能优化技巧', '深入探讨 PostgreSQL 数据库的性能优化方法', '# PostgreSQL 性能优化技巧\n\n本文总结了 PostgreSQL 性能优化的核心技巧...', NULL, 1, 0, 1, CURRENT_TIMESTAMP, 1),
+(1, 4, 'Docker 容器化部署实战', '使用 Docker 容器化部署应用的完整指南', '# Docker 容器化部署实战\n\n容器化已成为现代应用部署的标准方式...', NULL, 1, 0, 0, CURRENT_TIMESTAMP, 1),
+(1, 5, '常用算法与数据结构总结', '整理常用的算法和数据结构知识点', '# 常用算法与数据结构总结\n\n本文总结了常见的算法和数据结构...', NULL, 2, 0, 0, NULL, 1);
 
 -- 插入文章标签关联
 INSERT INTO article_tags (article_id, tag_id, create_by, update_by) VALUES
@@ -623,72 +622,12 @@ INSERT INTO skills (name, icon, percentage, color, sort_order, create_by, update
 
 -- 插入项目
 INSERT INTO projects (title, description, cover_image, github_url, preview_url, tech_stack, is_featured, sort_order, create_by, update_by) VALUES
-('Syne Blog', '基于 Spring Boot 和 Vue 3 的全栈博客系统', '/projects/blog.jpg', 'https://github.com/aixcrimson/syne-blog', 'https://syne.site', 'Vue 3,TypeScript,Spring Boot,PostgreSQL', 1, 100, 1, 1),
-('React Admin', '基于 React 的后台管理系统模板', '/projects/admin.jpg', 'https://github.com/aixcrimson/react-admin', NULL, 'React,Ant Design,Vite', 1, 90, 1, 1);
+('Syne Blog', '基于 Spring Boot 和 Vue 3 的全栈博客系统', NULL, 'https://github.com/aixcrimson/syne-blog', 'https://syne.site', 'Vue 3,TypeScript,Spring Boot,PostgreSQL', 1, 100, 1, 1),
+('React Admin', '基于 React 的后台管理系统模板', NULL, 'https://github.com/aixcrimson/react-admin', NULL, 'React,Ant Design,Vite', 1, 90, 1, 1);
 
 -- 插入时间线
-INSERT INTO timelines (year, title, description, icon, color, sort_order, create_by, update_by) VALUES
-('2025', '技术沉淀', '深入研究云原生技术，开始全栈开发之路', 'Star', 'primary', 100, 1, 1),
-('2024', '开源贡献', '参与多个开源项目，贡献代码', 'GitFork', 'success', 90, 1, 1),
-('2023', '初入职场', '加入某互联网大厂，担任前端开发工程师', 'Briefcase', 'warning', 80, 1, 1),
-('2022', '毕业季', '获得计算机科学与技术学士学位', 'School', 'info', 70, 1, 1);
-
--- ============================================
--- 常用查询示例
--- ============================================
-
--- 1. 查询文章列表（包含作者、分类、标签）
-/*
-SELECT
-  a.id, a.title, a.summary, a.cover_image, a.views, a.likes,
-  a.published_time, a.create_time, a.is_top, a.is_recommend,
-  u.username AS author_name, u.avatar AS author_avatar,
-  c.name AS category_name,
-  string_agg(t.name, ',') AS tags
-FROM articles a
-LEFT JOIN users u ON a.create_by = u.id
-LEFT JOIN categories c ON a.category_id = c.id
-LEFT JOIN article_tags at ON a.id = at.article_id AND at.deleted = 0
-LEFT JOIN tags t ON at.tag_id = t.id AND t.deleted = 0
-WHERE a.status = 1 AND a.deleted = 0
-GROUP BY a.id, u.username, u.avatar, c.name
-ORDER BY a.is_top DESC, a.published_time DESC
-LIMIT 10;
-*/
-
--- 2. 全文搜索示例
-/*
-SELECT id, title, summary
-FROM articles
-WHERE to_tsvector('simple', title || ' ' || summary || ' ' || content)
-      @@ plainto_tsquery('simple', '前端 开发')
-  AND deleted = 0
-ORDER BY ts_rank(
-  to_tsvector('simple', title || ' ' || summary || ' ' || content),
-  plainto_tsquery('simple', '前端 开发')
-) DESC
-LIMIT 10;
-*/
-
--- 3. 查询热门文章
-/*
-SELECT id, title, summary, views, likes, published_time
-FROM articles
-WHERE status = 1 AND deleted = 0
-ORDER BY views DESC
-LIMIT 10;
-*/
-
--- 4. 查询用户的文章列表（包含草稿）
-/*
-SELECT id, title, summary, status, views, likes, create_time
-FROM articles
-WHERE create_by = 1 AND deleted = 0
-ORDER BY create_time DESC;
-*/
-
--- 注意：如需中文分词支持，请执行以下步骤：
--- 1. 安装 zhparser 扩展
--- 2. CREATE EXTENSION zhparser;
--- 3. CREATE TEXT SEARCH CONFIGURATION chinese (PARSER = zhparser);
--- 4. 将上述 SQL 中的 'simple' 改为 'chinese'
+INSERT INTO timelines (year, title, description, icon, color, create_by, update_by) VALUES
+('2025', '技术沉淀', '深入研究云原生技术，开始全栈开发之路', '🌟', 'rgb(59, 130, 246)', 1, 1),
+('2024', '开源贡献', '参与多个开源项目，贡献代码', '🚀', 'rgb(34, 197, 94)', 1, 1),
+('2023', '初入职场', '加入某互联网大厂，担任前端开发工程师', '💼', 'rgb(234, 179, 8)', 1, 1),
+('2022', '毕业季', '获得计算机科学与技术学士学位', '🎓', 'rgb(107, 114, 128)', 1, 1);

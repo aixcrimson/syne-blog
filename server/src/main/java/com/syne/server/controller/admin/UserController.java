@@ -5,8 +5,11 @@ import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
 import com.syne.server.entity.User;
 import com.syne.server.entity.dto.UserDTO;
+import com.syne.server.entity.dto.UserUpdateDTO;
+import com.syne.server.entity.dto.ChangePasswordDTO;
 import com.syne.server.entity.vo.UserListVO;
 import com.syne.server.service.UserService;
+import com.syne.server.utils.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -128,14 +131,32 @@ public class UserController {
     @PutMapping("/{id}")
     public Result<User> updateUser(
         @Parameter(description = "用户更新数据", required = true)
-        @Valid @RequestBody UserDTO userDTO,
+        @Valid @RequestBody UserUpdateDTO userUpdateDTO,
 
         @Parameter(description = "用户ID", required = true)
         @PathVariable Long id
     ) {
-        log.info("更新用户信息：id={}, userUpdateDTO={}", id, userDTO);
-        User updatedUser = userService.updateUser(userDTO, id);
+        log.info("更新用户信息：id={}, userUpdateDTO={}", id, userUpdateDTO);
+        User updatedUser = userService.updateUser(userUpdateDTO, id);
         return Result.success(updatedUser);
+    }
+
+    /**
+     * 修改密码
+     *
+     * @param changePasswordDTO 修改密码参数
+     * @return 结果
+     */
+    @Operation(summary = "修改密码", description = "用户修改自己的登录密码")
+    @PutMapping("/password")
+    public Result<Void> updatePassword(
+        @Parameter(description = "修改密码参数", required = true)
+        @Valid @RequestBody ChangePasswordDTO changePasswordDTO
+    ) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        log.info("修改密码：userId={}", userId);
+        userService.updatePassword(changePasswordDTO, userId);
+        return Result.success();
     }
 
     /**

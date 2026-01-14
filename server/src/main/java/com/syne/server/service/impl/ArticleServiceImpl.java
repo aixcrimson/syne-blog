@@ -274,6 +274,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             throw new BusinessException("文章不存在");
         }
 
+        // 如果状态从未发布变为已发布，更新发布时间
+        if (status == 1 && (article.getStatus() == null || article.getStatus() != 1)) {
+            article.setPublishedTime(LocalDateTime.now());
+        }
+
         // 更新状态
         article.setStatus(status);
         this.updateById(article);

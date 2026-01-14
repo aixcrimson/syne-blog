@@ -9,6 +9,7 @@ import com.syne.server.common.PageResult;
 import com.syne.server.entity.NavigationCategory;
 import com.syne.server.entity.NavigationSite;
 import com.syne.server.entity.dto.NavigationSiteDTO;
+import com.syne.server.entity.vo.NavigationCategoryWithSitesVO;
 import com.syne.server.entity.vo.NavigationSiteShowVO;
 import com.syne.server.entity.vo.NavigationSiteVO;
 import com.syne.server.exception.BusinessException;
@@ -191,5 +192,55 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
     @Override
     public List<NavigationSiteShowVO> listAllSiteShowVOs(){
         return navigationSiteMapper.listAllSiteShowVOs();
+    }
+
+    @Override
+    public List<NavigationCategoryWithSitesVO> listAllCategoryWithSites() {
+        // 查询所有分类
+        LambdaQueryWrapper<NavigationCategory> categoryWrapper = new LambdaQueryWrapper<>();
+        categoryWrapper.orderByDesc(NavigationCategory::getSortOrder).orderByDesc(NavigationCategory::getCreateTime);
+        List<NavigationCategory> categories = navigationCategoryMapper.selectList(categoryWrapper);
+
+        if (categories.isEmpty()) {
+            return new java.util.ArrayList<>();
+        }
+
+        // 查询所有站点
+        List<NavigationSite> allSites = listAllSites();
+
+        // 按分类ID分组站点
+        Map<Long, List<NavigationSite>> siteMap = allSites.stream()
+                .collect(Collectors.groupingBy(NavigationSite::getCategoryId));
+
+        // 转换为VO
+        return categories.stream().map(category -> {
+            NavigationCategoryWithSitesVO vo = new NavigationCategoryWithSitesVO();
+            vo.setId(category.getId());
+            vo.setName(category.getName());
+            vo.setIcon(category.getIcon());
+            vo.setSortOrder(category.getSortOrder());
+            vo.setCreateTime(category.getCreateTime());
+            vo.setUpdateTime(category.getUpdateTime());
+
+            // 转换站点列表
+            List<NavigationSite> categorySites = siteMap.getOrDefault(category.getId(), new java.util.ArrayList<>());
+            List<NavigationSiteVO> siteVOs = categorySites.stream().map(site -> {
+                NavigationSiteVO siteVO = new NavigationSiteVO();
+                siteVO.setId(site.getId());
+                siteVO.setCategoryId(site.getCategoryId());
+                siteVO.setCategoryName(category.getName());
+                siteVO.setName(site.getName());
+                siteVO.setDescription(site.getDescription());
+                siteVO.setUrl(site.getUrl());
+                siteVO.setIcon(site.getIcon());
+                siteVO.setSortOrder(site.getSortOrder());
+                siteVO.setCreateTime(site.getCreateTime());
+                siteVO.setUpdateTime(site.getUpdateTime());
+                return siteVO;
+            }).collect(Collectors.toList());
+
+            vo.setSites(siteVOs);
+            return vo;
+        }).collect(Collectors.toList());
     }
 }

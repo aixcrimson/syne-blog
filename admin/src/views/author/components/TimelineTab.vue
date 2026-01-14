@@ -59,12 +59,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column
-          label="排序"
-          width="80"
-          align="center"
-          prop="sortOrder"
-        />
+
 
         <el-table-column label="创建时间" width="160" align="center">
           <template #default="{ row }">
@@ -101,11 +96,14 @@
       @closed="resetForm"
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="年份" prop="year">
-          <el-input
+        <el-form-item label="时间" prop="year">
+          <el-date-picker
             v-model="form.year"
-            placeholder="例如：2023"
-            maxlength="20"
+            type="date"
+            placeholder="选择日期"
+            format="YYYY-MM-DD"
+            value-format="YYYY-MM-DD"
+            class="w-full"
           />
         </el-form-item>
         <el-form-item label="标题" prop="title">
@@ -154,14 +152,7 @@
             :clearable="true"
           />
         </el-form-item>
-        <el-form-item label="排序" prop="sortOrder">
-          <el-input-number
-            v-model="form.sortOrder"
-            :min="0"
-            :max="999"
-            controls-position="right"
-          />
-        </el-form-item>
+
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -208,8 +199,7 @@ const form = reactive<TimelineForm>({
 
 const rules: FormRules<TimelineForm> = {
   year: [
-    { required: true, message: "请输入年份/时间点", trigger: "blur" },
-    { max: 20, message: "不能超过20个字符", trigger: "blur" },
+    { required: true, message: "请选择时间", trigger: "change" },
   ],
   title: [
     { required: true, message: "请输入标题", trigger: "blur" },
@@ -269,7 +259,7 @@ const handleEdit = (row: Timeline) => {
   form.description = row.description;
   form.icon = row.icon;
   form.color = row.color;
-  form.sortOrder = row.sortOrder;
+
   dialogVisible.value = true;
 };
 
