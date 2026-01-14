@@ -424,7 +424,13 @@ const handleSaveProfile = async () => {
   profileLoading.value = true
   
   try {
-    await userApi.updateProfile(profileForm)
+    // 构造更新数据
+    const payload = {
+      id: userStore.userId,
+      ...profileForm
+    }
+    
+    await userApi.updateProfile(payload)
     
     // 更新本地用户信息
     userStore.updateUserInfo({

@@ -4,7 +4,7 @@
  * @requirements 11.1, 11.3, 11.4, 12.1, 12.3
  */
 import { get, put } from './request'
-import type { User, UserListParams, UpdateProfileParams, ChangePasswordParams } from '@/types'
+import type { User, UserListParams, ChangePasswordParams } from '@/types'
 import type { PageResult } from '@/types/api'
 
 /**
@@ -33,12 +33,12 @@ export const userApi = {
 
   /**
    * 更新个人资料
-   * @param data 个人资料数据（头像、简介、社交链接）
+   * @param data 个人资料数据
    * @returns void
    * @requirements 12.1
    */
-  updateProfile: (data: UpdateProfileParams): Promise<void> => {
-    return put('/admin/users/profile', data)
+  updateProfile: (data: any): Promise<void> => {
+    return put(`/admin/users/${data.id}`, data)
   },
 
   /**
