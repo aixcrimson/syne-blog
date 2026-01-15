@@ -351,7 +351,7 @@ const handlePasswordSubmit = async () => {
         });
         ElMessage.success("密码修改成功");
         passwordDialogVisible.value = false;
-        passwordFormRef.value.resetFields();
+        passwordFormRef.value?.resetFields();
       } catch (error) {
         // 错误处理通常由拦截器或 try-catch 捕获
         console.error(error);

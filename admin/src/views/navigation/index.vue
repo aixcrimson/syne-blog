@@ -371,7 +371,7 @@ const handleImportSuccess = () => {
 const loadCategoryList = async () => {
   loading.value = true
   try {
-    categoryList.value = await navigationApi.getAllNavigationSites()
+    categoryList.value = await navigationApi.getCategories()
   } catch (error) {
     console.error('加载导航分类失败:', error)
   } finally {
