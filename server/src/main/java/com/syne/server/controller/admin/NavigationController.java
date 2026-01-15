@@ -137,6 +137,20 @@ public class NavigationController {
         }
     }
 
+    /**
+     * 批量更新分类排序
+     */
+    @Operation(summary = "批量更新分类排序")
+    @PutMapping("/categories/sort")
+    public Result<String> updateCategorySortOrder(@Valid @RequestBody com.syne.server.entity.dto.SortOrderDTO dto) {
+        boolean result = navigationCategoryService.batchUpdateSortOrder(dto.getOrders());
+        if (result) {
+            return Result.success("排序更新成功");
+        } else {
+            return Result.error("排序更新失败");
+        }
+    }
+
     // ========== 导航站点相关接口 ==========
 
     /**
@@ -245,6 +259,20 @@ public class NavigationController {
             return Result.success("成功删除 " + idList.size() + " 个导航站点");
         } else {
             return Result.error("批量删除失败");
+        }
+    }
+
+    /**
+     * 批量更新站点排序（支持跨分类拖拽）
+     */
+    @Operation(summary = "批量更新站点排序")
+    @PutMapping("/sites/sort")
+    public Result<String> updateSiteSortOrder(@Valid @RequestBody com.syne.server.entity.dto.SortOrderDTO dto) {
+        boolean result = navigationSiteService.batchUpdateSortOrder(dto.getOrders());
+        if (result) {
+            return Result.success("排序更新成功");
+        } else {
+            return Result.error("排序更新失败");
         }
     }
 

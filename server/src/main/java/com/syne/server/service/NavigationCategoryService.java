@@ -56,4 +56,11 @@ public interface NavigationCategoryService {
      * 获取分类总数
      */
     long count();
+
+    /**
+     * 批量更新分类排序
+     * @param orders 排序项列表（id, sortOrder）
+     * @return 是否更新成功
+     */
+    boolean batchUpdateSortOrder(List<com.syne.server.entity.dto.SortOrderDTO.SortOrderItem> orders);
 }

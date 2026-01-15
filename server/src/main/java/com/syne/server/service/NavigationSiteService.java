@@ -74,4 +74,11 @@ public interface NavigationSiteService {
      * 管理端获取所有分类（含站点列表）
      */
     List<NavigationCategoryWithSitesVO> listAllCategoryWithSites();
+
+    /**
+     * 批量更新站点排序（支持跨分类拖拽）
+     * @param orders 排序项列表（id, sortOrder, categoryId）
+     * @return 是否更新成功
+     */
+    boolean batchUpdateSortOrder(List<com.syne.server.entity.dto.SortOrderDTO.SortOrderItem> orders);
 }

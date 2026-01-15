@@ -32,7 +32,7 @@ public class SkillServiceImpl extends ServiceImpl<SkillMapper, Skill> implements
     public List<Skill> getAllSkills() {
         LambdaQueryWrapper<Skill> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Skill::getDeleted, 0)
-                .orderByDesc(Skill::getSortOrder)
+                .orderByAsc(Skill::getSortOrder)
                 .orderByDesc(Skill::getCreateTime);
         return this.list(queryWrapper);
     }

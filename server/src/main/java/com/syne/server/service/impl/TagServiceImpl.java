@@ -225,12 +225,20 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tags> implements TagS
 
     @Override
     public List<TagListVO> getAllTagList(){
-        // 查询文章列表
+        // 查询所有未删除的标签
+        List<Tags> tags = this.list(); // ServiceImpl 的 list() 方法默认会处理逻辑删除
+
+        if (tags == null || tags.isEmpty()) {
+            return new ArrayList<>();
+        }
+
         List<TagListVO> list = new ArrayList<>();
+        for (Tags tag : tags) {
+            TagListVO vo = new TagListVO();
+            BeanUtils.copyProperties(tag, vo);
+            list.add(vo);
+        }
 
-        List<Tags> tags = tagMapper.selectList(null);
-
-        // 构建分页结果返回
         return list;
     }
 }

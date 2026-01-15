@@ -70,4 +70,10 @@ public class ArticleDetailVO implements Serializable {
 
     @Schema(description = "标签列表")
     private List<Tags> tags;
+
+    @Schema(description = "是否已点赞")
+    private Boolean isLiked;
+
+    @Schema(description = "是否已收藏")
+    private Boolean isFavorited;
 }

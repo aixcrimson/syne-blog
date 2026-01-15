@@ -49,9 +49,7 @@ public class TimelineServiceImpl extends ServiceImpl<TimelineMapper, Timeline> i
     @Override
     public Timeline createTimeline(Timeline timeline) {
         // 设置默认值
-        if (timeline.getSortOrder() == null) {
-            timeline.setSortOrder(0);
-        }
+
         if (timeline.getColor() == null) {
             timeline.setColor("primary");
         }
@@ -70,7 +68,7 @@ public class TimelineServiceImpl extends ServiceImpl<TimelineMapper, Timeline> i
         existing.setDescription(timeline.getDescription());
         existing.setIcon(timeline.getIcon());
         existing.setColor(timeline.getColor());
-        existing.setSortOrder(timeline.getSortOrder());
+
         
         this.updateById(existing);
         log.info("更新时间线成功: id={}", id);

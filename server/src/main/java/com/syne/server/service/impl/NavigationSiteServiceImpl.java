@@ -37,7 +37,7 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
     @Override
     public PageResult<NavigationSite> listNavigationSites(PageQuery pageQuery) {
         LambdaQueryWrapper<NavigationSite> wrapper = new LambdaQueryWrapper<>();
-        wrapper.orderByDesc(NavigationSite::getSortOrder).orderByDesc(NavigationSite::getCreateTime);
+        wrapper.orderByAsc(NavigationSite::getSortOrder).orderByDesc(NavigationSite::getCreateTime);
 
         IPage<NavigationSite> page = new Page<>(pageQuery.getPage(), pageQuery.getPageSize());
         IPage<NavigationSite> resultPage = navigationSiteMapper.selectPage(page, wrapper);
@@ -54,14 +54,14 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
     public List<NavigationSite> listSitesByCategoryId(Long categoryId) {
         LambdaQueryWrapper<NavigationSite> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(NavigationSite::getCategoryId, categoryId);
-        wrapper.orderByDesc(NavigationSite::getSortOrder).orderByDesc(NavigationSite::getCreateTime);
+        wrapper.orderByAsc(NavigationSite::getSortOrder).orderByDesc(NavigationSite::getCreateTime);
         return navigationSiteMapper.selectList(wrapper);
     }
 
     @Override
     public List<NavigationSite> listAllSites() {
         LambdaQueryWrapper<NavigationSite> wrapper = new LambdaQueryWrapper<>();
-        wrapper.orderByDesc(NavigationSite::getSortOrder).orderByDesc(NavigationSite::getCreateTime);
+        wrapper.orderByAsc(NavigationSite::getSortOrder).orderByDesc(NavigationSite::getCreateTime);
         return navigationSiteMapper.selectList(wrapper);
     }
 
@@ -198,7 +198,7 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
     public List<NavigationCategoryWithSitesVO> listAllCategoryWithSites() {
         // 查询所有分类
         LambdaQueryWrapper<NavigationCategory> categoryWrapper = new LambdaQueryWrapper<>();
-        categoryWrapper.orderByDesc(NavigationCategory::getSortOrder).orderByDesc(NavigationCategory::getCreateTime);
+        categoryWrapper.orderByAsc(NavigationCategory::getSortOrder).orderByDesc(NavigationCategory::getCreateTime);
         List<NavigationCategory> categories = navigationCategoryMapper.selectList(categoryWrapper);
 
         if (categories.isEmpty()) {
@@ -242,5 +242,28 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
             vo.setSites(siteVOs);
             return vo;
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public boolean batchUpdateSortOrder(List<com.syne.server.entity.dto.SortOrderDTO.SortOrderItem> orders) {
+        if (orders == null || orders.isEmpty()) {
+            return true;
+        }
+
+        for (var item : orders) {
+            NavigationSite site = new NavigationSite();
+            site.setId(item.getId());
+            site.setSortOrder(item.getSortOrder());
+            
+            // 支持跨分类拖拽：如果传入了 categoryId，同时更新分类
+            if (item.getCategoryId() != null) {
+                site.setCategoryId(item.getCategoryId());
+            }
+            
+            navigationSiteMapper.updateById(site);
+        }
+
+        return true;
     }
 }

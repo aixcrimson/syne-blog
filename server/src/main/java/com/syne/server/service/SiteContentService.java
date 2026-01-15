@@ -39,4 +39,10 @@ public interface SiteContentService {
      * @return 列表
      */
     Result<List<Timeline>> getTimelines();
+
+    /**
+     * 获取作者信息
+     * @return 作者信息
+     */
+    Result<Object> getAuthorInfo();
 }

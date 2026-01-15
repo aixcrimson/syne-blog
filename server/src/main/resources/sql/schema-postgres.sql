@@ -93,7 +93,7 @@ CREATE TABLE tags (
   id BIGSERIAL PRIMARY KEY,
   name VARCHAR(50) NOT NULL UNIQUE,
   slug VARCHAR(50) NOT NULL UNIQUE,
-  color VARCHAR(20) DEFAULT '#409EFF',
+  color VARCHAR(20) DEFAULT 'rgb(64, 158, 255)',
   usage_count INTEGER NOT NULL DEFAULT 0 CHECK (usage_count >= 0),
   create_by BIGINT DEFAULT NULL,
   update_by BIGINT DEFAULT NULL,
@@ -551,7 +551,7 @@ CREATE TRIGGER trigger_article_tags_delete AFTER DELETE ON article_tags
 
 -- 插入默认管理员用户（密码: admin123）
 INSERT INTO users (username, email, password_hash, avatar, bio, github, role, status, create_by, update_by)
-VALUES ('Syne', 'hitori150221@outlook.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z3rkKKvCbe9c4fO9rQg7UbiC', NULL, '热爱技术，专注于软件开发', 'https://github.com/aixcrimson', 1, 1, 1, 1);
+VALUES ('Syne', 'hitori150221@outlook.com', '$2b$10$QfJm8HeuJNc5omMxnjXK6.2aePWUHind7K9FphKeq13TGdpcyFvyq', NULL, '热爱技术，专注于软件开发', 'https://github.com/aixcrimson', 1, 1, 1, 1);
 
 -- 插入默认分类
 INSERT INTO categories (name, slug, description, sort_order, create_by, update_by) VALUES
@@ -564,16 +564,16 @@ INSERT INTO categories (name, slug, description, sort_order, create_by, update_b
 
 -- 插入默认标签
 INSERT INTO tags (name, slug, color, create_by, update_by) VALUES
-('Vue', 'vue', '#42b883', 1, 1),
-('React', 'react', '#61dafb', 1, 1),
-('TypeScript', 'typescript', '#3178c6', 1, 1),
-('Node.js', 'nodejs', '#339933', 1, 1),
-('PostgreSQL', 'postgresql', '#336791', 1, 1),
-('Redis', 'redis', '#DC382D', 1, 1),
-('Docker', 'docker', '#2496ED', 1, 1),
-('算法', 'algorithm', '#FF6B6B', 1, 1),
-('Spring Boot', 'spring-boot', '#6DB33F', 1, 1),
-('MyBatis', 'mybatis', '#E34F26', 1, 1);
+('Vue', 'vue', 'rgb(66, 184, 131)', 1, 1),
+('React', 'react', 'rgb(97, 218, 251)', 1, 1),
+('TypeScript', 'typescript', 'rgb(49, 120, 198)', 1, 1),
+('Node.js', 'nodejs', 'rgb(51, 153, 51)', 1, 1),
+('PostgreSQL', 'postgresql', 'rgb(51, 103, 145)', 1, 1),
+('Redis', 'redis', 'rgb(220, 56, 45)', 1, 1),
+('Docker', 'docker', 'rgb(36, 150, 237)', 1, 1),
+('算法', 'algorithm', 'rgb(255, 107, 107)', 1, 1),
+('Spring Boot', 'spring-boot', 'rgb(109, 179, 63)', 1, 1),
+('MyBatis', 'mybatis', 'rgb(227, 79, 38)', 1, 1);
 
 -- 插入测试文章
 INSERT INTO articles (create_by, category_id, title, summary, content, cover_image, status, is_top, is_recommend, published_time, update_by) VALUES
@@ -593,19 +593,19 @@ INSERT INTO article_tags (article_id, tag_id, create_by, update_by) VALUES
 
 -- 插入导航分类
 INSERT INTO navigation_categories (name, icon, sort_order, create_by, update_by) VALUES
-('开发工具', 'tools', 100, 1, 1),
-('学习资源', 'book', 90, 1, 1),
-('技术社区', 'community', 80, 1, 1),
-('设计资源', 'design', 70, 1, 1);
+('开发工具', '🛠️', 100, 1, 1),
+('学习资源', '📚', 90, 1, 1),
+('技术社区', '💬', 80, 1, 1),
+('设计资源', '🎨', 70, 1, 1);
 
 -- 插入导航站点
 INSERT INTO navigation_sites (category_id, name, description, url, sort_order, create_by, update_by) VALUES
 (1, 'VS Code', '微软开发的代码编辑器', 'https://code.visualstudio.com/', 100, 1, 1),
 (1, 'JetBrains', '专业的开发工具套件', 'https://www.jetbrains.com/', 90, 1, 1),
 (2, 'MDN', 'Web 开发权威文档', 'https://developer.mozilla.org/', 100, 1, 1),
-(2, '菜鸟教程', '编程学习入门网站', 'https://www.runoob.com/', 90, 1, 1),
-(3, 'GitHub', '全球最大的代码托管平台', 'https://github.com/', 100, 1, 1),
-(3, 'Stack Overflow', '程序员问答社区', 'https://stackoverflow.com/', 90, 1, 1);
+(2, '菜鸟教程', '编程学习入门网站', 'https://www.runoob.com/',, 90, 1, 1),
+(3, 'GitHub', '全球最大的代码托管平台', 'https://github.com/',, 100, 1, 1),
+(3, 'Stack Overflow', '程序员问答社区', 'https://stackoverflow.com/',, 90, 1, 1);
 
 -- 插入公告
 INSERT INTO notices (content, is_show, sort_order, create_by, update_by) VALUES
@@ -614,11 +614,11 @@ INSERT INTO notices (content, is_show, sort_order, create_by, update_by) VALUES
 
 -- 插入技能栈
 INSERT INTO skills (name, icon, percentage, color, sort_order, create_by, update_by) VALUES
-('Vue.js', 'fab fa-vuejs', 90, '#42b883', 100, 1, 1),
-('React', 'fab fa-react', 85, '#61dafb', 90, 1, 1),
-('Java', 'fab fa-java', 80, '#f89820', 80, 1, 1),
-('Spring Boot', 'fas fa-leaf', 85, '#6DB33F', 70, 1, 1),
-('Docker', 'fab fa-docker', 75, '#2496ED', 60, 1, 1);
+('Vue.js', '🟩', 90, 'rgb(66, 184, 131)', 100, 1, 1),
+('React', '⚛️', 85, 'rgb(97, 218, 251)', 90, 1, 1),
+('Java', '☕', 80, 'rgb(248, 152, 32)', 80, 1, 1),
+('Spring Boot', '🍃', 85, 'rgb(109, 179, 63)', 70, 1, 1),
+('Docker', '🐳', 75, 'rgb(36, 150, 237)', 60, 1, 1);
 
 -- 插入项目
 INSERT INTO projects (title, description, cover_image, github_url, preview_url, tech_stack, is_featured, sort_order, create_by, update_by) VALUES

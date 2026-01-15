@@ -47,8 +47,4 @@ public class Timeline extends BaseEntity {
      */
     private String color;
 
-    /**
-     * 排序权重
-     */
-    private Integer sortOrder;
 }
