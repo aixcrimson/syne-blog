@@ -93,6 +93,7 @@
       width="500px"
       :close-on-click-modal="false"
       destroy-on-close
+      append-to-body
       @closed="resetForm"
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">

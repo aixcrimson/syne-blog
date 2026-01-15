@@ -79,6 +79,7 @@
       :title="dialogTitle" 
       :width="isMobile ? '90%' : '500px'" 
       :close-on-click-modal="false" 
+      append-to-body
       @closed="handleDialogClose"
     >
       <el-form ref="formRef" :model="formData" :rules="formRules" :label-width="isMobile ? 'auto' : '80px'" :label-position="isMobile ? 'top' : 'right'">
