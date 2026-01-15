@@ -68,16 +68,25 @@
               最后更新：{{ formatDate(article.updateTime || "") }}
             </div>
             <div class="flex space-x-2">
-              <el-button type="primary" circle @click="handleLike" title="点赞">
-                <el-icon><Pointer /></el-icon>
+              <el-button
+                :type="article?.isLiked ? 'primary' : 'info'"
+                :plain="!article?.isLiked"
+                round
+                @click="handleLike"
+                title="点赞"
+              >
+                <el-icon class="mr-1"><Pointer /></el-icon>
+                {{ article?.likes || 0 }}
               </el-button>
               <el-button
-                type="warning"
-                circle
+                :type="article?.isFavorited ? 'warning' : 'info'"
+                :plain="!article?.isFavorited"
+                round
                 @click="handleFavorite"
                 title="收藏"
               >
-                <el-icon><Star /></el-icon>
+                <el-icon class="mr-1"><Star /></el-icon>
+                {{ article?.favorites || 0 }}
               </el-button>
               <el-button circle @click="handleShare" title="分享">
                 <el-icon><Share /></el-icon>
@@ -128,7 +137,9 @@ import { renderMarkdown } from "@/utils/markdown";
 import { formatDate } from "@/utils/format";
 import { articleApi } from "@/api/article";
 import type { Article } from "@/types";
+import { useUserStore } from "@/stores/user";
 
+const userStore = useUserStore();
 const route = useRoute();
 
 const articleId = computed(() => Number(route.params.id));
@@ -173,6 +184,9 @@ const handleLike = async () => {
       if (typeof res.likes === "number") {
         article.value.likes = res.likes;
       }
+      if (typeof res.liked === "boolean") {
+        article.value.isLiked = res.liked;
+      }
       ElMessage.success(res.liked ? "点赞成功" : "已取消点赞");
     }
   } catch (e) {
@@ -183,6 +197,11 @@ const handleLike = async () => {
 
 // 收藏
 const handleFavorite = async () => {
+  if (!userStore.token) {
+    ElMessage.warning("请先登录后收藏");
+    return;
+  }
+
   try {
     const res = await articleApi.favorite(articleId.value);
 
@@ -190,6 +209,9 @@ const handleFavorite = async () => {
     if (article.value && res) {
       if (typeof res.favorites === "number") {
         article.value.favorites = res.favorites;
+      }
+      if (typeof res.favorited === "boolean") {
+        article.value.isFavorited = res.favorited;
       }
 
       ElMessage.success(res.favorited ? "收藏成功" : "已取消收藏");

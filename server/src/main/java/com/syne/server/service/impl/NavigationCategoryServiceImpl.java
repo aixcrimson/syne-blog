@@ -31,7 +31,7 @@ public class NavigationCategoryServiceImpl extends ServiceImpl<NavigationCategor
     @Override
     public PageResult<NavigationCategory> listNavigationCategories(PageQuery pageQuery) {
         LambdaQueryWrapper<NavigationCategory> wrapper = new LambdaQueryWrapper<>();
-        wrapper.orderByDesc(NavigationCategory::getSortOrder).orderByDesc(NavigationCategory::getCreateTime);
+        wrapper.orderByAsc(NavigationCategory::getSortOrder).orderByDesc(NavigationCategory::getCreateTime);
 
         IPage<NavigationCategory> page = new Page<>(pageQuery.getPage(), pageQuery.getPageSize());
         IPage<NavigationCategory> resultPage = navigationCategoryMapper.selectPage(page, wrapper);
@@ -47,7 +47,7 @@ public class NavigationCategoryServiceImpl extends ServiceImpl<NavigationCategor
     @Override
     public List<NavigationCategory> listAllCategories() {
         LambdaQueryWrapper<NavigationCategory> wrapper = new LambdaQueryWrapper<>();
-        wrapper.orderByDesc(NavigationCategory::getSortOrder).orderByDesc(NavigationCategory::getCreateTime);
+        wrapper.orderByAsc(NavigationCategory::getSortOrder).orderByDesc(NavigationCategory::getCreateTime);
         return navigationCategoryMapper.selectList(wrapper);
     }
 
@@ -123,5 +123,22 @@ public class NavigationCategoryServiceImpl extends ServiceImpl<NavigationCategor
     @Override
     public long count() {
         return navigationCategoryMapper.selectCount(null);
+    }
+
+    @Override
+    @Transactional
+    public boolean batchUpdateSortOrder(List<com.syne.server.entity.dto.SortOrderDTO.SortOrderItem> orders) {
+        if (orders == null || orders.isEmpty()) {
+            return true;
+        }
+
+        for (var item : orders) {
+            NavigationCategory category = new NavigationCategory();
+            category.setId(item.getId());
+            category.setSortOrder(item.getSortOrder());
+            navigationCategoryMapper.updateById(category);
+        }
+
+        return true;
     }
 }

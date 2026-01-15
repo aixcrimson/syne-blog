@@ -248,6 +248,7 @@ import {
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { userApi } from '@/api/user'
+import { authApi } from '@/api/auth'
 import type { UpdateProfileParams, ChangePasswordParams } from '@/types'
 import { useResponsive } from '@/utils/useResponsive'
 
@@ -418,6 +419,12 @@ const handleAvatarChange = (event: Event) => {
 const handleSaveProfile = async () => {
   if (!profileFormRef.value) return
   
+  // 检查用户ID是否存在
+  if (!userStore.userId) {
+    ElMessage.error('用户信息获取失败，请刷新页面后重试')
+    return
+  }
+  
   const valid = await profileFormRef.value.validate().catch(() => false)
   if (!valid) return
   
@@ -432,9 +439,12 @@ const handleSaveProfile = async () => {
     
     await userApi.updateProfile(payload)
     
-    // 更新本地用户信息
+    // 更新本地用户信息（更新所有字段）
     userStore.updateUserInfo({
-      avatar: profileForm.avatar
+      avatar: profileForm.avatar,
+      bio: profileForm.bio,
+      github: profileForm.github,
+      bilibili: profileForm.bilibili
     })
     
     ElMessage.success('个人信息保存成功')
@@ -493,9 +503,27 @@ const resetPasswordForm = () => {
 }
 
 // ==================== 生命周期 ====================
+
+/**
+ * 加载用户信息
+ * 从后端获取最新的用户信息并更新 store 和表单
+ */
+const loadUserInfo = async () => {
+  try {
+    const info = await authApi.getCurrentUser()
+    // 更新 store 中的用户信息
+    userStore.setUserInfo(info)
+    // 初始化表单
+    initProfileForm()
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+    ElMessage.error('获取用户信息失败，请刷新页面重试')
+  }
+}
+
 onMounted(() => {
-  // 直接从 store 中初始化表单，登录时已经获取了完整用户信息
-  initProfileForm()
+  // 进入页面时从后端获取最新的用户信息
+  loadUserInfo()
 })
 </script>
 

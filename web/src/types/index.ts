@@ -18,6 +18,8 @@ export interface Article {
   status?: number
   isTop?: number
   isRecommend?: number
+  isLiked?: boolean
+  isFavorited?: boolean
 }
 
 // 分类信息接口
@@ -181,10 +183,11 @@ export interface ChangePasswordData {
   newPassword: string
 }
 
-// 登录响应
-export interface LoginResponse {
+// 登录响应 (后端返回的是扁平结构)
+export interface LoginResponse extends UserInfo {
   token: string
-  userInfo: UserInfo
+  tokenType?: string
+  expiresIn?: number
 }
 
 /**

@@ -33,7 +33,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         LambdaQueryWrapper<Project> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Project::getDeleted, 0)
                 .orderByDesc(Project::getIsFeatured)
-                .orderByDesc(Project::getSortOrder)
+                .orderByAsc(Project::getSortOrder)
                 .orderByDesc(Project::getCreateTime);
         return this.list(queryWrapper);
     }

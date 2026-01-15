@@ -32,7 +32,7 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
     public List<Notice> getAllNotices() {
         LambdaQueryWrapper<Notice> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Notice::getDeleted, 0)
-                .orderByDesc(Notice::getSortOrder)
+                .orderByAsc(Notice::getSortOrder)
                 .orderByDesc(Notice::getCreateTime);
         return this.list(queryWrapper);
     }

@@ -73,16 +73,13 @@
 
             <!-- 站点列表 -->
             <div class="p-4">
-              <div v-if="!category.sites?.length" class="text-center py-4 text-gray-400">
-                暂无站点，点击上方"+"按钮添加
-              </div>
               <draggable
-                v-else
                 v-model="category.sites"
                 item-key="id"
                 handle=".site-drag-handle"
                 group="sites"
-                @end="handleSiteDragEnd(category)"
+                :empty-insert-threshold="50"
+                @change="(evt: DragChangeEvent) => handleSiteDragChange(evt, category)"
               >
                 <template #item="{ element: site }">
                   <div class="flex items-center justify-between p-3 mb-2 bg-white rounded-lg border border-gray-100 hover:shadow-sm transition-shadow">
@@ -114,6 +111,11 @@
                     </div>
                   </div>
                 </template>
+                <template #footer>
+                  <div v-if="!category.sites?.length" class="text-center py-4 text-gray-400">
+                    暂无站点，点击上方"+"按钮添加或拖拽站点到此处
+                  </div>
+                </template>
               </draggable>
             </div>
           </div>
@@ -127,6 +129,7 @@
       :title="isCategoryEdit ? '编辑分类' : '新建分类'" 
       width="500px" 
       :close-on-click-modal="false"
+      append-to-body
       @closed="handleCategoryDialogClose"
     >
       <el-form ref="categoryFormRef" :model="categoryForm" :rules="categoryFormRules" label-width="80px">
@@ -160,6 +163,7 @@
       :title="isSiteEdit ? '编辑站点' : '新建站点'" 
       width="550px" 
       :close-on-click-modal="false"
+      append-to-body
       @closed="handleSiteDialogClose"
     >
       <el-form ref="siteFormRef" :model="siteForm" :rules="siteFormRules" label-width="80px">
@@ -218,6 +222,13 @@ import type { NavigationCategory, NavigationSite, SortOrderItem } from '@/types'
 import { isValidUrl } from '@/utils/validate'
 import BookmarkImport from './components/BookmarkImport.vue'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+
+/** vuedraggable change 事件类型 */
+interface DragChangeEvent {
+  added?: { element: NavigationSite; newIndex: number }
+  removed?: { element: NavigationSite; oldIndex: number }
+  moved?: { element: NavigationSite; newIndex: number; oldIndex: number }
+}
 
 /** 加载状态 */
 const loading = ref(false)
@@ -563,18 +574,28 @@ const handleDeleteSite = async (site: NavigationSite) => {
 const handleSiteDialogClose = () => resetSiteForm()
 
 /**
- * 站点拖拽结束处理
+ * 站点拖拽变化处理（支持跨分类拖拽）
  * @requirements 10.5
  */
-const handleSiteDragEnd = async (category: NavigationCategory) => {
-  if (!category.sites?.length) return
+const handleSiteDragChange = async (evt: DragChangeEvent, category: NavigationCategory) => {
+  // 只在 added 或 moved 事件时处理（避免重复处理）
+  if (!evt.added && !evt.moved) return
+  
+  // 确保 sites 数组已初始化
+  if (!category.sites) {
+    category.sites = []
+  }
+
+  // 构建排序数据（包含 categoryId 用于跨分类拖拽）
   const orders: SortOrderItem[] = category.sites.map((site, index) => ({
     id: site.id,
-    sortOrder: index
+    sortOrder: index,
+    categoryId: category.id // 始终传入当前分类ID
   }))
+
   try {
     await navigationApi.updateSiteSortOrder(orders)
-    ElMessage.success('排序已更新')
+    ElMessage.success(evt.added ? '站点已移动到此分类' : '排序已更新')
   } catch (error) {
     console.error('更新站点排序失败:', error)
     loadCategoryList() // 恢复原顺序

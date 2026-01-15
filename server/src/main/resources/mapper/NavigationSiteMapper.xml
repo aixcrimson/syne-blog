@@ -5,7 +5,7 @@
     <resultMap id="NavigationSiteShowMap" type="com.syne.server.entity.vo.NavigationSiteShowVO">
         <id property="categoryId" column="c_id"/>
         <result property="categoryName" column="c_name"/>
-        <collection property="sites" ofType="com.syne.server.entity.vo.NavigationSiteVO">
+        <collection property="sites" ofType="com.syne.server.entity.vo.NavigationSiteVO" notNullColumn="s_id">
             <id property="id" column="s_id"/>
             <result property="categoryId" column="s_category_id"/>
             <result property="categoryName" column="c_name"/>

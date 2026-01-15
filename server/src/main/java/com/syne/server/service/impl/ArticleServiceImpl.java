@@ -174,9 +174,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
         this.updateById(article);
 
-        // 3.处理标签关联
+        // 3.处理标签关联（传入空列表作为 oldTagIds 标记，触发删除旧关联的逻辑）
         List<Long> newTagIds = articleDTO.getTagIds() != null ? articleDTO.getTagIds() : new ArrayList<>();
-        processArticleTags(article.getId(), null, newTagIds);
+        processArticleTags(article.getId(), new ArrayList<>(), newTagIds);
 
         log.info("更新文章成功：id={}, title={}", article.getId(), article.getTitle());
         return this.getById(article.getId());
@@ -436,6 +436,27 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         articleDetailVO.setCreateTime(article.getCreateTime());
         articleDetailVO.setUpdateTime(article.getUpdateTime());
         articleDetailVO.setTags(tags);
+
+        // 判断是否点赞
+        Long userId = SecurityUtils.getCurrentUserId();
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String ipAddress = IpUtils.getClientIp(request);
+
+        ArticleLike existingLike;
+        if (userId != null) {
+            existingLike = articleLikeMapper.selectByArticleAndUser(id, userId);
+        } else {
+            existingLike = articleLikeMapper.selectByArticleAndIp(id, ipAddress);
+        }
+        articleDetailVO.setIsLiked(existingLike != null && existingLike.getDeleted() == 0);
+
+        // 判断是否收藏
+        if (userId != null) {
+            ArticleFavorite existingFavorite = articleFavoriteMapper.selectByArticleAndUser(id, userId);
+            articleDetailVO.setIsFavorited(existingFavorite != null && existingFavorite.getDeleted() == 0);
+        } else {
+            articleDetailVO.setIsFavorited(false);
+        }
 
         return articleDetailVO;
     }

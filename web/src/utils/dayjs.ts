@@ -29,7 +29,7 @@ dayjs.updateLocale('zh-cn', {
   relativeTime: {
     future: '%s后',
     past: '%s前',
-    s: '刚刚',
+    s: '几秒',
     m: '1分钟',
     mm: '%d分钟',
     h: '1小时',

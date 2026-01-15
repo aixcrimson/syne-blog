@@ -29,6 +29,12 @@ public class SiteContentController {
         return siteContentService.getNotices();
     }
 
+    @Operation(summary = "获取作者信息")
+    @GetMapping("/author")
+    public Result<Object> getAuthorInfo() {
+        return siteContentService.getAuthorInfo();
+    }
+
     @Operation(summary = "获取技能列表")
     @GetMapping("/skills")
     public Result<List<Skill>> getSkills() {

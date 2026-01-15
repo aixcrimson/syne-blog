@@ -5,10 +5,14 @@ import com.syne.server.entity.Notice;
 import com.syne.server.entity.Project;
 import com.syne.server.entity.Skill;
 import com.syne.server.entity.Timeline;
+import com.syne.server.entity.Timeline;
+import com.syne.server.entity.User;
 import com.syne.server.mapper.NoticeMapper;
 import com.syne.server.mapper.ProjectMapper;
 import com.syne.server.mapper.SkillMapper;
 import com.syne.server.mapper.TimelineMapper;
+import com.syne.server.mapper.UserMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.syne.server.service.SiteContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +27,7 @@ public class SiteContentServiceImpl implements SiteContentService {
     private final SkillMapper skillMapper;
     private final ProjectMapper projectMapper;
     private final TimelineMapper timelineMapper;
+    private final UserMapper userMapper;
 
     @Override
     public Result<List<Notice>> getNotices() {
@@ -47,5 +52,31 @@ public class SiteContentServiceImpl implements SiteContentService {
     @Override
     public Result<List<Timeline>> getTimelines() {
         return Result.success(timelineMapper.selectAllTimelines());
+    }
+
+    @Override
+    public Result<Object> getAuthorInfo() {
+        // 查找最早创建的管理员（作为站长/博主）
+        List<User> admins = userMapper.selectList(
+            new LambdaQueryWrapper<User>()
+                .eq(User::getRole, 1) // 1-管理员
+                .orderByAsc(User::getCreateTime)
+                .last("LIMIT 1")
+        );
+        
+        User user = admins.isEmpty() ? null : admins.get(0);
+
+        if (user != null) {
+            // 构建返回对象，去除敏感信息
+            java.util.Map<String, Object> userInfo = new java.util.HashMap<>();
+            userInfo.put("username", user.getUsername());
+            userInfo.put("avatar", user.getAvatar());
+            userInfo.put("bio", user.getBio());
+            userInfo.put("email", user.getEmail());
+            userInfo.put("github", user.getGithub());
+            userInfo.put("bilibili", user.getBilibili());
+            return Result.success(userInfo);
+        }
+        return Result.success(null);
     }
 }
