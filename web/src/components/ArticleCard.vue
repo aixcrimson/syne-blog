@@ -52,6 +52,14 @@
             <el-icon class="mr-1"><View /></el-icon>
             {{ article.views }}
           </span>
+          <span class="flex items-center">
+            <el-icon class="mr-1"><Pointer /></el-icon>
+            {{ article.likes || 0 }}
+          </span>
+          <span class="flex items-center">
+            <el-icon class="mr-1"><Star /></el-icon>
+            {{ article.favorites || 0 }}
+          </span>
         </div>
         <el-button text type="primary" size="small"> 阅读更多 → </el-button>
       </div>
@@ -61,7 +69,7 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { Calendar, View } from "@element-plus/icons-vue";
+import { Calendar, View, Pointer, Star } from "@element-plus/icons-vue";
 import type { Article } from "@/types";
 import { formatDate } from "@/utils/format";
 

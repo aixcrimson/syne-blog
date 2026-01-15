@@ -69,7 +69,7 @@
                   v-for="tag in tags"
                   :key="tag.id"
                   :label="tag.name"
-                  :value="tag.name"
+                  :value="tag.id"
                 />
               </el-select>
             </div>
@@ -126,7 +126,7 @@ const currentPage = ref(1);
 const pageSize = ref(6);
 const searchKeyword = ref("");
 const selectedCategory = ref<number | string>("");
-const selectedTag = ref("");
+const selectedTag = ref<number | string>("");
 const loading = ref(false);
 
 const articles = ref<Article[]>([]);

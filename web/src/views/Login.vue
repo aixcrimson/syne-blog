@@ -249,15 +249,13 @@ const handleLogin = async () => {
       loading.value = true;
       try {
         // 使用类型断言
-        const res = (await authApi.login(loginForm)) as unknown as {
-          token: string;
-          userInfo: any;
-        };
+        const res = await authApi.login(loginForm);
         ElMessage.success("登录成功");
 
         // 使用 Pinia store
         userStore.setToken(res.token);
-        userStore.setUser(res.userInfo);
+        // 修改：后端返回的是扁平结构，res 本身包含用户信息
+        userStore.setUser(res);
 
         router.push("/");
       } catch (error: any) {
