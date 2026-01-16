@@ -56,6 +56,14 @@ export const navigationApi = {
   },
 
   /**
+   * 获取所有导航站点（按分类分组）
+   * @returns 分类列表（含站点）
+   */
+  getAllNavigationSites(): Promise<NavigationCategory[]> {
+    return get<NavigationCategory[]>('/admin/navigation/sites/all')
+  },
+
+  /**
    * 创建导航分类
    * @param data 分类表单数据
    * @returns 创建的分类
