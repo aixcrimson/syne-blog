@@ -1,9 +1,9 @@
 package com.syne.server.service;
 
-import com.syne.server.entity.vo.DashboardDataVO;
-import com.syne.server.entity.vo.DashboardStatsVO;
-import com.syne.server.entity.vo.RecentArticleVO;
-import com.syne.server.entity.vo.RecentCommentVO;
+import com.syne.server.model.vo.DashboardDataVO;
+import com.syne.server.model.vo.DashboardStatsVO;
+import com.syne.server.model.vo.RecentArticleVO;
+import com.syne.server.model.vo.RecentCommentVO;
 
 import java.util.List;
 

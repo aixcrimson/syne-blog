@@ -2,8 +2,8 @@ package com.syne.server.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.syne.server.entity.Article;
-import com.syne.server.entity.vo.StatsVO;
+import com.syne.server.model.entity.Article;
+import com.syne.server.model.vo.StatsVO;
 import com.syne.server.mapper.ArticleMapper;
 import com.syne.server.mapper.CategoryMapper;
 import com.syne.server.service.StatsService;

@@ -1,10 +1,9 @@
 package com.syne.server.service.impl;
 
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.syne.server.entity.NavigationCategory;
-import com.syne.server.entity.NavigationSite;
-import com.syne.server.entity.dto.*;
+import com.syne.server.model.dto.*;
+import com.syne.server.model.entity.NavigationCategory;
+import com.syne.server.model.entity.NavigationSite;
 import com.syne.server.service.BookmarkImportService;
 import com.syne.server.service.NavigationCategoryService;
 import com.syne.server.service.NavigationSiteService;

@@ -5,7 +5,7 @@ package com.syne.server.controller.web;
  */
 
 import com.syne.server.common.Result;
-import com.syne.server.entity.vo.CategoryListVO;
+import com.syne.server.model.vo.CategoryListVO;
 import com.syne.server.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

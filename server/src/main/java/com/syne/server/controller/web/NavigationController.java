@@ -2,8 +2,8 @@ package com.syne.server.controller.web;
 
 
 import com.syne.server.common.Result;
-import com.syne.server.entity.NavigationCategory;
-import com.syne.server.entity.vo.NavigationSiteShowVO;
+import com.syne.server.model.entity.NavigationCategory;
+import com.syne.server.model.vo.NavigationSiteShowVO;
 import com.syne.server.service.NavigationCategoryService;
 import com.syne.server.service.NavigationSiteService;
 import io.swagger.v3.oas.annotations.Operation;

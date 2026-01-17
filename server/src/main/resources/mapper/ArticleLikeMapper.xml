@@ -3,7 +3,7 @@
 <mapper namespace="com.syne.server.mapper.ArticleLikeMapper">
 
     <!-- 根据文章ID和用户ID查询点赞记录（包含已删除的） -->
-    <select id="selectByArticleAndUser" resultType="com.syne.server.entity.ArticleLike">
+    <select id="selectByArticleAndUser" resultType="com.syne.server.model.entity.ArticleLike">
         SELECT id, article_id, ip_address, create_by, update_by, create_time, update_time, deleted
         FROM article_likes
         WHERE article_id = #{articleId}
@@ -11,7 +11,7 @@
     </select>
 
     <!-- 根据文章ID和IP地址查询点赞记录（包含已删除的，游客用） -->
-    <select id="selectByArticleAndIp" resultType="com.syne.server.entity.ArticleLike">
+    <select id="selectByArticleAndIp" resultType="com.syne.server.model.entity.ArticleLike">
         SELECT id, article_id, ip_address, create_by, update_by, create_time, update_time, deleted
         FROM article_likes
         WHERE article_id = #{articleId}

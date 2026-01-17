@@ -1,8 +1,7 @@
 package com.syne.server.service;
 
-import com.syne.server.entity.dto.BookmarkItemDTO;
-import com.syne.server.entity.dto.BookmarkMappingDTO;
-import com.syne.server.entity.dto.BookmarkPreviewDTO;
+import com.syne.server.model.dto.BookmarkMappingDTO;
+import com.syne.server.model.dto.BookmarkPreviewDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

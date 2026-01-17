@@ -3,7 +3,7 @@
 <mapper namespace="com.syne.server.mapper.ArticleMapper">
 
     <!-- 文章列表结果映射 -->
-    <resultMap id="ArticleListVOMap" type="com.syne.server.entity.vo.ArticleListVO">
+    <resultMap id="ArticleListVOMap" type="com.syne.server.model.vo.ArticleListVO">
         <id property="id" column="id"/>
         <result property="title" column="title"/>
         <result property="summary" column="summary"/>

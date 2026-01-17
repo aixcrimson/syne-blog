@@ -1,9 +1,9 @@
 package com.syne.server.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.syne.server.entity.Comment;
-import com.syne.server.entity.vo.CommentListVO;
-import com.syne.server.entity.vo.CommentShowVO;
+import com.syne.server.model.entity.Comment;
+import com.syne.server.model.vo.CommentListVO;
+import com.syne.server.model.vo.CommentShowVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

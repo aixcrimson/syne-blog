@@ -3,14 +3,15 @@ package com.syne.server.controller.admin;
 import com.syne.server.common.PageQuery;
 import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
-import com.syne.server.entity.NavigationCategory;
-import com.syne.server.entity.NavigationSite;
-import com.syne.server.entity.dto.BookmarkMappingDTO;
-import com.syne.server.entity.dto.BookmarkPreviewDTO;
-import com.syne.server.entity.dto.NavigationCategoryDTO;
-import com.syne.server.entity.dto.NavigationSiteDTO;
-import com.syne.server.entity.vo.NavigationCategoryWithSitesVO;
-import com.syne.server.entity.vo.NavigationSiteVO;
+import com.syne.server.model.entity.NavigationCategory;
+import com.syne.server.model.entity.NavigationSite;
+import com.syne.server.model.dto.BookmarkMappingDTO;
+import com.syne.server.model.dto.BookmarkPreviewDTO;
+import com.syne.server.model.dto.NavigationCategoryDTO;
+import com.syne.server.model.dto.NavigationSiteDTO;
+import com.syne.server.model.vo.NavigationCategoryWithSitesVO;
+import com.syne.server.model.vo.NavigationSiteVO;
+import com.syne.server.model.dto.SortOrderDTO;
 import com.syne.server.service.BookmarkImportService;
 import com.syne.server.service.NavigationCategoryService;
 import com.syne.server.service.NavigationSiteService;
@@ -142,7 +143,7 @@ public class NavigationController {
      */
     @Operation(summary = "批量更新分类排序")
     @PutMapping("/categories/sort")
-    public Result<String> updateCategorySortOrder(@Valid @RequestBody com.syne.server.entity.dto.SortOrderDTO dto) {
+    public Result<String> updateCategorySortOrder(@Valid @RequestBody SortOrderDTO dto) {
         boolean result = navigationCategoryService.batchUpdateSortOrder(dto.getOrders());
         if (result) {
             return Result.success("排序更新成功");
@@ -267,7 +268,7 @@ public class NavigationController {
      */
     @Operation(summary = "批量更新站点排序")
     @PutMapping("/sites/sort")
-    public Result<String> updateSiteSortOrder(@Valid @RequestBody com.syne.server.entity.dto.SortOrderDTO dto) {
+    public Result<String> updateSiteSortOrder(@Valid @RequestBody SortOrderDTO dto) {
         boolean result = navigationSiteService.batchUpdateSortOrder(dto.getOrders());
         if (result) {
             return Result.success("排序更新成功");

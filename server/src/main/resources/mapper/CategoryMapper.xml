@@ -3,7 +3,7 @@
 <mapper namespace="com.syne.server.mapper.CategoryMapper">
 
     <!-- 分类列表结果映射 -->
-    <resultMap id="CategoryListVOMap" type="com.syne.server.entity.vo.CategoryListVO">
+    <resultMap id="CategoryListVOMap" type="com.syne.server.model.vo.CategoryListVO">
         <id property="id" column="id"/>
         <result property="name" column="name"/>
         <result property="slug" column="slug"/>

@@ -1,10 +1,10 @@
 package com.syne.server.controller.admin;
 
 import com.syne.server.common.Result;
-import com.syne.server.entity.Notice;
-import com.syne.server.entity.Project;
-import com.syne.server.entity.Skill;
-import com.syne.server.entity.Timeline;
+import com.syne.server.model.entity.Notice;
+import com.syne.server.model.entity.Project;
+import com.syne.server.model.entity.Skill;
+import com.syne.server.model.entity.Timeline;
 import com.syne.server.service.NoticeService;
 import com.syne.server.service.ProjectService;
 import com.syne.server.service.SkillService;

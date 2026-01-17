@@ -5,10 +5,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.syne.server.common.PageQuery;
 import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
-import com.syne.server.entity.ArticleTag;
-import com.syne.server.entity.Tags;
-import com.syne.server.entity.dto.TagDTO;
-import com.syne.server.entity.vo.TagListVO;
+import com.syne.server.model.entity.Tags;
+import com.syne.server.model.dto.TagDTO;
+import com.syne.server.model.vo.TagListVO;
 import com.syne.server.exception.BusinessException;
 import com.syne.server.mapper.ArticleTagMapper;
 import com.syne.server.mapper.TagMapper;
@@ -72,16 +71,16 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tags> implements TagS
     public Tags createTag(TagDTO tagDTO) {
         // 检查标签名称是否已存在
         LambdaQueryWrapper<Tags> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(com.syne.server.entity.Tags::getName, tagDTO.getName())
-                .eq(com.syne.server.entity.Tags::getDeleted, 0);
+        queryWrapper.eq(Tags::getName, tagDTO.getName())
+                .eq(Tags::getDeleted, 0);
         if (this.count(queryWrapper) > 0) {
             throw new BusinessException("标签名称已存在");
         }
 
         // 检查slug是否已存在
         queryWrapper.clear();
-        queryWrapper.eq(com.syne.server.entity.Tags::getSlug, tagDTO.getSlug())
-                .eq(com.syne.server.entity.Tags::getDeleted, 0);
+        queryWrapper.eq(Tags::getSlug, tagDTO.getSlug())
+                .eq(Tags::getDeleted, 0);
         if (this.count(queryWrapper) > 0) {
             throw new BusinessException("标签别名已存在");
         }
@@ -112,9 +111,9 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tags> implements TagS
         // 检查标签名称是否被其他标签使用
         if (!tags.getName().equals(tagDTO.getName())) {
             LambdaQueryWrapper<Tags> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(com.syne.server.entity.Tags::getName, tagDTO.getName())
-                    .eq(com.syne.server.entity.Tags::getDeleted, 0)
-                    .ne(com.syne.server.entity.Tags::getId, id);
+            queryWrapper.eq(Tags::getName, tagDTO.getName())
+                    .eq(Tags::getDeleted, 0)
+                    .ne(Tags::getId, id);
             if (this.count(queryWrapper) > 0) {
                 throw new BusinessException("标签名称已存在");
             }
@@ -123,9 +122,9 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tags> implements TagS
         // 检查slug是否被其他标签使用
         if (!tags.getSlug().equals(tagDTO.getSlug())) {
             LambdaQueryWrapper<Tags> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(com.syne.server.entity.Tags::getSlug, tagDTO.getSlug())
-                    .eq(com.syne.server.entity.Tags::getDeleted, 0)
-                    .ne(com.syne.server.entity.Tags::getId, id);
+            queryWrapper.eq(Tags::getSlug, tagDTO.getSlug())
+                    .eq(Tags::getDeleted, 0)
+                    .ne(Tags::getId, id);
             if (this.count(queryWrapper) > 0) {
                 throw new BusinessException("标签别名已存在");
             }

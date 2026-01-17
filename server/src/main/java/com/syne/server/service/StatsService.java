@@ -1,8 +1,8 @@
 package com.syne.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.syne.server.entity.Article;
-import com.syne.server.entity.vo.StatsVO;
+import com.syne.server.model.entity.Article;
+import com.syne.server.model.vo.StatsVO;
 
 /**
  * 统计服务接口

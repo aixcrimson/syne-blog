@@ -1,8 +1,8 @@
 package com.syne.server.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.syne.server.entity.Article;
-import com.syne.server.entity.vo.ArticleListVO;
+import com.syne.server.model.entity.Article;
+import com.syne.server.model.vo.ArticleListVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

@@ -1,7 +1,7 @@
 package com.syne.server.controller.web;
 
 import com.syne.server.common.Result;
-import com.syne.server.entity.vo.TagListVO;
+import com.syne.server.model.vo.TagListVO;
 import com.syne.server.service.TagService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

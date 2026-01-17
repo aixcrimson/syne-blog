@@ -1,10 +1,10 @@
 package com.syne.server.controller.admin;
 
 import com.syne.server.common.Result;
-import com.syne.server.entity.vo.DashboardDataVO;
-import com.syne.server.entity.vo.DashboardStatsVO;
-import com.syne.server.entity.vo.RecentArticleVO;
-import com.syne.server.entity.vo.RecentCommentVO;
+import com.syne.server.model.vo.DashboardDataVO;
+import com.syne.server.model.vo.DashboardStatsVO;
+import com.syne.server.model.vo.RecentArticleVO;
+import com.syne.server.model.vo.RecentCommentVO;
 import com.syne.server.service.DashboardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

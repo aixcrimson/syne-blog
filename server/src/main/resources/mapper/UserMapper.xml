@@ -3,7 +3,7 @@
 <mapper namespace="com.syne.server.mapper.UserMapper">
 
     <!-- 用户列表结果映射 -->
-    <resultMap id="UserListVOMap" type="com.syne.server.entity.vo.UserListVO">
+    <resultMap id="UserListVOMap" type="com.syne.server.model.vo.UserListVO">
         <id property="id" column="id"/>
         <result property="username" column="username"/>
         <result property="email" column="email"/>

@@ -1,12 +1,11 @@
 package com.syne.server.service.impl;
 
 import com.syne.server.common.Result;
-import com.syne.server.entity.Notice;
-import com.syne.server.entity.Project;
-import com.syne.server.entity.Skill;
-import com.syne.server.entity.Timeline;
-import com.syne.server.entity.Timeline;
-import com.syne.server.entity.User;
+import com.syne.server.model.entity.Notice;
+import com.syne.server.model.entity.Project;
+import com.syne.server.model.entity.Skill;
+import com.syne.server.model.entity.Timeline;
+import com.syne.server.model.entity.User;
 import com.syne.server.mapper.NoticeMapper;
 import com.syne.server.mapper.ProjectMapper;
 import com.syne.server.mapper.SkillMapper;

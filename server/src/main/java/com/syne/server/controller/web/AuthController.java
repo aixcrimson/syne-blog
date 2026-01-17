@@ -1,9 +1,9 @@
 package com.syne.server.controller.web;
 
 import com.syne.server.common.Result;
-import com.syne.server.entity.dto.LoginDTO;
-import com.syne.server.entity.dto.RegisterDTO;
-import com.syne.server.entity.vo.LoginVO;
+import com.syne.server.model.dto.LoginDTO;
+import com.syne.server.model.dto.RegisterDTO;
+import com.syne.server.model.vo.LoginVO;
 import com.syne.server.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.syne.server.entity.vo.UserInfoVO;
+import com.syne.server.model.vo.UserInfoVO;
 
 /**
  * 认证控制器

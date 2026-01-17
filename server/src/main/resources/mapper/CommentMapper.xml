@@ -3,7 +3,7 @@
 <mapper namespace="com.syne.server.mapper.CommentMapper">
 
     <!-- 评论列表结果映射 -->
-    <resultMap id="CommentListVOMap" type="com.syne.server.entity.vo.CommentListVO">
+    <resultMap id="CommentListVOMap" type="com.syne.server.model.vo.CommentListVO">
         <id property="id" column="id"/>
         <result property="articleId" column="article_id"/>
         <result property="articleTitle" column="article_title"/>
@@ -115,7 +115,7 @@
     <!-- ==================== 用户端查询 ==================== -->
 
     <!-- 用户端评论结果映射 -->
-    <resultMap id="CommentShowVOMap" type="com.syne.server.entity.vo.CommentShowVO">
+    <resultMap id="CommentShowVOMap" type="com.syne.server.model.vo.CommentShowVO">
         <id property="id" column="id"/>
         <result property="articleId" column="article_id"/>
         <result property="userId" column="user_id"/>
