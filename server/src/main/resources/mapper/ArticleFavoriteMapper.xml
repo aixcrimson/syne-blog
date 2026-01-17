@@ -3,7 +3,7 @@
 <mapper namespace="com.syne.server.mapper.ArticleFavoriteMapper">
 
     <!-- 根据文章ID和用户ID查询点赞记录（包含已删除的） -->
-    <select id="selectByArticleAndUser" resultType="com.syne.server.entity.ArticleFavorite">
+    <select id="selectByArticleAndUser" resultType="com.syne.server.model.entity.ArticleFavorite">
         SELECT id, article_id, create_by, update_by, create_time, update_time, deleted
         FROM article_favorites
         WHERE article_id = #{articleId}

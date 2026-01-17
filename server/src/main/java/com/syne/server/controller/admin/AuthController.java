@@ -1,9 +1,9 @@
 package com.syne.server.controller.admin;
 
 import com.syne.server.common.Result;
-import com.syne.server.entity.dto.LoginDTO;
-import com.syne.server.entity.vo.LoginVO;
-import com.syne.server.entity.vo.UserInfoVO;
+import com.syne.server.model.dto.LoginDTO;
+import com.syne.server.model.vo.LoginVO;
+import com.syne.server.model.vo.UserInfoVO;
 import com.syne.server.exception.BusinessException;
 import com.syne.server.service.AuthService;
 import com.syne.server.utils.JwtUtil;

@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.syne.server.common.PageQuery;
 import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
-import com.syne.server.entity.Category;
-import com.syne.server.entity.dto.CategoryDTO;
-import com.syne.server.entity.vo.CategoryListVO;
+import com.syne.server.model.entity.Category;
+import com.syne.server.model.dto.CategoryDTO;
+import com.syne.server.model.vo.CategoryListVO;
 
 import java.util.List;
 

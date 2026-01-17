@@ -2,11 +2,12 @@ package com.syne.server.service;
 
 import com.syne.server.common.PageQuery;
 import com.syne.server.common.PageResult;
-import com.syne.server.entity.NavigationSite;
-import com.syne.server.entity.dto.NavigationSiteDTO;
-import com.syne.server.entity.vo.NavigationCategoryWithSitesVO;
-import com.syne.server.entity.vo.NavigationSiteShowVO;
-import com.syne.server.entity.vo.NavigationSiteVO;
+import com.syne.server.model.entity.NavigationSite;
+import com.syne.server.model.dto.NavigationSiteDTO;
+import com.syne.server.model.vo.NavigationCategoryWithSitesVO;
+import com.syne.server.model.vo.NavigationSiteShowVO;
+import com.syne.server.model.vo.NavigationSiteVO;
+import com.syne.server.model.dto.SortOrderDTO;
 
 import java.util.List;
 
@@ -80,5 +81,5 @@ public interface NavigationSiteService {
      * @param orders 排序项列表（id, sortOrder, categoryId）
      * @return 是否更新成功
      */
-    boolean batchUpdateSortOrder(List<com.syne.server.entity.dto.SortOrderDTO.SortOrderItem> orders);
+    boolean batchUpdateSortOrder(List<SortOrderDTO.SortOrderItem> orders);
 }

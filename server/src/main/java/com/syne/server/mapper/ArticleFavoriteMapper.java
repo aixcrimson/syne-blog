@@ -1,8 +1,7 @@
 package com.syne.server.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.syne.server.entity.ArticleFavorite;
-import com.syne.server.entity.ArticleLike;
+import com.syne.server.model.entity.ArticleFavorite;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

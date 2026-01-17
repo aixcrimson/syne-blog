@@ -4,13 +4,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.syne.server.common.PageQuery;
 import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
-import com.syne.server.entity.Comment;
-import com.syne.server.entity.dto.CommentCreateDTO;
-import com.syne.server.entity.vo.CommentListVO;
-import com.syne.server.entity.vo.CommentShowVO;
+import com.syne.server.model.entity.Comment;
+import com.syne.server.model.dto.CommentCreateDTO;
+import com.syne.server.model.vo.CommentListVO;
+import com.syne.server.model.vo.CommentShowVO;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 评论服务接口

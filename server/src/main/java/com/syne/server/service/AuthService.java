@@ -2,11 +2,11 @@ package com.syne.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.syne.server.common.Result;
-import com.syne.server.entity.User;
-import com.syne.server.entity.dto.LoginDTO;
-import com.syne.server.entity.dto.RegisterDTO;
-import com.syne.server.entity.vo.LoginVO;
-import com.syne.server.entity.vo.UserInfoVO;
+import com.syne.server.model.entity.User;
+import com.syne.server.model.dto.LoginDTO;
+import com.syne.server.model.dto.RegisterDTO;
+import com.syne.server.model.vo.LoginVO;
+import com.syne.server.model.vo.UserInfoVO;
 
 /**
  * 认证服务接口

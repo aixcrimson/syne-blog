@@ -1,8 +1,8 @@
 package com.syne.server.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.syne.server.entity.Tags;
-import com.syne.server.entity.vo.TagListVO;
+import com.syne.server.model.entity.Tags;
+import com.syne.server.model.vo.TagListVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

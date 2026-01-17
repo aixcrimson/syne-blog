@@ -6,10 +6,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.syne.server.common.PageQuery;
 import com.syne.server.common.PageResult;
-import com.syne.server.entity.NavigationCategory;
-import com.syne.server.entity.dto.NavigationCategoryDTO;
+import com.syne.server.model.entity.NavigationCategory;
+import com.syne.server.model.dto.NavigationCategoryDTO;
 import com.syne.server.exception.BusinessException;
 import com.syne.server.mapper.NavigationCategoryMapper;
+import com.syne.server.model.dto.SortOrderDTO;
 import com.syne.server.service.NavigationCategoryService;
 import com.syne.server.service.NavigationSiteService;
 import lombok.RequiredArgsConstructor;
@@ -127,7 +128,7 @@ public class NavigationCategoryServiceImpl extends ServiceImpl<NavigationCategor
 
     @Override
     @Transactional
-    public boolean batchUpdateSortOrder(List<com.syne.server.entity.dto.SortOrderDTO.SortOrderItem> orders) {
+    public boolean batchUpdateSortOrder(List<SortOrderDTO.SortOrderItem> orders) {
         if (orders == null || orders.isEmpty()) {
             return true;
         }

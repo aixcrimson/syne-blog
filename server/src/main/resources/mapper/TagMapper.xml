@@ -3,7 +3,7 @@
 <mapper namespace="com.syne.server.mapper.TagMapper">
 
     <!-- 标签列表结果映射 -->
-    <resultMap id="TagListVOMap" type="com.syne.server.entity.vo.TagListVO">
+    <resultMap id="TagListVOMap" type="com.syne.server.model.vo.TagListVO">
         <id property="id" column="id"/>
         <result property="name" column="name"/>
         <result property="slug" column="slug"/>

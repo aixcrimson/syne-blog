@@ -1,7 +1,7 @@
 package com.syne.server.controller.web;
 
 import com.syne.server.common.Result;
-import com.syne.server.entity.vo.StatsVO;
+import com.syne.server.model.vo.StatsVO;
 import com.syne.server.service.StatsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

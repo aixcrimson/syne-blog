@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.syne.server.common.Result;
-import com.syne.server.entity.Skill;
+import com.syne.server.model.entity.Skill;
 import com.syne.server.exception.BusinessException;
 import com.syne.server.mapper.SkillMapper;
 import com.syne.server.service.SkillService;

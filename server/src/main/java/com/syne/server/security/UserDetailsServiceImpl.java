@@ -1,7 +1,7 @@
 package com.syne.server.security;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.syne.server.entity.User;
+import com.syne.server.model.entity.User;
 import com.syne.server.mapper.AuthMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

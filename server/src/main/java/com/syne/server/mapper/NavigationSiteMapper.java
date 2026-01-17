@@ -1,8 +1,8 @@
 package com.syne.server.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.syne.server.entity.NavigationSite;
-import com.syne.server.entity.vo.NavigationSiteShowVO;
+import com.syne.server.model.entity.NavigationSite;
+import com.syne.server.model.vo.NavigationSiteShowVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

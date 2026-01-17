@@ -1,15 +1,14 @@
 package com.syne.server.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.syne.server.entity.Article;
-import com.syne.server.entity.Category;
-import com.syne.server.entity.Comment;
-import com.syne.server.entity.User;
-import com.syne.server.entity.vo.DashboardDataVO;
-import com.syne.server.entity.vo.DashboardStatsVO;
-import com.syne.server.entity.vo.RecentArticleVO;
-import com.syne.server.entity.vo.RecentCommentVO;
+import com.syne.server.model.entity.Article;
+import com.syne.server.model.entity.Category;
+import com.syne.server.model.entity.Comment;
+import com.syne.server.model.entity.User;
+import com.syne.server.model.vo.DashboardDataVO;
+import com.syne.server.model.vo.DashboardStatsVO;
+import com.syne.server.model.vo.RecentArticleVO;
+import com.syne.server.model.vo.RecentCommentVO;
 import com.syne.server.mapper.*;
 import com.syne.server.service.DashboardService;
 import lombok.RequiredArgsConstructor;

@@ -2,7 +2,7 @@ package com.syne.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.syne.server.common.Result;
-import com.syne.server.entity.Timeline;
+import com.syne.server.model.entity.Timeline;
 
 import java.util.List;
 

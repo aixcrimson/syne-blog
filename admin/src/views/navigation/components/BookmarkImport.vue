@@ -4,6 +4,7 @@
     title="导入Chrome书签"
     width="800px"
     :close-on-click-modal="false"
+    append-to-body
     @closed="handleClose"
   >
     <!-- 步骤指示器 -->
@@ -138,9 +139,10 @@
                     placeholder="新分类名称"
                     class="mb-2"
                   />
-                  <el-input
+                  <IconSelector
                     v-model="row.newCategoryIcon"
-                    placeholder="分类图标（emoji）"
+                    placeholder="分类图标"
+                    :clearable="true"
                   />
                 </template>
                 <div v-else>-</div>
@@ -240,6 +242,7 @@ import {
   CircleCheckFilled,
   CircleCloseFilled,
 } from "@element-plus/icons-vue";
+import IconSelector from "@/components/IconSelector.vue";
 import { navigationApi } from "@/api/navigation";
 import type {
   BookmarkPreviewDTO,

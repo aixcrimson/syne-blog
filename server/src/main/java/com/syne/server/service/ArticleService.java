@@ -5,10 +5,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.syne.server.common.PageQuery;
 import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
-import com.syne.server.entity.Article;
-import com.syne.server.entity.dto.ArticleDTO;
-import com.syne.server.entity.vo.ArticleDetailVO;
-import com.syne.server.entity.vo.ArticleListVO;
+import com.syne.server.model.entity.Article;
+import com.syne.server.model.dto.ArticleDTO;
+import com.syne.server.model.vo.ArticleDetailVO;
+import com.syne.server.model.vo.ArticleListVO;
 
 import java.util.List;
 import java.util.Map;
