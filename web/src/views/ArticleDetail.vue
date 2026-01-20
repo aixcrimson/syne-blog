@@ -126,7 +126,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import {
   User,
@@ -258,6 +258,16 @@ onMounted(() => {
     // 文章加载成功后再增加浏览量，确保 article.value 存在，且体验更好
     handleIncreaseViews();
   });
+  fetchRecommendedArticles();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+// 监听路由参数变化，重新加载数据
+watch(articleId, () => {
+  fetchArticle().then(() => {
+    handleIncreaseViews();
+  });
+  // 推荐文章也刷新一下
   fetchRecommendedArticles();
   window.scrollTo({ top: 0, behavior: "smooth" });
 });

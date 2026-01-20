@@ -1,10 +1,10 @@
 <template>
   <div
-    class="paper-card paper-card-hover overflow-hidden cursor-pointer article-card"
+    class="paper-card paper-card-hover overflow-hidden cursor-pointer article-card flex flex-col h-full"
     @click="handleClick"
   >
     <!-- 封面图 -->
-    <div v-if="article.coverImage" class="overflow-hidden h-72">
+    <div v-if="article.coverImage" class="overflow-hidden h-48 shrink-0">
       <img
         :src="article.coverImage"
         :alt="article.title"
@@ -13,7 +13,7 @@
     </div>
 
     <!-- 卡片内容 -->
-    <div class="p-6">
+    <div class="p-6 flex flex-col flex-1">
       <!-- 标题 -->
       <h3
         class="mb-2 text-xl font-semibold text-slate-900 transition-colors dark:text-slate-100 line-clamp-2 hover:text-primary-600"
@@ -41,27 +41,23 @@
 
       <!-- 元信息 -->
       <div
-        class="flex justify-between items-center text-xs text-slate-500 dark:text-slate-500"
+        class="flex flex-wrap justify-between items-center text-xs text-slate-500 dark:text-slate-500 mt-auto pt-2 gap-2"
       >
-        <div class="flex items-center space-x-4">
-          <span class="flex items-center">
+        <div class="flex items-center gap-x-3">
+          <span class="flex items-center shrink-0">
             <el-icon class="mr-1"><Calendar /></el-icon>
-            {{ formatDate(article.publishedTime) }}
+             {{ formatDate(article.publishedTime) }}
           </span>
-          <span class="flex items-center">
+          <span class="flex items-center shrink-0">
             <el-icon class="mr-1"><View /></el-icon>
             {{ article.views }}
           </span>
-          <span class="flex items-center">
+          <span class="flex items-center shrink-0">
             <el-icon class="mr-1"><Pointer /></el-icon>
             {{ article.likes || 0 }}
           </span>
-          <span class="flex items-center">
-            <el-icon class="mr-1"><Star /></el-icon>
-            {{ article.favorites || 0 }}
-          </span>
         </div>
-        <el-button text type="primary" size="small"> 阅读更多 → </el-button>
+        <el-button text type="primary" size="small" class="shrink-0"> 阅读更多 → </el-button>
       </div>
     </div>
   </div>
@@ -69,7 +65,7 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { Calendar, View, Pointer, Star } from "@element-plus/icons-vue";
+import { Calendar, View, Pointer } from "@element-plus/icons-vue";
 import type { Article } from "@/types";
 import { formatDate } from "@/utils/format";
 
