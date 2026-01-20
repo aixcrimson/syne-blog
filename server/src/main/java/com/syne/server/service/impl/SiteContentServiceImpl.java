@@ -50,7 +50,11 @@ public class SiteContentServiceImpl implements SiteContentService {
 
     @Override
     public Result<List<Timeline>> getTimelines() {
-        return Result.success(timelineMapper.selectAllTimelines());
+        LambdaQueryWrapper<Timeline> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Timeline::getDeleted, 0)
+            .orderByDesc(Timeline::getYear)
+            .orderByDesc(Timeline::getCreateTime);
+        return Result.success(this.list(queryWrapper));
     }
 
     @Override
