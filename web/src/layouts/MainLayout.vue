@@ -1,10 +1,14 @@
 <template>
-  <div class="main-layout min-h-screen flex flex-col">
-    <!-- 背景图片 -->
-    <div
-      class="background-image"
-      :style="{ backgroundImage: `url(${bgImage})` }"
-    ></div>
+  <div class="main-layout min-h-screen flex flex-col relative overflow-hidden page-shell">
+    <div class="pointer-events-none absolute inset-0 paper-bg">
+      <div
+        class="absolute -top-24 -right-16 w-64 h-64 rounded-full blur-3xl bg-amber-200/40 dark:bg-amber-400/10"
+      />
+      <div
+        class="absolute -bottom-20 -left-14 w-72 h-72 rounded-full blur-3xl bg-sky-200/40 dark:bg-sky-500/10"
+      />
+      <div class="absolute inset-0 opacity-60 page-grid dark:opacity-30" />
+    </div>
 
     <!-- 导航栏 -->
     <Header />
@@ -22,38 +26,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useAppStore } from "@/stores/app";
 import Header from "@/components/layout/Header.vue";
 import Footer from "@/components/layout/Footer.vue";
-import darkThemeImg from "@/assets/images/common/darkTheme.png";
-import lightThemeImg from "@/assets/images/common/lightTheme.png";
-
-const appStore = useAppStore();
-
-const bgImage = computed(() => {
-  return appStore.isDarkMode ? darkThemeImg : lightThemeImg;
-});
 </script>
 
 <style scoped>
 .main-layout {
   position: relative;
-  background: transparent;
-}
-
-/* 背景图片层 */
-.background-image {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  z-index: 0;
-  pointer-events: none;
-  transition: background-image 0.5s ease-in-out;
 }
 </style>

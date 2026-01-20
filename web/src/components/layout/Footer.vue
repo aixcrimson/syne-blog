@@ -1,10 +1,10 @@
 <template>
-  <footer class="mt-auto text-gray-300 footer-glass">
-    <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8 md:py-12">
+  <footer class="mt-auto border-t border-slate-200/70 bg-white/75 text-slate-600 backdrop-blur-md dark:bg-slate-900/70 dark:border-slate-800/70 dark:text-slate-300">
+    <div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 md:py-8">
       <div class="hidden gap-6 md:grid md:grid-cols-3 md:gap-8">
         <!-- 关于部分 -->
         <div>
-          <h3 class="mb-4 text-lg font-semibold text-white">关于博客</h3>
+          <h3 class="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">关于博客</h3>
           <p class="text-sm leading-6">
             {{ siteStore.authorInfo.bio }}
           </p>
@@ -12,7 +12,7 @@
 
         <!-- 快速链接 -->
         <div>
-          <h3 class="mb-4 text-lg font-semibold text-white">快速链接</h3>
+          <h3 class="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">快速链接</h3>
           <ul class="space-y-2">
             <li v-for="item in menuItems" :key="item.path">
               <router-link
@@ -27,7 +27,7 @@
 
         <!-- 联系方式 -->
         <div>
-          <h3 class="mb-4 text-lg font-semibold text-white">联系我</h3>
+          <h3 class="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">联系我</h3>
           <ul class="space-y-2">
             <li class="flex items-center space-x-2">
               <el-icon><Message /></el-icon>
@@ -70,9 +70,9 @@
 
       <!-- 版权信息 -->
       <div
-        class="pt-0 mt-0 text-center border-t-0 md:mt-8 md:pt-8 md:border-t md:border-gray-800"
+        class="pt-0 mt-0 text-center border-t-0 md:mt-8 md:pt-8 md:border-t md:border-slate-200/70 dark:md:border-slate-800/70"
       >
-        <p class="text-xs text-gray-500 md:text-sm md:text-gray-300">
+        <p class="text-xs text-slate-500 md:text-sm md:text-slate-400">
           © {{ currentYear }} {{ siteStore.authorInfo.username }}. All rights
           reserved.
         </p>
@@ -97,13 +97,3 @@ const menuItems = [
   { name: "关于", path: "/about" },
 ];
 </script>
-
-<style scoped>
-/* 毛玻璃效果 Footer */
-.footer-glass {
-  background: rgba(17, 24, 39, 0.85);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-</style>

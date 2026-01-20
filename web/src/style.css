@@ -2,8 +2,96 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Page shell and card system */
+.page-shell {
+  background: #f8f5f2;
+  color: #0f172a;
+}
+
+.dark .page-shell {
+  background: #0b0c10;
+  color: #f8fafc;
+}
+
+:root {
+  --page-bg-image-light: none;
+  --page-bg-image-dark: none;
+}
+
+:root[data-bg-mode="image"] .page-shell {
+  background-color: #f8f5f2;
+  background-image: var(--page-bg-image-light);
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+:root[data-bg-mode="image"][data-theme-mode="dark"] .page-shell {
+  background-color: #0b0c10;
+  background-image: var(--page-bg-image-dark);
+}
+
+:root[data-bg-mode="image"] .paper-bg {
+  display: none;
+}
+
+.page-grid {
+  background-image:
+    linear-gradient(to right, rgba(15, 23, 42, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.dark .page-grid {
+  background-image:
+    linear-gradient(to right, rgba(148, 163, 184, 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.14) 1px, transparent 1px);
+}
+
+.page-mono {
+  font-family: var(--font-mono);
+}
+
+.paper-card {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(226, 232, 240, 0.7);
+  border-radius: 16px;
+  box-shadow: 0 12px 32px -20px rgba(15, 23, 42, 0.45);
+}
+
+.dark .paper-card {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(30, 41, 59, 0.7);
+  box-shadow: 0 12px 32px -20px rgba(15, 23, 42, 0.6);
+}
+
+.paper-card-hover {
+  transition: transform 300ms ease, box-shadow 300ms ease, border-color 300ms ease;
+}
+
+.paper-card-hover:hover {
+  transform: translateY(-2px);
+  border-color: rgba(147, 197, 253, 0.8);
+  box-shadow: 0 16px 45px -22px rgba(37, 99, 235, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paper-card-hover {
+    transition: none;
+  }
+
+  .paper-card-hover:hover {
+    transform: none;
+  }
+}
+
 /* ===== 亮色主题（默认） ===== */
 :root {
+  /* 字体（内置系统字体栈） */
+  --font-sans: "Segoe UI", "Noto Sans", Arial, sans-serif;
+  --font-mono: "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+
   /* 主题色变量 */
   --color-primary-50: #eff6ff;
   --color-primary-100: #dbeafe;
@@ -163,6 +251,7 @@
 /* 自定义样式 */
 @layer base {
   body {
+    font-family: var(--font-sans);
     color: var(--color-text-primary);
     background: transparent;
     transition: color 0.3s ease;
@@ -331,4 +420,3 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-tertiary);
 }
-
