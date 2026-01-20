@@ -54,7 +54,7 @@ public class SiteContentServiceImpl implements SiteContentService {
         queryWrapper.eq(Timeline::getDeleted, 0)
             .orderByDesc(Timeline::getYear)
             .orderByDesc(Timeline::getCreateTime);
-        return Result.success(this.list(queryWrapper));
+        return Result.success(timelineMapper.selectList(queryWrapper));
     }
 
     @Override
