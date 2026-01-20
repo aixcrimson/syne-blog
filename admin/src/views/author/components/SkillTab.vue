@@ -138,7 +138,7 @@
             :max="999"
             controls-position="right"
           />
-          <span class="text-gray-400 text-xs ml-2">数字越大越靠前</span>
+          <span class="text-gray-400 text-xs ml-2">数字越小越靠前</span>
         </el-form-item>
       </el-form>
       <template #footer>

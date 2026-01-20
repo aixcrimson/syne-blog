@@ -473,9 +473,9 @@ onMounted(async () => {
 
 /* 毛玻璃卡片效果 */
 .glass-card {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 /* 标签颜色圆点 */

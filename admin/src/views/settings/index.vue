@@ -220,9 +220,9 @@
         </el-form>
 
         <!-- 密码安全提示 -->
-        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-          <h3 class="text-sm font-medium text-blue-800 mb-2">密码安全提示</h3>
-          <ul class="text-xs text-blue-600 space-y-1">
+        <div class="mt-6 p-4 bg-primary-50 rounded-lg">
+          <h3 class="text-sm font-medium text-primary-700 mb-2">密码安全提示</h3>
+          <ul class="text-xs text-primary-600 space-y-1">
             <li>• 密码长度应为 6-32 个字符</li>
             <li>• 建议使用字母、数字和特殊字符的组合</li>
             <li>• 请勿使用与其他网站相同的密码</li>
@@ -561,8 +561,7 @@ onMounted(() => {
 }
 
 :deep(.el-button--primary:hover:not(:disabled)) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(var(--color-primary-500), 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 /* 头像样式 */

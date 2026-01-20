@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-layout min-h-screen bg-gray-100">
+  <div class="admin-layout min-h-screen">
     <!-- 移动端遮罩层 -->
     <Transition name="fade">
       <div
@@ -163,4 +163,3 @@ provide('isMobile', isMobile)
   opacity: 0;
 }
 </style>
-

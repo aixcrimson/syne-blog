@@ -1,5 +1,5 @@
 <template>
-  <div class="login-page min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+  <div class="login-page min-h-screen flex items-center justify-center">
     <!-- 背景装饰 -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary-200/30 rounded-full blur-3xl"></div>
@@ -213,19 +213,13 @@ const handleKeyEnter = () => {
 <style scoped>
 /* 主题色变量引用 */
 .bg-primary-200\/30 {
-  background-color: rgb(var(--color-primary-200) / 0.3);
+  background-color: var(--color-primary-100);
+  opacity: 0.45;
 }
 
 .bg-primary-300\/20 {
-  background-color: rgb(var(--color-primary-300) / 0.2);
-}
-
-.from-primary-500 {
-  --tw-gradient-from: var(--color-primary-500);
-}
-
-.to-primary-600 {
-  --tw-gradient-to: var(--color-primary-600);
+  background-color: var(--color-primary-200);
+  opacity: 0.25;
 }
 
 .hover\:text-primary-500:hover {
@@ -234,7 +228,7 @@ const handleKeyEnter = () => {
 
 /* 登录页面特殊样式 */
 .login-page {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
+  background: linear-gradient(135deg, #fafaf9 0%, #f5f5f4 100%);
 }
 
 /* 输入框聚焦效果 */
@@ -252,17 +246,16 @@ const handleKeyEnter = () => {
 
 /* 按钮样式 */
 :deep(.el-button--primary) {
-  background: linear-gradient(135deg, var(--el-color-primary) 0%, var(--el-color-primary-dark-2) 100%);
-  border: none;
+  background: var(--el-color-primary);
+  border: 1px solid var(--el-color-primary);
   transition: all 0.3s ease;
 }
 
 :deep(.el-button--primary:hover:not(:disabled)) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(var(--color-primary-500), 0.4);
+  box-shadow: var(--shadow-md);
 }
 
 :deep(.el-button--primary:active:not(:disabled)) {
-  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
 }
 </style>

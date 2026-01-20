@@ -41,8 +41,8 @@
             class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200"
             :class="[
               activeMenu === item.path
-                ? 'bg-primary-500 text-white shadow-md'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+                ? 'menu-item--active'
+                : 'menu-item--inactive',
               (collapsed && !isMobile) ? 'justify-center' : '',
             ]"
             :title="(collapsed && !isMobile) ? item.name : ''"
@@ -182,16 +182,46 @@ const handleMenuClick = (item: MenuItem) => {
 <style scoped>
 /* 毛玻璃侧边栏 */
 .glass-sidebar {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--color-surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-right: 1px solid rgba(229, 231, 235, 0.5);
+  border-right: 1px solid var(--color-border-primary);
   /* 移动端需要更高的 z-index */
 }
 
-/* 菜单项激活状态阴影 */
-.menu-item.bg-primary-500 {
-  box-shadow: 0 4px 12px rgba(var(--color-primary-500), 0.3);
+/* 预留边框，避免激活态抖动 */
+.menu-item {
+  border: 1px solid transparent;
+}
+
+/* Logo 分区分隔线 */
+.logo-area {
+  border-bottom-color: var(--color-border-primary);
+}
+
+/* 菜单项状态 */
+.menu-item--active {
+  background: var(--color-primary-50);
+  border: 1px solid var(--color-primary-100);
+  color: var(--color-primary-700);
+  box-shadow: var(--shadow-sm);
+}
+
+.menu-item--active :deep(.el-icon) {
+  color: var(--color-primary-700);
+}
+
+.menu-item--inactive {
+  color: var(--color-text-secondary);
+}
+
+.menu-item--inactive:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.menu-item--inactive:hover :deep(.el-icon) {
+  color: var(--color-text-primary);
 }
 
 /* 淡入淡出动画 */
@@ -211,12 +241,12 @@ const handleMenuClick = (item: MenuItem) => {
 }
 
 .menu-list::-webkit-scrollbar-thumb {
-  background-color: #d1d5db;
+  background-color: var(--color-border-secondary);
   border-radius: 9999px;
 }
 
 .menu-list::-webkit-scrollbar-thumb:hover {
-  background-color: #9ca3af;
+  background-color: var(--color-text-tertiary);
 }
 
 /* 暗色模式下的滚动条 */
