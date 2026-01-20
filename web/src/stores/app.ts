@@ -1,11 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { ThemeColor } from '@/types'
+import lightThemeBg from '@/assets/images/common/lightTheme.png'
+import darkThemeBg from '@/assets/images/common/darkTheme.png'
 
 export const useAppStore = defineStore('app', () => {
   // 状态
   const themeColor = ref<ThemeColor>('blue')
   const themeMode = ref<'light' | 'dark'>('light')
+  const backgroundMode = ref<'paper' | 'image'>('paper')
   const loading = ref(false)
 
   // 计算属性
@@ -30,6 +33,12 @@ export const useAppStore = defineStore('app', () => {
       themeColor.value = savedColor
     }
 
+    // 背景模式
+    const savedBackgroundMode = localStorage.getItem('backgroundMode') as 'paper' | 'image' | null
+    if (savedBackgroundMode) {
+      backgroundMode.value = savedBackgroundMode
+    }
+
     // 应用主题
     applyTheme()
   }
@@ -45,6 +54,12 @@ export const useAppStore = defineStore('app', () => {
   const toggleThemeMode = () => {
     themeMode.value = themeMode.value === 'light' ? 'dark' : 'light'
     localStorage.setItem('themeMode', themeMode.value)
+    applyTheme()
+  }
+
+  const toggleBackgroundMode = () => {
+    backgroundMode.value = backgroundMode.value === 'paper' ? 'image' : 'paper'
+    localStorage.setItem('backgroundMode', backgroundMode.value)
     applyTheme()
   }
 
@@ -75,7 +90,21 @@ export const useAppStore = defineStore('app', () => {
       document.body.classList.remove('dark')
     }
 
-    console.log('主题应用完成:', { color: themeColor.value, mode: themeMode.value })
+    // 设置背景模式
+    if (backgroundMode.value === 'image') {
+      root.setAttribute('data-bg-mode', 'image')
+    } else {
+      root.setAttribute('data-bg-mode', 'paper')
+    }
+
+    root.style.setProperty('--page-bg-image-light', `url("${lightThemeBg}")`)
+    root.style.setProperty('--page-bg-image-dark', `url("${darkThemeBg}")`)
+
+    console.log('主题应用完成:', {
+      color: themeColor.value,
+      mode: themeMode.value,
+      background: backgroundMode.value
+    })
   }
 
   const setLoading = (value: boolean) => {
@@ -85,13 +114,14 @@ export const useAppStore = defineStore('app', () => {
   return {
     themeColor,
     themeMode,
+    backgroundMode,
     isDarkMode,
     loading,
     init,
     setThemeColor,
     toggleThemeMode,
     setThemeMode,
+    toggleBackgroundMode,
     setLoading
   }
 })
-

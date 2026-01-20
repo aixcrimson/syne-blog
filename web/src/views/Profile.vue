@@ -1,17 +1,19 @@
 <template>
   <div class="px-4 pt-20 pb-12 min-h-screen sm:px-6 lg:px-8">
     <div class="mx-auto max-w-4xl">
-      <div class="overflow-hidden rounded-2xl shadow-xl glass-card">
+      <div class="paper-card overflow-hidden">
         <!-- 头部背景 (可选) -->
-        <div class="h-32 bg-gradient-to-r to-purple-600 from-primary-500"></div>
+        <div
+          class="h-32 bg-gradient-to-r from-slate-900 via-slate-700 to-blue-600"
+        ></div>
 
         <div class="px-8 pb-8">
           <!-- 头像区域 -->
           <div class="flex relative justify-between items-end -mt-16 mb-6">
             <div class="relative group">
               <div
-                class="overflow-hidden w-32 h-32 bg-white rounded-full border-4 border-white shadow-xl transition-transform duration-300 dark:border-gray-800 hover:scale-105"
-              >
+                  class="overflow-hidden w-32 h-32 bg-white rounded-full border-4 border-white shadow-xl transition-transform duration-300 dark:border-slate-800 hover:scale-105 motion-reduce:transform-none"
+                >
                 <img
                   :src="
                     userStore.currentUser?.avatar ||
@@ -22,10 +24,10 @@
                 />
               </div>
               <!-- 相机图标 -->
-              <div
-                class="flex absolute right-2 bottom-2 justify-center items-center w-10 h-10 text-white rounded-full shadow-lg transition-transform duration-300 cursor-pointer bg-primary-500 hover:bg-primary-600 hover:scale-110 active:scale-95"
-                title="更换头像"
-              >
+                <div
+                  class="flex absolute right-2 bottom-2 justify-center items-center w-10 h-10 text-white rounded-full shadow-lg transition-transform duration-300 cursor-pointer bg-primary-500 hover:bg-primary-600 hover:scale-110 active:scale-95 motion-reduce:transform-none"
+                  title="更换头像"
+                >
                 <el-icon :size="20"><Camera /></el-icon>
               </div>
             </div>
@@ -81,13 +83,13 @@
             <el-tab-pane label="账号安全" name="security">
               <div class="py-4 space-y-6">
                 <div
-                  class="flex justify-between items-center p-4 bg-gray-50 rounded-lg dark:bg-gray-800/50"
+                  class="flex justify-between items-center p-4 bg-white/70 rounded-lg dark:bg-slate-900/60"
                 >
                   <div>
-                    <h4 class="font-medium text-gray-900 dark:text-gray-100">
+                    <h4 class="font-medium text-slate-900 dark:text-slate-100">
                       修改密码
                     </h4>
-                    <p class="mt-1 text-sm text-gray-500">
+                    <p class="mt-1 text-sm text-slate-500">
                       定期修改密码可以保护你的账号安全
                     </p>
                   </div>
@@ -104,7 +106,7 @@
                     v-for="article in articles"
                     :key="article.id"
                     :article="article"
-                    class="transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
+                    class="paper-card-hover"
                   />
                   <!-- 分页 -->
                   <div class="flex justify-center pt-8">
@@ -130,7 +132,7 @@
                     v-for="article in articles"
                     :key="article.id"
                     :article="article"
-                    class="transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
+                    class="paper-card-hover"
                   />
                   <!-- 分页 -->
                   <div class="flex justify-center pt-8">
@@ -369,17 +371,3 @@ const handlePasswordDialogClose = () => {
   passwordDialogVisible.value = false;
 };
 </script>
-
-<style scoped>
-.glass-card {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.dark .glass-card {
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-</style>

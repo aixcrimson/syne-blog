@@ -1,22 +1,26 @@
 <template>
   <div
-    class="flex overflow-hidden relative justify-center items-center px-4 py-12 min-h-screen transition-colors duration-500 sm:px-6 lg:px-8"
+    class="page-shell flex overflow-hidden relative justify-center items-center px-4 py-12 min-h-screen transition-colors duration-500 sm:px-6 lg:px-8"
   >
-    <!-- 背景图片 -->
-    <div
-      class="background-image"
-      :style="{ backgroundImage: `url(${bgImage})` }"
-    ></div>
+    <div class="pointer-events-none absolute inset-0 paper-bg">
+      <div
+        class="absolute -top-24 -right-16 w-64 h-64 rounded-full blur-3xl bg-amber-200/40 dark:bg-amber-400/10"
+      />
+      <div
+        class="absolute -bottom-20 -left-14 w-72 h-72 rounded-full blur-3xl bg-sky-200/40 dark:bg-sky-500/10"
+      />
+      <div class="absolute inset-0 opacity-60 page-grid dark:opacity-30" />
+    </div>
 
     <div
-      class="overflow-hidden relative z-10 p-8 w-full max-w-md rounded-2xl shadow-xl glass-card"
+      class="paper-card relative z-10 p-8 w-full max-w-md"
     >
       <!-- 头部切换 -->
       <div class="mb-8 text-center">
-        <h2 class="mb-2 text-3xl font-extrabold text-gray-900 dark:text-white">
+        <h2 class="mb-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">
           {{ isLoginMode ? "欢迎回来" : "创建账号" }}
         </h2>
-        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
           {{ isLoginMode ? "还没有账号？" : "已有账号？" }}
           <a
             href="#"
@@ -62,11 +66,11 @@
               id="remember-me"
               name="remember-me"
               type="checkbox"
-              class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              class="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
             />
             <label
               for="remember-me"
-              class="block ml-2 text-sm text-gray-900 dark:text-gray-300"
+              class="block ml-2 text-sm text-slate-700 dark:text-slate-300"
             >
               记住我
             </label>
@@ -177,12 +181,12 @@
         <div class="relative">
           <div class="flex absolute inset-0 items-center">
             <div
-              class="w-full border-t border-gray-300 dark:border-gray-700"
+              class="w-full border-t border-slate-300/70 dark:border-slate-700/70"
             ></div>
           </div>
           <div class="flex relative justify-center text-sm">
             <span
-              class="px-2 text-gray-500 bg-white dark:bg-gray-800 dark:text-gray-400 glass-text-bg"
+              class="px-2 text-slate-500 bg-white/70 dark:bg-slate-900/70 dark:text-slate-400"
             >
               或者返回
             </span>
@@ -203,19 +207,10 @@ import { User, Lock, Message, Key } from "@element-plus/icons-vue";
 import type { FormInstance, FormRules } from "element-plus";
 import { ElMessage } from "element-plus";
 import { authApi } from "@/api/auth";
-import { useAppStore } from "@/stores/app";
 import { useUserStore } from "@/stores/user";
-import darkThemeImg from "@/assets/images/common/darkTheme.png";
-import lightThemeImg from "@/assets/images/common/lightTheme.png";
-import { computed } from "vue";
 
 const router = useRouter();
-const appStore = useAppStore();
 const userStore = useUserStore();
-
-const bgImage = computed(() => {
-  return appStore.isDarkMode ? darkThemeImg : lightThemeImg;
-});
 
 // 状态
 const isLoginMode = ref(true);
@@ -366,38 +361,3 @@ const toggleMode = () => {
   coutdown.value = 0;
 };
 </script>
-
-<style scoped>
-/* 玻璃拟态卡片 */
-.glass-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.dark .glass-card {
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* 适配 Or 回到首页 分割线背景颜色，使其看起来像透明的 */
-.glass-text-bg {
-  background-color: transparent;
-  /* 这里为了简单，如果想完美适配背景圆球，可能需要更复杂的 CSS 或直接去掉背景色 */
-}
-
-/* 背景图片层 */
-.background-image {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  z-index: 0;
-  transition: background-image 0.5s ease-in-out;
-}
-</style>

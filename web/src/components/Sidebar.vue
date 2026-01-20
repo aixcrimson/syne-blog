@@ -3,7 +3,7 @@
     <div class="flex sticky top-20 flex-col gap-6">
       <!-- 公告栏 -->
       <div
-        class="p-5 bg-white border-b transition-all duration-300 md:bg-gradient-to-br md:to-white md:rounded-xl md:border md:shadow-sm md:from-primary-50 md:border-primary-100 dark:bg-gray-800 dark:border-gray-700 md:dark:from-gray-800 md:dark:to-gray-800 md:hover:-translate-y-0.5 md:hover:shadow-md"
+        class="p-5 paper-card paper-card-hover"
       >
         <div class="flex gap-2 items-center mb-3">
           <div class="w-2 h-2 rounded-full animate-pulse bg-primary-500"></div>
@@ -13,28 +13,28 @@
           <p
             v-for="notice in notices"
             :key="notice.id"
-            class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+            class="text-sm leading-relaxed text-slate-700 dark:text-slate-300"
           >
             📢 {{ notice.content }}
           </p>
         </div>
-        <p v-else class="text-sm leading-relaxed text-gray-500">暂无公告</p>
+        <p v-else class="text-sm leading-relaxed text-slate-500">暂无公告</p>
       </div>
 
       <!-- 标签页切换卡片 -->
       <div
-        class="overflow-hidden tab-card md:rounded-xl md:shadow-sm glass-section"
+        class="overflow-hidden paper-card paper-card-hover"
       >
         <!-- 标签页头部 -->
-        <div class="flex border-b border-gray-200 dark:border-gray-700">
+        <div class="flex border-b border-slate-200/70 dark:border-slate-700/70">
           <button
             v-for="tab in tabs"
             :key="tab.key"
             :class="[
               'flex-1 py-3 px-4 text-sm font-medium transition-all',
               activeTab === tab.key
-                ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50',
+                ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50/70'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50/70 dark:text-slate-300 dark:hover:bg-slate-800/40',
             ]"
             @click="activeTab = tab.key as 'categories' | 'profile'"
           >
@@ -50,18 +50,18 @@
               <div
                 v-for="category in categories"
                 :key="category.id"
-                class="flex justify-between items-center p-3 rounded-lg transition-colors cursor-pointer category-item hover:bg-gray-50 dark:hover:bg-gray-800"
+                class="flex justify-between items-center p-3 rounded-lg transition-colors cursor-pointer category-item hover:bg-slate-50/70 dark:hover:bg-slate-800/50"
                 @click="handleCategoryClick(category.id)"
               >
                 <div class="flex gap-3 items-center">
                   <div class="w-2 h-2 rounded-full bg-primary-500"></div>
                   <span
-                    class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                    class="text-sm font-medium text-slate-700 dark:text-slate-300"
                     >{{ category.name }}</span
                   >
                 </div>
                 <span
-                  class="px-2 py-1 text-xs text-gray-500 bg-gray-100 rounded-full dark:text-gray-400 dark:bg-gray-700"
+                  class="px-2 py-1 text-xs text-slate-500 bg-slate-100/80 rounded-full dark:text-slate-400 dark:bg-slate-800/60"
                 >
                   {{ category.articleCount }}
                 </span>
@@ -91,11 +91,11 @@
 
               <!-- 名称 -->
               <h3
-                class="mb-2 text-xl font-bold text-gray-900 dark:text-gray-100"
+                class="mb-2 text-xl font-bold text-slate-900 dark:text-slate-100"
               >
                 {{ siteStore.authorInfo.username }}
               </h3>
-              <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              <p class="mb-4 text-sm text-slate-600 dark:text-slate-400">
                 {{ siteStore.authorInfo.bio || "热爱技术,热爱分享" }}
               </p>
 
@@ -105,7 +105,7 @@
                   <div class="text-2xl font-bold text-primary-600">
                     {{ stats.totalArticles }}
                   </div>
-                  <div class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                  <div class="mt-1 text-xs text-slate-600 dark:text-slate-400">
                     文章
                   </div>
                 </div>
@@ -113,7 +113,7 @@
                   <div class="text-2xl font-bold text-primary-600">
                     {{ stats.totalCategories }}
                   </div>
-                  <div class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                  <div class="mt-1 text-xs text-slate-600 dark:text-slate-400">
                     分类
                   </div>
                 </div>
@@ -121,7 +121,7 @@
                   <div class="text-2xl font-bold text-primary-600">
                     {{ stats.totalViews }}
                   </div>
-                  <div class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                  <div class="mt-1 text-xs text-slate-600 dark:text-slate-400">
                     浏览
                   </div>
                 </div>
@@ -248,28 +248,6 @@ onMounted(() => {
 });
 </script>
 <style scoped>
-/* 毛玻璃效果 */
-@media (min-width: 768px) {
-  .glass-section {
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
-  }
-}
-
-/* 公告栏 - 已改为 Tailwind 类控制 */
-
-/* 标签页卡片 */
-.tab-card {
-  transition: all 0.3s ease;
-}
-
-.tab-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-}
-
 /* 统计项 */
 .stat-item {
   transition: transform 0.2s ease;

@@ -1,12 +1,21 @@
 <template>
-  <div class="py-12 min-h-screen bg-transparent">
+  <div class="py-12 min-h-screen">
     <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
       <!-- 页面标题 -->
       <div class="mb-12 text-center">
-        <h1 class="mb-4 text-4xl font-bold text-gray-900 dark:text-gray-100">
+        <p
+          class="page-mono text-xs uppercase tracking-[0.35em] text-slate-500 dark:text-slate-400"
+        >
+          Personal Nav Index
+        </p>
+        <h1
+          class="mt-3 text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 sm:text-5xl"
+        >
           网站导航
         </h1>
-        <p class="text-lg text-gray-600 dark:text-gray-300">
+        <p
+          class="mx-auto mt-4 max-w-2xl text-base text-slate-600 dark:text-slate-300 sm:text-lg"
+        >
           收集常用的优质网站，助力高效工作与学习
         </p>
       </div>
@@ -27,7 +36,7 @@
                 <div
                   v-for="j in 6"
                   :key="j"
-                  class="h-32 bg-gray-100 rounded-lg dark:bg-gray-800"
+                  class="paper-card h-32"
                 />
               </div>
             </template>
@@ -38,15 +47,21 @@
       <!-- 导航分类 -->
       <div v-else-if="navigationCategories.length > 0" class="space-y-12">
         <div
-          v-for="category in navigationCategories"
+          v-for="(category, index) in navigationCategories"
           :key="category.categoryId"
           class="space-y-6"
         >
-          <h2
-            class="pl-4 text-2xl font-bold text-gray-800 border-l-4 dark:text-gray-200 border-primary-500"
-          >
-            {{ category.categoryName }}
-          </h2>
+          <div class="flex items-center gap-4">
+            <span class="page-mono text-xs text-slate-500 dark:text-slate-400">
+              #{{ index + 1 }}
+            </span>
+            <h2
+              class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100"
+            >
+              {{ category.categoryName }}
+            </h2>
+            <span class="flex-1 h-px bg-slate-200/70 dark:bg-slate-700/60" />
+          </div>
           <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             <a
               v-for="site in category.sites"
@@ -54,35 +69,37 @@
               :href="site.url"
               target="_blank"
               rel="noopener noreferrer"
-              class="p-6 rounded-lg shadow-sm transition-all duration-300 group glass-card hover:shadow-lg hover:border-primary-500"
+              class="paper-card paper-card-hover group relative cursor-pointer p-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8F5F2] dark:focus-visible:ring-offset-[#0B0C10]"
             >
               <div class="flex items-start space-x-4">
                 <div class="flex-shrink-0">
                   <div
-                    class="justify-center items-center w-12 h-12 text-xl font-bold text-white bg-gradient-to-br rounded-lg transition-transform site-icon-wrapper from-primary-400 to-primary-600 group-hover:scale-110"
+                    class="site-icon-wrapper justify-center items-center w-12 h-12 text-lg font-semibold text-white bg-slate-900 rounded-xl shadow-[0_8px_18px_-10px_rgba(15,23,42,0.6)] transition-transform duration-300 group-hover:-rotate-2 group-hover:scale-105 dark:bg-slate-100 dark:text-slate-900 motion-reduce:transform-none"
                   >
                     <img
                       v-if="site.icon && site.icon.startsWith('http')"
                       :src="site.icon"
                       :alt="site.name"
-                      class="object-cover w-full h-full rounded-lg"
+                      class="object-cover w-full h-full rounded-xl"
                     />
-                    <span v-else>{{ site.icon || site.name?.charAt(0) }}</span>
+                    <span v-else class="page-mono">{{
+                      site.icon || site.name?.charAt(0)
+                    }}</span>
                   </div>
                 </div>
                 <div class="flex-1 min-w-0">
                   <h3
-                    class="text-lg font-semibold text-gray-900 truncate transition-colors dark:text-gray-100 group-hover:text-primary-600"
+                    class="text-lg font-semibold text-slate-900 truncate transition-colors dark:text-slate-100 group-hover:text-blue-600"
                   >
                     {{ site.name }}
                   </h3>
                   <p
-                    class="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2"
+                    class="mt-1 text-sm text-slate-600 dark:text-slate-400 line-clamp-2"
                   >
                     {{ site.description }}
                   </p>
                   <div
-                    class="flex items-center mt-2 text-xs text-gray-400 dark:text-gray-500"
+                    class="page-mono flex items-center mt-3 text-xs text-slate-500 dark:text-slate-400"
                   >
                     <el-icon class="mr-1"><Link /></el-icon>
                     <span class="truncate">{{ site.url }}</span>
@@ -99,11 +116,11 @@
 
       <!-- 添加网站提示 -->
       <div class="mt-12 text-center">
-        <div class="inline-block px-6 py-4 bg-blue-50 rounded-lg">
-          <p class="text-sm text-gray-600 dark:text-gray-600">
-            <el-icon class="mr-2"><InfoFilled /></el-icon>
-            如有更多优质网站推荐，欢迎联系我～
-          </p>
+        <div
+          class="paper-card inline-flex items-center gap-2 px-6 py-3 text-sm text-slate-600 dark:text-slate-300"
+        >
+          <el-icon class="text-slate-400"><InfoFilled /></el-icon>
+          <span>如有更多优质网站推荐，欢迎联系我～</span>
         </div>
       </div>
     </div>
@@ -143,13 +160,6 @@ onMounted(() => {
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
 }
 
 .site-icon-wrapper {

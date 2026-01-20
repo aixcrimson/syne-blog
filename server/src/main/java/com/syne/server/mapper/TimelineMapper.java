@@ -10,10 +10,4 @@ import java.util.List;
 @Mapper
 public interface TimelineMapper extends BaseMapper<Timeline> {
 
-    /**
-     * 查询时间线
-     * @return 列表
-     */
-    @Select("SELECT * FROM timelines WHERE deleted = 0 ORDER BY sort_order DESC")
-    List<Timeline> selectAllTimelines();
 }

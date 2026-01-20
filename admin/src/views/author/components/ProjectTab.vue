@@ -93,7 +93,7 @@
                 v-if="row.githubUrl"
                 :href="row.githubUrl"
                 target="_blank"
-                class="text-blue-500 hover:underline flex items-center"
+                class="text-primary-600 hover:underline flex items-center"
               >
                 <el-icon class="mr-1"><Link /></el-icon> Github
               </a>
@@ -101,7 +101,7 @@
                 v-if="row.previewUrl"
                 :href="row.previewUrl"
                 target="_blank"
-                class="text-green-500 hover:underline flex items-center"
+                class="text-primary-600 hover:underline flex items-center"
               >
                 <el-icon class="mr-1"><View /></el-icon> 预览Demo
               </a>

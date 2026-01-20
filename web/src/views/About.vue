@@ -1,8 +1,8 @@
 <template>
-  <div class="py-12 bg-transparent about">
+  <div class="py-12 about">
     <div class="px-4 mx-auto max-w-4xl sm:px-6 lg:px-8">
       <!-- 个人信息卡片 -->
-      <div class="overflow-hidden mb-8 rounded-lg shadow-sm glass-card">
+      <div class="paper-card overflow-hidden mb-8">
         <div
           class="h-32 bg-gradient-to-r from-primary-600 to-primary-800"
         ></div>
@@ -14,11 +14,11 @@
               class="mb-4 w-32 h-32 rounded-full border-4 border-white shadow-lg"
             />
             <h1
-              class="mb-2 text-3xl font-bold text-gray-900 dark:text-gray-100"
+              class="mb-2 text-3xl font-semibold text-slate-900 dark:text-slate-100"
             >
               {{ userInfo.username }}
             </h1>
-            <p class="max-w-md text-center text-gray-600 dark:text-gray-300">
+            <p class="max-w-md text-center text-slate-600 dark:text-slate-300">
               {{ userInfo.bio }}
             </p>
           </div>
@@ -48,15 +48,15 @@
       </div>
 
       <!-- 技能栈 (优化版) -->
-      <div class="p-8 mb-8 rounded-lg shadow-sm glass-card">
-        <h2 class="mb-6 text-2xl font-bold text-gray-900 dark:text-gray-100">
+      <div class="paper-card p-8 mb-8">
+        <h2 class="mb-6 text-2xl font-semibold text-slate-900 dark:text-slate-100">
           技术栈
         </h2>
         <div class="flex flex-wrap gap-3">
           <div
             v-for="skill in skills"
             :key="skill.id"
-            class="flex items-center px-4 py-2 bg-gray-50 rounded-lg border border-gray-100 transition-all duration-300 skill-tag dark:bg-gray-800 dark:border-gray-700 hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-gray-700"
+            class="flex items-center px-4 py-2 bg-white/70 rounded-lg border border-slate-200/70 transition-all duration-300 skill-tag dark:bg-slate-900/60 dark:border-slate-800/60 hover:border-blue-300/80 hover:bg-primary-50/70 dark:hover:bg-slate-800/60"
           >
             <!-- 这里简单处理图标，如果是 font awesome 类名则用 i 标签，否则作为 emoji 显示 (如果后端存的是 emoji) -->
             <i
@@ -65,10 +65,10 @@
             ></i>
             <span v-else class="mr-2 text-xl">{{ skill.icon }}</span>
 
-            <span class="font-medium text-gray-700 dark:text-gray-200">{{
+            <span class="font-medium text-slate-700 dark:text-slate-200">{{
               skill.name
             }}</span>
-            <span class="ml-2 text-xs text-gray-500"
+            <span class="ml-2 text-xs text-slate-500"
               >{{ skill.percentage }}%</span
             >
           </div>
@@ -76,15 +76,15 @@
       </div>
 
       <!-- 项目展示 (新增) -->
-      <div class="p-8 mb-8 rounded-lg shadow-sm glass-card">
-        <h2 class="mb-6 text-2xl font-bold text-gray-900 dark:text-gray-100">
+      <div class="paper-card p-8 mb-8">
+        <h2 class="mb-6 text-2xl font-semibold text-slate-900 dark:text-slate-100">
           精选项目
         </h2>
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div
             v-for="project in projects"
             :key="project.id"
-            class="overflow-hidden rounded-xl border border-gray-200 transition-all duration-300 project-card group dark:border-gray-700 hover:shadow-lg"
+            class="paper-card paper-card-hover overflow-hidden group"
           >
             <div class="overflow-hidden relative h-48">
               <div
@@ -93,13 +93,13 @@
               <img
                 :src="project.coverImage || 'https://picsum.photos/600/300'"
                 :alt="project.title"
-                class="object-cover w-full h-full transition-transform duration-500 transform group-hover:scale-105"
+                class="object-cover w-full h-full transition-transform duration-500 transform group-hover:scale-105 motion-reduce:transform-none"
               />
             </div>
-            <div class="p-5 bg-white dark:bg-gray-800">
+            <div class="p-5 bg-white/70 dark:bg-slate-900/70">
               <div class="flex justify-between items-start mb-2">
                 <h3
-                  class="text-lg font-bold text-gray-900 transition-colors dark:text-gray-100 group-hover:text-primary-600"
+                  class="text-lg font-semibold text-slate-900 transition-colors dark:text-slate-100 group-hover:text-primary-600"
                 >
                   {{ project.title }}
                 </h3>
@@ -108,7 +108,7 @@
                     v-if="project.githubUrl"
                     :href="project.githubUrl"
                     target="_blank"
-                    class="text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                    class="text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   >
                     <el-icon><Link /></el-icon>
                   </a>
@@ -116,14 +116,14 @@
                     v-if="project.previewUrl"
                     :href="project.previewUrl"
                     target="_blank"
-                    class="text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                    class="text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   >
                     <el-icon><View /></el-icon>
                   </a>
                 </div>
               </div>
               <p
-                class="mb-4 text-sm text-gray-600 dark:text-gray-400 line-clamp-2"
+                class="mb-4 text-sm text-slate-600 dark:text-slate-400 line-clamp-2"
               >
                 {{ project.description }}
               </p>
@@ -133,7 +133,7 @@
                     ? project.techStack.split(',')
                     : []"
                   :key="tag"
-                  class="px-2 py-0.5 text-xs text-gray-600 bg-gray-100 rounded dark:bg-gray-700 dark:text-gray-300"
+                  class="px-2 py-0.5 text-xs text-slate-600 bg-slate-100/80 rounded dark:bg-slate-800/60 dark:text-slate-300"
                 >
                   {{ tag.trim() }}
                 </span>
@@ -144,8 +144,8 @@
       </div>
 
       <!-- 时间线 -->
-      <div class="p-8 rounded-lg shadow-sm glass-card">
-        <h2 class="mb-6 text-2xl font-bold text-gray-900 dark:text-gray-100">
+      <div class="paper-card p-8">
+        <h2 class="mb-6 text-2xl font-semibold text-slate-900 dark:text-slate-100">
           成长历程
         </h2>
         <el-timeline>
@@ -163,11 +163,11 @@
              -->
             <div class="group">
               <h4
-                class="mb-1 font-semibold text-gray-900 transition-colors dark:text-gray-100 group-hover:text-primary-600"
+                class="mb-1 font-semibold text-slate-900 transition-colors dark:text-slate-100 group-hover:text-primary-600"
               >
                 {{ item.title }}
               </h4>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
+              <p class="text-sm text-slate-600 dark:text-slate-400">
                 {{ item.description }}
               </p>
             </div>
@@ -238,18 +238,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-}
-
 .skill-tag {
   user-select: none;
-}
-
-.project-card {
-  background: var(--glass-bg);
 }
 </style>

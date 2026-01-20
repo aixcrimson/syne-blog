@@ -1,5 +1,7 @@
 <template>
-  <header class="fixed top-0 z-50 w-full shadow-sm header-glass">
+  <header
+    class="fixed top-0 z-50 w-full border-b border-slate-200/70 bg-white/75 backdrop-blur-md shadow-[0_10px_30px_-25px_rgba(15,23,42,0.45)] dark:bg-slate-900/70 dark:border-slate-800/70"
+  >
     <nav class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo - 左侧 -->
@@ -16,7 +18,7 @@
           </div>
           <router-link
             to="/"
-            class="text-xl font-bold text-gray-900 transition-colors dark:text-gray-100 hover:text-primary-600"
+            class="text-xl font-semibold text-slate-900 transition-colors dark:text-slate-50 hover:text-primary-600"
           >
             syne-blog
           </router-link>
@@ -28,7 +30,7 @@
             v-for="item in menuItems"
             :key="item.path"
             :to="item.path"
-            class="flex gap-2 items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md transition-colors dark:text-gray-300 hover:text-primary-600"
+            class="flex gap-2 items-center px-3 py-2 text-sm font-medium text-slate-600 rounded-md transition-colors dark:text-slate-300 hover:text-primary-600"
             exact-active-class="text-primary-600 bg-primary-50 dark:bg-primary-900/20"
           >
             <el-icon v-if="item.icon" :size="18">
@@ -46,10 +48,10 @@
               :href="siteStore.authorInfo?.github || '#'"
               target="_blank"
               rel="noopener noreferrer"
-              class="hidden justify-center items-center w-10 h-10 rounded-full transition-colors github-link md:flex hover:bg-gray-100"
+              class="hidden justify-center items-center w-10 h-10 rounded-full transition-colors github-link md:flex hover:bg-slate-100/70 dark:hover:bg-slate-800/60"
             >
               <svg
-                class="w-6 h-6 text-gray-700 hover:text-gray-900"
+                class="w-6 h-6 text-slate-600 hover:text-slate-900 dark:hover:text-white"
                 fill="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -65,10 +67,10 @@
           <!-- 搜索 -->
           <el-tooltip content="搜索" placement="bottom">
             <button
-              class="hidden justify-center items-center w-10 h-10 rounded-full transition-colors github-link md:flex hover:bg-gray-100"
+              class="hidden justify-center items-center w-10 h-10 rounded-full transition-colors github-link md:flex hover:bg-slate-100/70 dark:hover:bg-slate-800/60"
               @click="handleSearch"
             >
-              <el-icon class="text-xl text-gray-700 hover:text-gray-900">
+              <el-icon class="text-xl text-slate-600 hover:text-slate-900 dark:hover:text-white">
                 <Search />
               </el-icon>
             </button>
@@ -77,18 +79,31 @@
           <!-- 明暗模式切换 -->
           <el-tooltip content="切换明暗模式" placement="bottom">
             <button
-              class="hidden justify-center items-center w-10 h-10 rounded-full transition-colors theme-mode-btn md:flex hover:bg-gray-100 dark:hover:bg-gray-800"
+              class="hidden justify-center items-center w-10 h-10 rounded-full transition-colors theme-mode-btn md:flex hover:bg-slate-100/70 dark:hover:bg-slate-800/60"
               @click="appStore.toggleThemeMode"
             >
               <el-icon
                 class="text-xl"
                 :class="
-                  appStore.isDarkMode ? 'text-yellow-400' : 'text-gray-700'
+                  appStore.isDarkMode ? 'text-yellow-400' : 'text-slate-700'
                 "
               >
                 <Sunny v-if="!appStore.isDarkMode" />
                 <Moon v-else />
               </el-icon>
+            </button>
+          </el-tooltip>
+
+          <!-- 背景模式切换 -->
+          <el-tooltip content="切换背景模式" placement="bottom">
+            <button
+              class="hidden justify-center items-center h-10 px-3 rounded-full border border-slate-200/70 bg-white/70 text-[10px] font-semibold tracking-[0.2em] uppercase text-slate-600 transition-colors md:flex hover:border-slate-300 hover:text-slate-900 dark:border-slate-800/70 dark:bg-slate-900/60 dark:text-slate-300"
+              aria-label="切换背景模式"
+              @click="appStore.toggleBackgroundMode"
+            >
+              <span class="page-mono">{{
+                appStore.backgroundMode === "paper" ? "纸卡" : "图片"
+              }}</span>
             </button>
           </el-tooltip>
 
@@ -166,7 +181,7 @@
             @command="handleUserCommand"
           >
             <div
-              class="flex gap-2 items-center pr-2 rounded-full transition-colors cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+              class="flex gap-2 items-center pr-2 rounded-full transition-colors cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/60"
             >
               <el-avatar
                 :size="32"
@@ -176,7 +191,7 @@
                 "
               />
               <span
-                class="hidden text-sm font-medium text-gray-700 dark:text-gray-300 lg:block"
+                class="hidden text-sm font-medium text-slate-600 dark:text-slate-300 lg:block"
                 >{{ userStore.currentUser?.username || "用户" }}</span
               >
             </div>
@@ -209,7 +224,7 @@
           v-for="item in menuItems"
           :key="item.path"
           :to="item.path"
-          class="flex gap-2 items-center px-3 py-2 text-base font-medium text-gray-700 rounded-md hover:text-primary-600 hover:bg-primary-50"
+          class="flex gap-2 items-center px-3 py-2 text-base font-medium text-slate-700 rounded-md hover:text-primary-600 hover:bg-primary-50"
           exact-active-class="text-primary-600 bg-primary-50"
           @click="mobileMenuOpen = false"
         >
@@ -224,7 +239,7 @@
           :href="siteStore.authorInfo?.github || '#'"
           target="_blank"
           rel="noopener noreferrer"
-          class="flex gap-2 items-center px-3 py-2 text-base font-medium text-gray-700 rounded-md transition-colors dark:text-gray-300 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20"
+          class="flex gap-2 items-center px-3 py-2 text-base font-medium text-slate-700 rounded-md transition-colors dark:text-slate-300 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20"
           @click="mobileMenuOpen = false"
         >
           <el-icon :size="20">
@@ -241,25 +256,25 @@
 
         <!-- 移动端工具栏 -->
         <div
-          class="grid grid-cols-2 gap-4 px-3 pt-4 mt-4 border-t border-gray-100 dark:border-gray-800"
+          class="grid grid-cols-2 gap-4 px-3 pt-4 mt-4 border-t border-slate-200/70 dark:border-slate-800/70"
         >
           <button
             @click="appStore.toggleThemeMode"
-            class="flex gap-2 justify-center items-center p-3 bg-gray-50 rounded-xl transition-all dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95"
+            class="flex gap-2 justify-center items-center p-3 bg-white/70 rounded-xl transition-all dark:bg-slate-900/60 hover:bg-white dark:hover:bg-slate-800 active:scale-95"
           >
             <el-icon
               :size="18"
               :class="
                 appStore.isDarkMode
                   ? 'text-yellow-400'
-                  : 'text-gray-700 dark:text-gray-300'
+                  : 'text-slate-700 dark:text-slate-300'
               "
             >
               <Sunny v-if="!appStore.isDarkMode" />
               <Moon v-else />
             </el-icon>
             <span
-              class="text-sm font-medium text-gray-700 dark:text-gray-200"
+              class="text-sm font-medium text-slate-700 dark:text-slate-200"
               >{{ appStore.isDarkMode ? "浅色" : "深色" }}</span
             >
           </button>
@@ -269,13 +284,25 @@
               handleSearch();
               mobileMenuOpen = false;
             "
-            class="flex gap-2 justify-center items-center p-3 bg-gray-50 rounded-xl transition-all dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95"
+            class="flex gap-2 justify-center items-center p-3 bg-white/70 rounded-xl transition-all dark:bg-slate-900/60 hover:bg-white dark:hover:bg-slate-800 active:scale-95"
           >
-            <el-icon :size="18" class="text-gray-700 dark:text-gray-300"
+            <el-icon :size="18" class="text-slate-700 dark:text-slate-300"
               ><Search
             /></el-icon>
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-200"
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-200"
               >搜索</span
+            >
+          </button>
+
+          <button
+            @click="appStore.toggleBackgroundMode"
+            class="col-span-2 flex gap-2 justify-center items-center p-3 bg-white/70 rounded-xl transition-all dark:bg-slate-900/60 hover:bg-white dark:hover:bg-slate-800 active:scale-95"
+          >
+            <el-icon :size="18" class="text-slate-700 dark:text-slate-300"
+              ><Brush
+            /></el-icon>
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-200"
+              >背景：{{ appStore.backgroundMode === "paper" ? "纸卡" : "图片" }}</span
             >
           </button>
         </div>
@@ -324,7 +351,7 @@
           <div v-if="logoModalOpen" class="relative mx-4 max-w-sm" @click.stop>
             <!-- 关闭按钮 -->
             <button
-              class="absolute right-0 -top-10 p-2 text-white transition-colors hover:text-gray-300"
+              class="absolute right-0 -top-10 p-2 text-white transition-colors hover:text-slate-300"
               @click="logoModalOpen = false"
             >
               <svg
@@ -354,7 +381,7 @@
             <!-- 标题 -->
             <div class="mt-4 text-center">
               <h3 class="text-xl font-semibold text-white">syne-blog</h3>
-              <p class="mt-1 text-sm text-gray-300">现代化博客平台</p>
+              <p class="mt-1 text-sm text-slate-300">现代化博客平台</p>
             </div>
           </div>
         </Transition>
@@ -478,14 +505,6 @@ const handleThemeColorChange = (color: ThemeColor) => {
 </script>
 
 <style scoped>
-/* 毛玻璃效果 Header */
-.header-glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--glass-border);
-}
-
 .nav-link {
   position: relative;
 }

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="overflow-hidden rounded-lg shadow-sm transition-all duration-300 transform cursor-pointer article-card glass-card hover:shadow-lg hover:-translate-y-1"
+    class="paper-card paper-card-hover overflow-hidden cursor-pointer article-card"
     @click="handleClick"
   >
     <!-- 封面图 -->
@@ -8,7 +8,7 @@
       <img
         :src="article.coverImage"
         :alt="article.title"
-        class="object-cover w-full h-full transition-transform duration-300 hover:scale-110"
+        class="object-cover w-full h-full transition-transform duration-300 hover:scale-110 motion-reduce:transform-none"
       />
     </div>
 
@@ -16,13 +16,13 @@
     <div class="p-6">
       <!-- 标题 -->
       <h3
-        class="mb-2 text-xl font-bold text-gray-900 transition-colors dark:text-gray-100 line-clamp-2 hover:text-primary-600"
+        class="mb-2 text-xl font-semibold text-slate-900 transition-colors dark:text-slate-100 line-clamp-2 hover:text-primary-600"
       >
         {{ article.title }}
       </h3>
 
       <!-- 摘要 -->
-      <p class="mb-4 text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
+      <p class="mb-4 text-sm text-slate-600 dark:text-slate-400 line-clamp-3">
         {{ article.summary }}
       </p>
 
@@ -41,7 +41,7 @@
 
       <!-- 元信息 -->
       <div
-        class="flex justify-between items-center text-xs text-gray-500 dark:text-gray-500"
+        class="flex justify-between items-center text-xs text-slate-500 dark:text-slate-500"
       >
         <div class="flex items-center space-x-4">
           <span class="flex items-center">
@@ -84,12 +84,3 @@ const handleClick = () => {
   router.push(`/article/${props.article.id}`);
 };
 </script>
-
-<style scoped>
-.glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-}
-</style>

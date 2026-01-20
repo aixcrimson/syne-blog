@@ -1,9 +1,9 @@
 <template>
-  <div class="py-12 bg-transparent article-detail">
+  <div class="py-12 article-detail">
     <div class="px-4 mx-auto max-w-4xl sm:px-6 lg:px-8">
       <div
         v-if="article"
-        class="overflow-hidden rounded-lg shadow-sm glass-card"
+        class="paper-card overflow-hidden"
       >
         <!-- 文章头部 -->
         <div class="p-8 border-b article-header">
@@ -16,12 +16,12 @@
             </router-link>
           </div>
 
-          <h1 class="mb-4 text-4xl font-bold text-gray-900">
+          <h1 class="mb-4 text-4xl font-semibold text-slate-900 dark:text-slate-50">
             {{ article.title }}
           </h1>
 
           <div
-            class="flex flex-wrap items-center mb-4 space-x-4 text-sm text-gray-600"
+            class="flex flex-wrap items-center mb-4 space-x-4 text-sm text-slate-600 dark:text-slate-400"
           >
             <span class="flex items-center">
               <el-icon class="mr-1"><User /></el-icon>
@@ -44,7 +44,9 @@
             </el-tag>
           </div>
 
-          <p class="text-lg text-gray-600">{{ article.summary }}</p>
+          <p class="text-lg text-slate-600 dark:text-slate-300">
+            {{ article.summary }}
+          </p>
         </div>
 
         <!-- 封面图 -->
@@ -62,9 +64,11 @@
         </div>
 
         <!-- 文章底部 -->
-        <div class="p-8 bg-gray-50 border-t article-footer">
+        <div
+          class="p-8 border-t border-slate-200/70 bg-white/70 dark:border-slate-700/70 dark:bg-slate-900/60 article-footer"
+        >
           <div class="flex justify-between items-center">
-            <div class="text-sm text-gray-600">
+            <div class="text-sm text-slate-600 dark:text-slate-400">
               最后更新：{{ formatDate(article.updateTime || "") }}
             </div>
             <div class="flex space-x-2">
@@ -106,7 +110,9 @@
 
       <!-- 相关文章 -->
       <div v-if="relatedArticles.length > 0" class="mt-12">
-        <h2 class="mb-6 text-2xl font-bold text-gray-900">相关文章</h2>
+        <h2 class="mb-6 text-2xl font-semibold text-slate-900 dark:text-slate-100">
+          相关文章
+        </h2>
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <ArticleCard
             v-for="relatedArticle in relatedArticles"
@@ -258,13 +264,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-}
-
 .article-header {
   background: transparent;
 }

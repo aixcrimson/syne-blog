@@ -1,8 +1,8 @@
 <template>
   <div class="comment-section">
     <!-- 评论输入区域 -->
-    <div class="comment-input-section glass-card p-6 mb-6 rounded-lg">
-      <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+    <div class="comment-input-section paper-card p-6 mb-6">
+      <h3 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-4">
         <el-icon class="mr-2"><ChatDotRound /></el-icon>
         发表评论
       </h3>
@@ -33,7 +33,7 @@
     <!-- 评论列表 -->
     <div class="comment-list-section">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">
+        <h3 class="text-xl font-semibold text-slate-900 dark:text-slate-100">
           全部评论 ({{ total }})
         </h3>
       </div>
@@ -180,12 +180,3 @@ onMounted(() => {
   fetchComments();
 });
 </script>
-
-<style scoped>
-.glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-}
-</style>

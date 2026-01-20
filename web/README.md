@@ -106,99 +106,6 @@ npm run build
 npm run preview
 ```
 
-## 📝 使用说明
-
-### 添加文章
-
-在 `src/mock/articles.ts` 文件中添加新的文章对象：
-
-```typescript
-{
-  id: 7,
-  title: '文章标题',
-  summary: '文章摘要',
-  content: `# Markdown 内容`,
-  author: '作者',
-  category: '分类',
-  tags: ['标签1', '标签2'],
-  coverImage: '封面图片URL',
-  createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z',
-  views: 0
-}
-```
-
-### 修改个人信息
-
-在 `src/stores/app.ts` 中修改 `userInfo` 对象：
-
-```typescript
-const userInfo = ref<UserInfo>({
-  name: '你的名字',
-  avatar: '头像URL',
-  bio: '个人简介',
-  email: '邮箱',
-  github: 'GitHub链接',
-  twitter: 'Twitter链接'
-})
-```
-
-### 自定义主题颜色
-
-在 `tailwind.config.js` 中修改主题颜色：
-
-```javascript
-theme: {
-  extend: {
-    colors: {
-      primary: {
-        // 自定义颜色值
-      }
-    }
-  }
-}
-```
-
-## 🎨 主要组件说明
-
-### ArticleCard 组件
-
-文章卡片组件，用于展示文章摘要信息。
-
-**Props:**
-- `article`: Article - 文章对象
-
-### Header 组件
-
-顶部导航栏，包含 Logo、导航菜单、主题切换按钮。
-
-### Footer 组件
-
-页脚组件，显示博客信息、快速链接、联系方式。
-
-## 🔧 核心功能实现
-
-### Markdown 渲染
-
-使用 `markdown-it` 解析 Markdown 文本，并使用 `highlight.js` 进行代码高亮。
-
-```typescript
-import { renderMarkdown } from '@/utils/markdown'
-
-const html = renderMarkdown('# Hello World')
-```
-
-### 状态管理
-
-使用 Pinia 管理全局状态：
-
-- **appStore**: 应用级别状态（主题、用户信息等）
-- **articleStore**: 文章相关状态（文章列表、当前文章等）
-
-### 路由配置
-
-使用 Vue Router 进行页面路由管理，支持路由懒加载和页面标题自动更新。
-
 ## 📱 响应式设计
 
 项目采用移动优先的响应式设计策略，使用 Tailwind CSS 的响应式工具类：
@@ -208,17 +115,6 @@ const html = renderMarkdown('# Hello World')
 - `lg`: ≥1024px
 - `xl`: ≥1280px
 
-## 🎯 后续计划
-
-- [ ] 接入后端 API
-- [ ] 添加评论功能
-- [ ] 添加文章搜索高亮
-- [ ] 添加文章目录导航
-- [ ] 添加阅读进度条
-- [ ] 添加文章点赞功能
-- [ ] SEO 优化
-- [ ] 性能优化
-
 ## 📄 许可证
 
 MIT License
@@ -226,8 +122,3 @@ MIT License
 ## 👨‍💻 作者
 
 DutyZero
-
-## 🙏 致谢
-
-感谢所有开源项目的贡献者们！
-

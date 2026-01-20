@@ -205,12 +205,12 @@ const recentComments = ref<RecentComment[]>([])
  * 统计卡片配置
  */
 const statCards = [
-  { key: 'articleCount', label: '文章总数', icon: Document, color: 'text-blue-500' },
-  { key: 'categoryCount', label: '分类总数', icon: Folder, color: 'text-purple-500' },
-  { key: 'tagCount', label: '标签总数', icon: PriceTag, color: 'text-green-500' },
-  { key: 'commentCount', label: '评论总数', icon: ChatDotRound, color: 'text-orange-500' },
-  { key: 'totalViews', label: '总浏览量', icon: View, color: 'text-cyan-500' },
-  { key: 'totalLikes', label: '总点赞数', icon: Star, color: 'text-pink-500' }
+  { key: 'articleCount', label: '文章总数', icon: Document, color: 'text-primary-600' },
+  { key: 'categoryCount', label: '分类总数', icon: Folder, color: 'text-primary-600' },
+  { key: 'tagCount', label: '标签总数', icon: PriceTag, color: 'text-primary-600' },
+  { key: 'commentCount', label: '评论总数', icon: ChatDotRound, color: 'text-primary-600' },
+  { key: 'totalViews', label: '总浏览量', icon: View, color: 'text-primary-600' },
+  { key: 'totalLikes', label: '总点赞数', icon: Star, color: 'text-primary-600' }
 ]
 
 /**

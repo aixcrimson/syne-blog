@@ -1,5 +1,5 @@
 <template>
-  <div class="comment-item glass-card p-4 rounded-lg">
+  <div class="comment-item paper-card p-4">
     <!-- 评论主体 -->
     <div class="flex gap-3">
       <!-- 头像 -->
@@ -11,21 +11,21 @@
       <div class="flex-1 min-w-0">
         <!-- 用户信息和时间 -->
         <div class="flex items-center gap-2 mb-1">
-          <span class="font-medium text-gray-900 dark:text-gray-100">
+          <span class="font-medium text-slate-900 dark:text-slate-100">
             {{ comment.username }}
           </span>
-          <span v-if="comment.replyToUsername" class="text-gray-500 text-sm">
+          <span v-if="comment.replyToUsername" class="text-slate-500 text-sm">
             回复
             <span class="text-primary-600">@{{ comment.replyToUsername }}</span>
           </span>
-          <span class="text-gray-400 text-xs">
+          <span class="text-slate-400 text-xs">
             {{ formatTime(comment.createTime) }}
           </span>
         </div>
 
         <!-- 评论内容 -->
         <p
-          class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words"
+          class="text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-words"
         >
           {{ comment.content }}
         </p>
@@ -33,7 +33,7 @@
         <!-- 操作按钮 -->
         <div class="flex items-center gap-4 mt-2">
           <button
-            class="text-gray-500 hover:text-primary-600 text-sm flex items-center gap-1 transition-colors"
+            class="text-slate-500 hover:text-primary-600 text-sm flex items-center gap-1 transition-colors"
             @click="toggleReplyForm"
           >
             <el-icon><ChatLineSquare /></el-icon>
@@ -171,13 +171,6 @@ const submitReply = async () => {
 </script>
 
 <style scoped>
-.comment-item {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-}
-
 /* 子评论样式调整 */
 .comment-item :deep(.comment-item) {
   background: transparent;

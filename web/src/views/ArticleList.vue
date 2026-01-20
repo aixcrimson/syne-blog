@@ -1,5 +1,5 @@
 <template>
-  <div class="article-list py-12 bg-transparent">
+  <div class="article-list py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- 移动端筛选按钮 -->
@@ -34,19 +34,24 @@
         <div class="lg:col-span-3">
           <!-- 页面标题 -->
           <div class="mb-6">
-            <h1
-              class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-3"
-            >
-              <span class="w-1 h-8 bg-primary-600 rounded-full"></span>
-              文章列表
-            </h1>
-            <p class="text-gray-600 dark:text-gray-400">
+            <div class="flex items-center gap-4">
+              <span class="page-mono text-xs text-slate-500 dark:text-slate-400">
+                #02
+              </span>
+              <h1
+                class="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100"
+              >
+                文章列表
+              </h1>
+              <span class="flex-1 h-px bg-slate-200/70 dark:bg-slate-700/60" />
+            </div>
+            <p class="mt-2 text-slate-600 dark:text-slate-300">
               共 {{ totalArticles }} 篇文章
             </p>
           </div>
 
           <!-- 搜索和筛选 -->
-          <div class="glass-card rounded-lg shadow-sm p-6 mb-6">
+          <div class="paper-card p-6 mb-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <el-input
                 v-model="searchKeyword"
@@ -216,12 +221,3 @@ onMounted(() => {
   loadTags();
 });
 </script>
-
-<style scoped>
-.glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-}
-</style>

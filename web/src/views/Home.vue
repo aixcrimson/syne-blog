@@ -1,18 +1,23 @@
 <template>
-  <div class="bg-transparent home">
+  <div class="home">
     <!-- Hero Section -->
     <section
-      class="hero bg-transparent text-white h-[calc(100vh-64px)] relative"
+      class="hero relative min-h-[calc(100vh-64px)]"
     >
       <div
-        class="flex justify-center items-center px-4 py-20 mx-auto max-w-7xl h-full sm:px-6 lg:px-8"
+        class="flex items-center px-4 py-20 mx-auto max-w-7xl h-full sm:px-6 lg:px-8"
       >
-        <div class="text-center">
-          <h1 class="mb-4 text-3xl font-bold text-shadow md:text-5xl">
+        <div class="max-w-3xl text-left">
+          <p class="page-mono text-xs uppercase tracking-[0.35em] text-slate-500 dark:text-slate-400">
+            Index / 00
+          </p>
+          <h1 class="mt-3 text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-5xl">
             Syne's Blog
           </h1>
-          <p class="mb-8 text-lg text-shadow md:text-2xl">分享技术，记录成长</p>
-          <div class="flex justify-center space-x-4">
+          <p class="mt-4 text-lg text-slate-600 dark:text-slate-300 md:text-2xl">
+            分享技术，记录成长
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
             <el-button
               type="primary"
               size="large"
@@ -20,7 +25,7 @@
             >
               浏览文章
             </el-button>
-            <el-button size="large" @click="router.push('/about')">
+            <el-button size="large" plain @click="router.push('/about')">
               关于我
             </el-button>
           </div>
@@ -32,10 +37,10 @@
         class="flex absolute right-0 left-0 bottom-4 justify-center md:bottom-8"
       >
         <div
-          class="flex justify-center items-center w-12 h-12 rounded-full backdrop-blur-sm transition-all duration-300 animate-bounce cursor-pointer bg-black/20 dark:bg-white/10 hover:bg-primary-500/80"
+          class="flex justify-center items-center w-12 h-12 rounded-full border border-slate-200/70 bg-white/70 shadow-[0_10px_24px_-18px_rgba(15,23,42,0.4)] transition-all duration-300 animate-bounce cursor-pointer hover:border-blue-300/80 hover:shadow-[0_16px_45px_-22px_rgba(37,99,235,0.45)] dark:border-slate-800/70 dark:bg-slate-900/60 motion-reduce:animate-none"
           @click="scrollToContent"
         >
-          <el-icon class="text-2xl text-white">
+          <el-icon class="text-2xl text-slate-700 dark:text-slate-200">
             <ArrowDown />
           </el-icon>
         </div>
@@ -43,7 +48,7 @@
     </section>
 
     <!-- 内容 -->
-    <section id="main-content" class="py-16 bg-transparent">
+    <section id="main-content" class="pt-16 pb-8 bg-transparent">
       <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           <!-- 侧边栏 -->
@@ -51,13 +56,16 @@
 
           <!-- 最新文章 -->
           <div class="lg:col-span-3">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-4 mb-6">
+              <span class="page-mono text-xs text-slate-500 dark:text-slate-400">
+                #01
+              </span>
               <h2
-                class="flex gap-3 items-center text-3xl font-bold text-gray-900 dark:text-gray-100"
+                class="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100"
               >
-                <span class="w-1 h-8 rounded-full bg-primary-600"></span>
                 最新文章
               </h2>
+              <span class="flex-1 h-px bg-slate-200/70 dark:bg-slate-700/60" />
               <el-button
                 type="primary"
                 plain
@@ -95,9 +103,12 @@ const router = useRouter();
 
 const scrollToContent = () => {
   const mainContent = document.getElementById("main-content");
-  if (mainContent) {
-    mainContent.scrollIntoView({ behavior: "smooth" });
-  }
+  if (!mainContent) return;
+
+  const headerOffset = 72;
+  const top =
+    mainContent.getBoundingClientRect().top + window.scrollY - headerOffset;
+  window.scrollTo({ top, behavior: "smooth" });
 };
 
 // 最新文章
@@ -120,10 +131,3 @@ onMounted(() => {
   getLatestArticles();
 });
 </script>
-
-<style scoped>
-/* 文字阴影让文字在背景上更清晰 */
-.text-shadow {
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-</style>

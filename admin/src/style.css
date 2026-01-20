@@ -9,6 +9,17 @@
 
 /* ===== 亮色主题（默认） ===== */
 :root {
+  --font-sans: "Segoe UI Variable", "Segoe UI", -apple-system, "PingFang SC",
+  "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
+  "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Cascadia Mono", "Cascadia Code", "SF Mono", Menlo,
+  Consolas, "Liberation Mono", monospace;
+
+  /* 布局与表面 */
+  --color-surface: #ffffff;
+  --color-surface-muted: #f5f5f4;
+
+
   /* 主题色变量 */
   --color-primary-50: #eff6ff;
   --color-primary-100: #dbeafe;
@@ -22,27 +33,32 @@
   --color-primary-900: #1e3a8a;
 
   /* 背景色系 */
-  --color-bg-primary: #ffffff;
-  --color-bg-secondary: #f3f4f6;
-  --color-bg-tertiary: #e5e7eb;
+  --color-bg-primary: #fafaf9;
+  --color-bg-secondary: #f5f5f4;
+  --color-bg-tertiary: #e7e5e4;
 
   /* 文字色系 */
-  --color-text-primary: #111827;
-  --color-text-secondary: #6b7280;
-  --color-text-tertiary: #9ca3af;
+  --color-text-primary: #0c0a09;
+  --color-text-secondary: #57534e;
+  --color-text-tertiary: #a8a29e;
 
   /* 边框色系 */
-  --color-border-primary: #e5e7eb;
-  --color-border-secondary: #d1d5db;
+  --color-border-primary: #e7e5e4;
+  --color-border-secondary: #d6d3d1;
 
   /* 毛玻璃背景 */
-  --glass-bg: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-bg: rgba(255, 255, 255, 0.86);
+  --glass-border: rgba(231, 229, 228, 0.8);
 
   /* 阴影 */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 16px 40px rgba(15, 23, 42, 0.12);
+
+  /* 圆角 */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
 
   /* Element Plus 主题色变量 */
   --el-color-primary: var(--color-primary-600);
@@ -52,6 +68,23 @@
   --el-color-primary-light-8: var(--color-primary-100);
   --el-color-primary-light-9: var(--color-primary-50);
   --el-color-primary-dark-2: var(--color-primary-700);
+
+  /* Element Plus 基础样式统一 */
+  --el-font-family: var(--font-sans);
+  --el-text-color-primary: var(--color-text-primary);
+  --el-text-color-regular: var(--color-text-secondary);
+  --el-text-color-secondary: var(--color-text-tertiary);
+  --el-border-color: var(--color-border-primary);
+  --el-border-color-light: var(--color-border-secondary);
+  --el-bg-color: var(--color-surface);
+  --el-bg-color-page: var(--color-bg-primary);
+  --el-bg-color-overlay: var(--color-surface);
+  --el-fill-color: var(--color-bg-secondary);
+  --el-fill-color-light: var(--color-bg-tertiary);
+  --el-fill-color-blank: transparent;
+  --el-table-row-hover-bg-color: var(--color-bg-secondary);
+  --el-border-radius-base: var(--radius-sm);
+  --el-border-radius-small: 6px;
 }
 
 /* 紫色主题 */
@@ -113,27 +146,30 @@
 /* ===== 暗色主题 ===== */
 :root[data-theme-mode="dark"] {
   /* 背景色系 - 提高亮度，增强对比 */
-  --color-bg-primary: #1a1f2e;
-  --color-bg-secondary: #252b3b;
-  --color-bg-tertiary: #2f3646;
+  --color-bg-primary: #0f1115;
+  --color-bg-secondary: #161a22;
+  --color-bg-tertiary: #1f2430;
 
   /* 文字色系 - 提高亮度，确保清晰可读 */
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #e2e8f0;
-  --color-text-tertiary: #a0aec0;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-tertiary: #94a3b8;
 
   /* 边框色系 - 调整边框颜色，使其更明显 */
-  --color-border-primary: #4a5568;
-  --color-border-secondary: #5a6578;
+  --color-border-primary: #2d3642;
+  --color-border-secondary: #3a4554;
 
   /* 毛玻璃背景 */
-  --glass-bg: rgba(26, 31, 46, 0.85);
-  --glass-border: rgba(74, 85, 104, 0.4);
+  --glass-bg: rgba(15, 17, 21, 0.85);
+  --glass-border: rgba(58, 69, 84, 0.5);
 
   /* 阴影（暗色模式下使用更深的阴影） */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+
+  --color-surface: #151a22;
+  --color-surface-muted: #1b212b;
 
   /* Element Plus 暗色主题适配 */
   --el-bg-color: var(--color-bg-primary);
@@ -170,13 +206,80 @@
 ======================================== */
 @layer base {
   body {
-    background-color: var(--color-bg-secondary);
+    font-family: var(--font-sans);
+    background-color: var(--color-bg-primary);
     color: var(--color-text-primary);
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    text-rendering: optimizeLegibility;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   html {
     scroll-behavior: smooth;
+  }
+
+  a {
+    color: var(--color-primary-600);
+    text-underline-offset: 2px;
+    transition: color 0.2s ease;
+  }
+
+  a:hover {
+    color: var(--color-primary-700);
+  }
+
+  code,
+  pre {
+    font-family: var(--font-mono);
+  }
+
+  code {
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: 6px;
+    padding: 0.1em 0.35em;
+  }
+
+  pre {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    overflow: auto;
+  }
+
+  pre code {
+    background: transparent;
+    border: 0;
+    padding: 0;
+  }
+
+  blockquote {
+    border-left: 3px solid var(--color-primary-600);
+    background: var(--color-primary-50);
+    color: var(--color-text-secondary);
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: 6px;
+  }
+}
+
+@layer utilities {
+  .text-primary-600 {
+    color: var(--color-primary-600);
+  }
+
+  .text-primary-700 {
+    color: var(--color-primary-700);
+  }
+
+  .bg-primary-50 {
+    background-color: var(--color-primary-50);
+  }
+
+  .bg-primary-100 {
+    background-color: var(--color-primary-100);
   }
 }
 
@@ -185,15 +288,13 @@
 ======================================== */
 .glass-effect {
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  border: 1px solid var(--glass-border);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-primary);
   box-shadow: var(--shadow-sm);
 }
 
@@ -201,8 +302,8 @@
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-md);
+  border-bottom: 1px solid var(--color-border-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 /* ========================================
@@ -250,6 +351,23 @@
 
 .dark ::-webkit-scrollbar-thumb:hover {
   background-color: var(--color-text-tertiary);
+}
+
+/* ========================================
+   动效可访问性
+======================================== */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
 
 /* ========================================

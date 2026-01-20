@@ -1,37 +1,102 @@
-# Syne Blog - 后端服务
+# Syne Blog Server - 后端服务
 
 基于 Spring Boot 3.2 + MyBatis-Plus + PostgreSQL 的博客系统后端。
 
-## 技术栈
+## 📋 项目简介
+
+这是 Syne Blog 的后端服务，提供博客前台和管理后台的所有 API 接口。项目采用 RESTful 风格设计，支持 JWT 认证、权限控制、分页查询等功能。
+
+## 🛠️ 技术栈
 
 - **Spring Boot 3.2.0** - 核心框架
 - **MyBatis-Plus 3.5.5** - 持久层框架
 - **PostgreSQL** - 数据库
 - **Spring Security** - 安全框架
 - **JWT** - 认证方案
+- **Swagger/OpenAPI 3** - API 文档
 - **Lombok** - 代码简化
 - **Hutool** - 工具类库
 
-## 快速开始
+## ✨ 功能特性
 
-### 1. 环境要求
+### 🔐 认证授权
+
+- JWT Token 认证
+- 基于角色的权限控制
+- 接口级别权限验证
+
+### 📝 文章模块
+
+- 文章 CRUD 操作
+- 分页查询（支持多条件筛选）
+- 文章状态管理（发布/草稿/下架）
+- 文章置顶/推荐功能
+- 文章浏览量/点赞统计
+
+### 📁 分类与标签
+
+- 分类 CRUD
+- 标签 CRUD
+- 文章关联查询
+
+### 💬 评论模块
+
+- 评论列表（分页、多条件筛选）
+- 评论审核（通过/驳回）
+- 批量操作支持
+- 嵌套回复结构
+
+### 🔗 导航模块
+
+- 导航分类管理
+- 导航站点管理
+- 排序功能（分类排序、站点排序）
+- **Chrome 书签解析与导入**
+  - 支持解析 Chrome 导出的 HTML 书签文件
+  - 自动提取书签文件夹和站点信息
+  - 灵活的分类映射和批量导入
+
+### 👤 作者信息模块
+
+- 公告管理（CRUD、显示状态控制）
+- 技能管理（CRUD）
+- 项目管理（CRUD、精选标记）
+- 时间线管理（CRUD）
+
+### 👥 用户模块
+
+- 用户 CRUD
+- 角色权限管理
+- 账号状态控制
+- 密码修改
+
+### 📊 仪表盘
+
+- 数据统计（文章数、分类数、标签数、评论数等）
+- 最近文章列表
+- 最近评论列表
+
+## 🚀 快速开始
+
+### 环境要求
 
 - JDK 17+
 - Maven 3.6+
 - PostgreSQL 14+
 
-### 2. 数据库准备
+### 1. 数据库准备
 
 ```bash
 # 创建数据库
 psql -U postgres
 CREATE DATABASE syne_blog;
+\q
 
 # 导入表结构
 psql -U postgres -d syne_blog -f src/main/resources/sql/schema-postgres.sql
 ```
 
-### 3. 配置文件（重要 ⚠️）
+### 2. 配置文件（重要 ⚠️）
 
 **推荐方式：使用本地配置文件（密码不会提交到 Git）**
 
@@ -55,13 +120,13 @@ $env:DB_PASSWORD="your_password"
 # 添加: DB_PASSWORD=your_password
 ```
 
-### 4. 安装依赖
+### 3. 安装依赖
 
 ```bash
 mvn clean install
 ```
 
-### 5. 启动项目
+### 4. 启动项目
 
 ```bash
 mvn spring-boot:run
@@ -69,11 +134,13 @@ mvn spring-boot:run
 
 或使用 IDE 运行 `ServerApplication.java`
 
-### 6. 验证启动
+### 5. 验证启动
 
 访问: http://localhost:8080/api
 
-## 项目结构
+API 文档: http://localhost:8080/api/doc.html
+
+## 📁 项目结构
 
 ```
 server/
@@ -81,31 +148,95 @@ server/
 │   ├── main/
 │   │   ├── java/com/syne/server/
 │   │   │   ├── config/          # 配置类
+│   │   │   │   ├── SecurityConfig.java      # 安全配置
+│   │   │   │   ├── CorsConfig.java          # 跨域配置
+│   │   │   │   └── SwaggerConfig.java       # API 文档配置
 │   │   │   ├── controller/      # 控制器
+│   │   │   │   ├── admin/          # 管理端接口
+│   │   │   │   │   ├── ArticleController.java
+│   │   │   │   │   ├── AuthController.java
+│   │   │   │   │   ├── CategoryController.java
+│   │   │   │   │   ├── CommentController.java
+│   │   │   │   │   ├── DashboardController.java
+│   │   │   │   │   ├── NavigationController.java
+│   │   │   │   │   ├── SiteContentController.java
+│   │   │   │   │   ├── TagController.java
+│   │   │   │   │   └── UserController.java
+│   │   │   │   └── web/            # 前台接口
+│   │   │   │       ├── ArticleController.java
+│   │   │   │       ├── AuthController.java
+│   │   │   │       ├── CategoryController.java
+│   │   │   │       ├── CommentController.java
+│   │   │   │       ├── NavigationController.java
+│   │   │   │       ├── SiteContentController.java
+│   │   │   │       ├── StatsController.java
+│   │   │   │       ├── TagController.java
+│   │   │   │       └── UserController.java
 │   │   │   ├── service/         # 业务层
+│   │   │   │   └── impl/           # 业务实现
 │   │   │   ├── mapper/          # 数据访问层
-│   │   │   ├── entity/          # 实体类
-│   │   │   ├── dto/             # 数据传输对象
-│   │   │   ├── vo/              # 视图对象
-│   │   │   ├── utils/           # 工具类
+│   │   │   ├── model/           # 数据模型
+│   │   │   │   ├── entity/         # 实体类
+│   │   │   │   ├── dto/            # 数据传输对象
+│   │   │   │   └── vo/             # 视图对象
 │   │   │   ├── common/          # 通用类
+│   │   │   │   ├── Result.java        # 统一响应
+│   │   │   │   ├── PageQuery.java     # 分页查询
+│   │   │   │   └── PageResult.java    # 分页结果
+│   │   │   ├── utils/           # 工具类
+│   │   │   │   ├── JwtUtils.java      # JWT 工具
+│   │   │   │   └── SecurityUtils.java # 安全工具
+│   │   │   ├── exception/       # 异常处理
 │   │   │   └── ServerApplication.java
 │   │   └── resources/
 │   │       ├── mapper/          # MyBatis XML
-│   │       ├── application.yml  # 主配置
-│   │       └── application-dev.yml  # 开发配置
+│   │       ├── sql/             # SQL 脚本
+│   │       │   └── schema-postgres.sql
+│   │       ├── application.yml        # 主配置
+│   │       ├── application-dev.yml    # 开发配置
+│   │       └── application-prod.yml   # 生产配置
 │   └── test/
 ├── pom.xml
+├── Dockerfile
 └── README.md
 ```
 
-## 开发规范
+## 📡 API 接口概览
+
+### 管理端接口 (`/admin/*`)
+
+| 模块     | 路径                    | 说明                     |
+| -------- | ----------------------- | ------------------------ |
+| 认证     | `/admin/auth/*`         | 登录、获取用户信息       |
+| 仪表盘   | `/admin/dashboard/*`    | 统计数据、最近内容       |
+| 文章     | `/admin/articles/*`     | 文章 CRUD、状态管理      |
+| 分类     | `/admin/categories/*`   | 分类 CRUD                |
+| 标签     | `/admin/tags/*`         | 标签 CRUD                |
+| 评论     | `/admin/comments/*`     | 评论列表、审核           |
+| 导航     | `/admin/navigation/*`   | 分类和站点管理、书签导入 |
+| 作者信息 | `/admin/site-content/*` | 公告、技能、项目、时间线 |
+| 用户     | `/admin/users/*`        | 用户 CRUD、密码修改      |
+
+### 前台接口 (`/web/*`)
+
+| 模块     | 路径                  | 说明               |
+| -------- | --------------------- | ------------------ |
+| 认证     | `/web/auth/*`         | 登录、注册         |
+| 文章     | `/web/articles/*`     | 文章列表、详情     |
+| 分类     | `/web/categories/*`   | 分类列表           |
+| 标签     | `/web/tags/*`         | 标签列表           |
+| 评论     | `/web/comments/*`     | 评论列表、发表评论 |
+| 导航     | `/web/navigation/*`   | 导航数据           |
+| 作者信息 | `/web/site-content/*` | 公告、技能等信息   |
+| 统计     | `/web/stats/*`        | 网站统计数据       |
+
+## 🔧 开发规范
 
 ### 命名规范
 
 - **Entity**: 与数据库表对应，如 `User.java`
 - **Mapper**: 数据访问接口，如 `UserMapper.java`
-- **Service**: 业务接口，如 `IUserService.java`
+- **Service**: 业务接口，如 `UserService.java`
 - **ServiceImpl**: 业务实现，如 `UserServiceImpl.java`
 - **Controller**: 控制器，如 `UserController.java`
 - **DTO**: 数据传输对象，如 `UserLoginDTO.java`
@@ -116,61 +247,42 @@ server/
 - 使用 Lombok 简化代码
 - Controller 只处理请求响应
 - 业务逻辑放在 Service 层
-- 统一返回格式（待实现 Result 类）
-- 统一异常处理（待实现 GlobalExceptionHandler）
+- 统一返回格式 (Result 类)
+- 统一异常处理 (GlobalExceptionHandler)
 
-## API 接口
+### 注释规范
 
-### 用户相关
-- POST `/api/auth/register` - 用户注册
-- POST `/api/auth/login` - 用户登录
-- GET `/api/auth/info` - 获取用户信息
+- 使用 Javadoc 注释类和方法
+- 复杂逻辑添加行内注释
+- Controller 方法使用 Swagger 注解
 
-### 文章相关
-- GET `/api/articles` - 获取文章列表
-- GET `/api/articles/{id}` - 获取文章详情
-- POST `/api/articles` - 创建文章
-- PUT `/api/articles/{id}` - 更新文章
-- DELETE `/api/articles/{id}` - 删除文章
+## 🐳 Docker 部署
 
-*详细 API 文档待添加 Swagger*
+### 构建镜像
 
-## 依赖说明
-
-详见 `pom.xml`（按模块管理依赖），后续会补充更详细的依赖说明文档。
-
-## 常见问题
-
-### 1. 数据库连接失败
-- 检查 PostgreSQL 是否启动
-- 确认数据库名、用户名、密码是否正确
-- 检查端口是否为 5432
-
-### 2. Maven 依赖下载慢
-配置国内镜像源（阿里云）：
-```xml
-<mirror>
-  <id>aliyun</id>
-  <mirrorOf>central</mirrorOf>
-  <url>https://maven.aliyun.com/repository/public</url>
-</mirror>
+```bash
+docker build -t syne-blog-server .
 ```
 
-### 3. Lombok 不生效
-- IDEA: 安装 Lombok 插件并启用注解处理
-- Eclipse: 安装 Lombok 并重启
+### 运行容器
 
-## 下一步计划
+```bash
+docker run -d \
+  --name syne-blog-server \
+  -p 8080:8080 \
+  -e DB_HOST=your_db_host \
+  -e DB_PORT=5432 \
+  -e DB_NAME=syne_blog \
+  -e DB_USERNAME=postgres \
+  -e DB_PASSWORD=your_password \
+  -e JWT_SECRET=your_jwt_secret \
+  syne-blog-server
+```
 
-- [ ] 完善实体类和 Mapper
-- [ ] 实现用户认证和授权
-- [ ] 实现文章 CRUD
-- [ ] 添加统一响应格式
-- [ ] 添加全局异常处理
-- [ ] 集成 Swagger API 文档
-- [ ] 添加 Redis 缓存
-- [ ] 添加单元测试
+## 📄 许可证
 
-## License
+MIT License
 
-MIT
+## 👨‍💻 作者
+
+DutyZero / Syne
