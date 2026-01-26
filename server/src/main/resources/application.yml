@@ -19,6 +19,13 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      database: ${REDIS_DB:0}
+      password: ${REDIS_PASSWORD:}
+
   # Jackson 配置
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss

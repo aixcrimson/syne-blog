@@ -7,7 +7,8 @@ import 'highlight.js/styles/github-dark.css'
 const md = new MarkdownIt({
   html: true,
   linkify: true,
-  typographer: true
+  typographer: true,
+  breaks: true
 })
 
 md.set({
@@ -30,6 +31,50 @@ md.set({
  */
 export function renderMarkdown(content: string): string {
   return md.render(content)
+}
+
+export type TocItem = {
+  id: string
+  level: number
+  title: string
+}
+
+const normalizeSlug = (value: string) => {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\u4e00-\u9fa5-]+/g, '')
+}
+
+const buildSlug = (title: string, slugCounts: Map<string, number>) => {
+  const base = normalizeSlug(title) || 'section'
+  const count = (slugCounts.get(base) || 0) + 1
+  slugCounts.set(base, count)
+  return count > 1 ? `${base}-${count}` : base
+}
+
+export function renderMarkdownWithToc(content: string): { html: string; toc: TocItem[] } {
+  const env = {}
+  const tokens = md.parse(content, env)
+  const toc: TocItem[] = []
+  const slugCounts = new Map<string, number>()
+
+  for (let i = 0; i < tokens.length; i += 1) {
+    const token = tokens[i]
+    if (token.type !== 'heading_open') continue
+    const level = Number(token.tag.slice(1))
+    const titleToken = tokens[i + 1]
+    const title = titleToken?.content?.trim() || ''
+    const id = buildSlug(title || `section-${toc.length + 1}`, slugCounts)
+    token.attrSet('id', id)
+    if (title) {
+      toc.push({ id, level, title })
+    }
+  }
+
+  const html = md.renderer.render(tokens, md.options, env)
+  return { html, toc }
 }
 
 /**
@@ -57,4 +102,3 @@ export function getMarkdownSummary(content: string, maxLength: number = 200): st
   }
   return plainText.substring(0, maxLength) + '...'
 }
-
