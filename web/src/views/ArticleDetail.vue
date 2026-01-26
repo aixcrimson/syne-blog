@@ -1,132 +1,206 @@
 <template>
   <div class="py-12 article-detail">
-    <div class="px-4 mx-auto max-w-4xl sm:px-6 lg:px-8">
+    <!-- 阅读进度条 -->
+    <div
+      class="reading-progress"
+      role="progressbar"
+      aria-label="阅读进度"
+      :aria-valuenow="Math.round(readingProgress)"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
       <div
-        v-if="article"
-        class="paper-card overflow-hidden"
-      >
-        <!-- 文章头部 -->
-        <div class="p-8 border-b article-header">
-          <div class="mb-4">
-            <router-link
-              to="/articles"
-              class="text-sm text-primary-600 hover:text-primary-700"
-            >
-              ← 返回列表
-            </router-link>
+        class="reading-progress__bar"
+        :style="{ width: `${readingProgress}%` }"
+      ></div>
+    </div>
+
+    <div class="px-4 mx-auto max-w-6xl sm:px-6 lg:px-8">
+      <div class="relative flex gap-8">
+        <!-- 目录（桌面端） -->
+        <aside v-if="article && tocItems.length" class="hidden lg:block w-60 shrink-0">
+          <div class="toc-card paper-card">
+            <div class="toc-title">目录</div>
+            <nav class="toc-list">
+              <button
+                v-for="item in tocItems"
+                :key="item.id"
+                type="button"
+                class="toc-item"
+                :class="[
+                  tocIndentClass(item.level),
+                  activeHeadingId === item.id ? 'is-active' : ''
+                ]"
+                @click="scrollToHeading(item.id)"
+              >
+                {{ item.title }}
+              </button>
+            </nav>
           </div>
+        </aside>
 
-          <h1 class="mb-4 text-4xl font-semibold text-slate-900 dark:text-slate-50">
-            {{ article.title }}
-          </h1>
-
+        <div class="min-w-0 flex-1">
           <div
-            class="flex flex-wrap items-center mb-4 space-x-4 text-sm text-slate-600 dark:text-slate-400"
+            v-if="article"
+            class="paper-card overflow-hidden"
           >
-            <span class="flex items-center">
-              <el-icon class="mr-1"><User /></el-icon>
-              {{ defaultAuthor }}
-            </span>
-            <span class="flex items-center">
-              <el-icon class="mr-1"><Calendar /></el-icon>
-              {{ formatDate(article.publishedTime) }}
-            </span>
-            <span class="flex items-center">
-              <el-icon class="mr-1"><View /></el-icon>
-              {{ article.views }} 次阅读
-            </span>
-          </div>
+            <!-- 文章头部 -->
+            <div class="p-8 border-b article-header">
+              <div class="mb-4">
+                <router-link
+                  to="/articles"
+                  class="text-sm text-primary-600 hover:text-primary-700"
+                >
+                  ← 返回列表
+                </router-link>
+              </div>
 
-          <div class="flex flex-wrap gap-2 mb-4">
-            <el-tag type="primary">{{ article.categoryName }}</el-tag>
-            <el-tag v-for="tag in article.tags" :key="tag.id" type="info">
-              {{ tag.name }}
-            </el-tag>
-          </div>
+              <h1 class="mb-4 text-4xl font-semibold text-slate-900 dark:text-slate-50">
+                {{ article.title }}
+              </h1>
 
-          <p class="text-lg text-slate-600 dark:text-slate-300">
-            {{ article.summary }}
-          </p>
-        </div>
-
-        <!-- 封面图 -->
-        <div v-if="article.coverImage" class="overflow-hidden aspect-video">
-          <img
-            :src="article.coverImage"
-            :alt="article.title"
-            class="object-cover w-full h-full"
-          />
-        </div>
-
-        <!-- 文章内容 -->
-        <div class="p-8 article-content">
-          <div class="markdown-content" v-html="renderedContent"></div>
-        </div>
-
-        <!-- 文章底部 -->
-        <div
-          class="p-8 border-t border-slate-200/70 bg-white/70 dark:border-slate-700/70 dark:bg-slate-900/60 article-footer"
-        >
-          <div class="flex justify-between items-center">
-            <div class="text-sm text-slate-600 dark:text-slate-400">
-              最后更新：{{ formatDate(article.updateTime || "") }}
-            </div>
-            <div class="flex space-x-2">
-              <el-button
-                :type="article?.isLiked ? 'primary' : 'info'"
-                :plain="!article?.isLiked"
-                round
-                @click="handleLike"
-                title="点赞"
+              <div
+                class="flex flex-wrap items-center mb-4 space-x-4 text-sm text-slate-600 dark:text-slate-400"
               >
-                <el-icon class="mr-1"><Pointer /></el-icon>
-                {{ article?.likes || 0 }}
-              </el-button>
-              <el-button
-                :type="article?.isFavorited ? 'warning' : 'info'"
-                :plain="!article?.isFavorited"
-                round
-                @click="handleFavorite"
-                title="收藏"
-              >
-                <el-icon class="mr-1"><Star /></el-icon>
-                {{ article?.favorites || 0 }}
-              </el-button>
-              <el-button circle @click="handleShare" title="分享">
-                <el-icon><Share /></el-icon>
-              </el-button>
+                <span class="flex items-center">
+                  <el-icon class="mr-1"><User /></el-icon>
+                  {{ defaultAuthor }}
+                </span>
+                <span class="flex items-center">
+                  <el-icon class="mr-1"><Calendar /></el-icon>
+                  {{ formatDate(article.publishedTime) }}
+                </span>
+                <span class="flex items-center">
+                  <el-icon class="mr-1"><View /></el-icon>
+                  {{ article.views }} 次阅读
+                </span>
+              </div>
+
+              <div class="flex flex-wrap gap-2 mb-4">
+                <el-tag type="primary">{{ article.categoryName }}</el-tag>
+                <el-tag v-for="tag in article.tags" :key="tag.id" type="info">
+                  {{ tag.name }}
+                </el-tag>
+              </div>
+
+              <p class="text-lg text-slate-600 dark:text-slate-300">
+                {{ article.summary }}
+              </p>
+            </div>
+
+            <!-- 封面图 -->
+            <div v-if="article.coverImage" class="overflow-hidden aspect-video">
+              <img
+                :src="article.coverImage"
+                :alt="article.title"
+                class="object-cover w-full h-full"
+              />
+            </div>
+
+            <!-- 文章内容 -->
+            <div class="p-8 article-content">
+              <div ref="contentRef" class="markdown-content" v-html="renderedContent"></div>
+            </div>
+
+            <!-- 文章底部 -->
+            <div
+              class="p-8 border-t border-slate-200/70 bg-white/70 dark:border-slate-700/70 dark:bg-slate-900/60 article-footer"
+            >
+              <div class="flex justify-between items-center">
+                <div class="text-sm text-slate-600 dark:text-slate-400">
+                  最后更新：{{ formatDate(article.updateTime || "") }}
+                </div>
+                <div class="flex space-x-2">
+                  <el-button
+                    :type="article?.isLiked ? 'primary' : 'info'"
+                    :plain="!article?.isLiked"
+                    round
+                    @click="handleLike"
+                    title="点赞"
+                  >
+                    <el-icon class="mr-1"><Pointer /></el-icon>
+                    {{ article?.likes || 0 }}
+                  </el-button>
+                  <el-button
+                    :type="article?.isFavorited ? 'warning' : 'info'"
+                    :plain="!article?.isFavorited"
+                    round
+                    @click="handleFavorite"
+                    title="收藏"
+                  >
+                    <el-icon class="mr-1"><Star /></el-icon>
+                    {{ article?.favorites || 0 }}
+                  </el-button>
+                  <el-button circle @click="handleShare" title="分享">
+                    <el-icon><Share /></el-icon>
+                  </el-button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- 文章未找到 -->
-      <el-empty v-else description="文章未找到" />
+          <!-- 文章未找到 -->
+          <el-empty v-else description="文章未找到" />
 
-      <!-- 评论区 -->
-      <div v-if="article" class="mt-12">
-        <CommentSection :article-id="articleId" />
-      </div>
+          <!-- 评论区 -->
+          <div v-if="article" class="mt-12">
+            <CommentSection :article-id="articleId" />
+          </div>
 
-      <!-- 相关文章 -->
-      <div v-if="relatedArticles.length > 0" class="mt-12">
-        <h2 class="mb-6 text-2xl font-semibold text-slate-900 dark:text-slate-100">
-          相关文章
-        </h2>
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <ArticleCard
-            v-for="relatedArticle in relatedArticles"
-            :key="relatedArticle.id"
-            :article="relatedArticle"
-          />
+          <!-- 相关文章 -->
+          <div v-if="relatedArticles.length > 0" class="mt-12">
+            <h2 class="mb-6 text-2xl font-semibold text-slate-900 dark:text-slate-100">
+              相关文章
+            </h2>
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <ArticleCard
+                v-for="relatedArticle in relatedArticles"
+                :key="relatedArticle.id"
+                :article="relatedArticle"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- 移动端目录按钮 -->
+    <div v-if="article && tocItems.length" class="fixed left-4 bottom-6 z-99999 lg:hidden">
+      <el-button type="primary" round @click="tocDrawerOpen = true">
+        <el-icon class="mr-1"><Menu /></el-icon>
+        目录
+      </el-button>
+    </div>
+
+    <!-- 目录抽屉（移动端） -->
+    <el-drawer
+      v-model="tocDrawerOpen"
+      title="目录"
+      direction="ltr"
+      size="70%"
+      class="toc-drawer lg:hidden"
+    >
+      <nav v-if="tocItems.length" class="toc-list">
+        <button
+          v-for="item in tocItems"
+          :key="item.id"
+          type="button"
+          class="toc-item"
+          :class="[
+            tocIndentClass(item.level),
+            activeHeadingId === item.id ? 'is-active' : ''
+          ]"
+          @click="handleTocSelect(item.id)"
+        >
+          {{ item.title }}
+        </button>
+      </nav>
+    </el-drawer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
 import { useRoute } from "vue-router";
 import {
   User,
@@ -135,11 +209,12 @@ import {
   Star,
   Share,
   Pointer,
+  Menu,
 } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import ArticleCard from "@/components/ArticleCard.vue";
 import CommentSection from "@/components/CommentSection.vue";
-import { renderMarkdown } from "@/utils/markdown";
+import { renderMarkdownWithToc } from "@/utils/markdown";
 import { formatDate } from "@/utils/format";
 import { articleApi } from "@/api/article";
 import type { Article } from "@/types";
@@ -152,14 +227,25 @@ const articleId = computed(() => Number(route.params.id));
 const article = ref<Article | null>(null);
 const relatedArticles = ref<Article[]>([]);
 const loading = ref(false);
+const contentRef = ref<HTMLElement | null>(null);
+const tocDrawerOpen = ref(false);
+const readingProgress = ref(0);
+const activeHeadingId = ref("");
+const headingPositions = ref<{ id: string; top: number }[]>([]);
 
 // 默认作者
 const defaultAuthor = "站长";
 
-const renderedContent = computed(() => {
-  if (!article.value) return "";
-  return renderMarkdown(article.value.content);
+const markdownResult = computed(() => {
+  if (!article.value) return { html: "", toc: [] };
+  return renderMarkdownWithToc(article.value.content);
 });
+
+const renderedContent = computed(() => markdownResult.value.html);
+
+const tocItems = computed(() =>
+  markdownResult.value.toc.filter((item) => item.level >= 2 && item.level <= 4)
+);
 
 // 获取文章详情
 const fetchArticle = async () => {
@@ -241,6 +327,80 @@ const handleShare = () => {
   }
 };
 
+const updateHeadingPositions = async () => {
+  await nextTick();
+  if (!contentRef.value) {
+    headingPositions.value = [];
+    return;
+  }
+  const headings = Array.from(
+    contentRef.value.querySelectorAll("h2, h3, h4")
+  ) as HTMLElement[];
+  headingPositions.value = headings.map((heading) => ({
+    id: heading.id,
+    top: heading.getBoundingClientRect().top + window.scrollY,
+  }));
+};
+
+const updateActiveHeading = () => {
+  if (!headingPositions.value.length) {
+    activeHeadingId.value = "";
+    return;
+  }
+  const offset = 96;
+  const currentTop = window.scrollY + offset;
+  let currentId = headingPositions.value[0].id;
+  for (const heading of headingPositions.value) {
+    if (heading.top <= currentTop) {
+      currentId = heading.id;
+    } else {
+      break;
+    }
+  }
+  activeHeadingId.value = currentId;
+};
+
+const updateReadingProgress = () => {
+  if (!contentRef.value) return;
+  const top = contentRef.value.getBoundingClientRect().top + window.scrollY;
+  const height = contentRef.value.scrollHeight;
+  const viewport = window.innerHeight;
+  const maxScroll = height - viewport;
+  if (maxScroll <= 0) {
+    readingProgress.value = window.scrollY >= top ? 100 : 0;
+    return;
+  }
+  const progress = ((window.scrollY - top) / maxScroll) * 100;
+  readingProgress.value = Math.min(100, Math.max(0, progress));
+};
+
+const handleScroll = () => {
+  updateReadingProgress();
+  updateActiveHeading();
+};
+
+const handleResize = () => {
+  updateHeadingPositions();
+  handleScroll();
+};
+
+const scrollToHeading = (id: string) => {
+  const target = document.getElementById(id);
+  if (!target) return;
+  target.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
+const handleTocSelect = (id: string) => {
+  scrollToHeading(id);
+  tocDrawerOpen.value = false;
+};
+
+const tocIndentClass = (level: number) => {
+  if (level >= 4) return "toc-indent-2";
+  if (level === 3) return "toc-indent-1";
+  return "";
+};
+
 // 增加浏览量
 const handleIncreaseViews = async () => {
   try {
@@ -260,6 +420,8 @@ onMounted(() => {
   });
   fetchRecommendedArticles();
   window.scrollTo({ top: 0, behavior: "smooth" });
+  window.addEventListener("scroll", handleScroll, { passive: true });
+  window.addEventListener("resize", handleResize);
 });
 
 // 监听路由参数变化，重新加载数据
@@ -271,10 +433,86 @@ watch(articleId, () => {
   fetchRecommendedArticles();
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
+
+watch(renderedContent, async () => {
+  await updateHeadingPositions();
+  handleScroll();
+});
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", handleScroll);
+  window.removeEventListener("resize", handleResize);
+});
 </script>
 
 <style scoped>
 .article-header {
   background: transparent;
+}
+
+.reading-progress {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 40;
+  pointer-events: none;
+  background: transparent;
+}
+
+.reading-progress__bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary-500), var(--color-primary-700));
+  transition: width 120ms linear;
+}
+
+.toc-card {
+  position: sticky;
+  top: 96px;
+  padding: 16px 14px;
+  max-height: calc(100vh - 140px);
+  overflow: auto;
+}
+
+.toc-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 12px;
+}
+
+.toc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.toc-item {
+  text-align: left;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.toc-item:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-tertiary);
+}
+
+.toc-item.is-active {
+  color: var(--color-primary-600);
+  background: var(--color-primary-50);
+}
+
+.toc-indent-1 {
+  padding-left: 20px;
+}
+
+.toc-indent-2 {
+  padding-left: 32px;
 }
 </style>

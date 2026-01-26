@@ -1,5 +1,5 @@
 <template>
-  <div class="main-layout min-h-screen flex flex-col relative overflow-hidden page-shell">
+  <div class="main-layout min-h-screen flex flex-col relative overflow-x-hidden page-shell">
     <div class="pointer-events-none absolute inset-0 paper-bg">
       <div
         class="absolute -top-24 -right-16 w-64 h-64 rounded-full blur-3xl bg-amber-200/40 dark:bg-amber-400/10"
@@ -19,7 +19,7 @@
     </main>
 
     <!-- 页脚 -->
-    <div class="relative z-10">
+    <div class="relative">
       <Footer />
     </div>
   </div>
