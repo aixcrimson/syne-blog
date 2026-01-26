@@ -18,12 +18,14 @@ import com.syne.server.utils.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +37,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> implements ArticleService {
 
+    private static final Duration VIEW_WINDOW = Duration.ofMinutes(5);
+
     private final ArticleMapper articleMapper;
     private final ArticleLikeMapper articleLikeMapper;
     private final ArticleFavoriteMapper articleFavoriteMapper;
@@ -42,6 +46,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private final TagMapper tagMapper;
     private final CategoryMapper categoryMapper;
     private final TagService tagService;
+    private final StringRedisTemplate stringRedisTemplate;
 
     @Override
     public PageResult<ArticleListVO> getAdminArticleList(PageQuery pageQuery, Integer status, Long categoryId, String keyword) {
@@ -610,9 +615,21 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             throw new BusinessException("文章不存在");
         }
 
-        // TODO 改为Redis时间窗口防刷
-        article.setViews(article.getViews() + 1);
-        this.updateById(article);
+        // 获取当前用户ID（如果已登录）
+        Long userId = SecurityUtils.getCurrentUserId();
+
+        // 获取客户端IP地址
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String ipAddress = IpUtils.getClientIp(request);
+
+        String viewerKey = userId != null ? "u:" + userId : "ip:" + ipAddress;
+        String cacheKey = "article:view:limit:" + id + ":" + viewerKey;
+        Boolean firstView = stringRedisTemplate.opsForValue().setIfAbsent(cacheKey, "1", VIEW_WINDOW);
+
+        if(Boolean.TRUE.equals(firstView)) {
+            article.setViews(article.getViews() + 1);
+            this.updateById(article);
+        }
 
         Map<String, Object> data = new java.util.HashMap<>();
         data.put("views", article.getViews());
