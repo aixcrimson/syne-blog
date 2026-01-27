@@ -138,12 +138,12 @@
               <div class="flex items-start gap-3">
                 <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <span class="text-sm font-medium text-primary-600">
-                    {{ comment.username.charAt(0).toUpperCase() }}
+                    {{ (comment.username || '游客').charAt(0).toUpperCase() }}
                   </span>
                 </div>
                 <div class="flex-1 min-w-0">
                   <div class="text-sm text-gray-500 mb-1">
-                    <span class="font-medium text-gray-700">{{ comment.username }}</span>
+                    <span class="font-medium text-gray-700">{{ comment.username || '游客' }}</span>
                     <span class="mx-1">评论了</span>
                     <span class="text-primary-600">{{ comment.articleTitle }}</span>
                   </div>
@@ -277,3 +277,4 @@ onMounted(() => {
   overflow: hidden;
 }
 </style>
+

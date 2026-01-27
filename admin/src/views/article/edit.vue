@@ -7,6 +7,13 @@
         <h1 class="text-2xl font-bold text-gray-800">{{ pageTitle }}</h1>
       </div>
       <div class="flex items-center gap-3">
+        <!-- AI 写作助手 -->
+        <AiWritingPanel
+          v-if="!loading"
+          :content="formData.content"
+          :selected-text="selectedText"
+          @apply="handleAiApply"
+        />
         <el-button @click="handleSaveDraft" :loading="saving">
           保存草稿
         </el-button>
@@ -58,6 +65,7 @@
               :toolbars-exclude="['github']"
               style="height: 600px"
               class="md-editor-custom"
+              @onSelect="handleSelect"
             />
           </el-form-item>
         </el-form>
@@ -178,6 +186,7 @@ import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'elem
 import { ArrowLeft } from '@element-plus/icons-vue'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
+import AiWritingPanel from '@/components/AiWritingPanel.vue'
 import { articleApi } from '@/api/article'
 import { categoryApi } from '@/api/category'
 import { tagApi } from '@/api/tag'
@@ -196,6 +205,30 @@ const articleId = computed(() => Number(route.params.id) || 0)
 
 /** 页面标题 */
 const pageTitle = computed(() => isEdit.value ? '编辑文章' : '新建文章')
+
+/** 选中的文本 */
+const selectedText = ref('')
+
+/**
+ * 处理文本选中
+ */
+const handleSelect = (selection: any) => {
+  // md-editor-v3 的 onSelect 事件返回选中的文本对象
+  selectedText.value = typeof selection === 'string' ? selection : selection?.text || ''
+}
+
+/**
+ * 处理 AI 内容应用
+ */
+const handleAiApply = (content: string) => {
+  if (selectedText.value) {
+    // 如果有选中文本，替换它
+    formData.content = formData.content.replace(selectedText.value, content)
+  } else {
+    // 否则追加到末尾
+    formData.content += '\n\n' + content
+  }
+}
 
 // ==================== 状态 ====================
 
