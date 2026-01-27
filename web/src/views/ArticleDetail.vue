@@ -15,154 +15,150 @@
       ></div>
     </div>
 
-    <div class="px-4 mx-auto max-w-6xl sm:px-6 lg:px-8">
-      <div class="relative flex gap-8">
-        <!-- 目录（桌面端） -->
-        <aside v-if="article && tocItems.length" class="hidden lg:block w-60 shrink-0">
-          <div class="toc-card paper-card">
-            <div class="toc-title">目录</div>
-            <nav class="toc-list">
-              <button
-                v-for="item in tocItems"
-                :key="item.id"
-                type="button"
-                class="toc-item"
-                :class="[
-                  tocIndentClass(item.level),
-                  activeHeadingId === item.id ? 'is-active' : ''
-                ]"
-                @click="scrollToHeading(item.id)"
-              >
-                {{ item.title }}
-              </button>
-            </nav>
-          </div>
-        </aside>
-
-        <div class="min-w-0 flex-1">
-          <div
-            v-if="article"
-            class="paper-card overflow-hidden"
-          >
-            <!-- 文章头部 -->
-            <div class="p-8 border-b article-header">
-              <div class="mb-4">
-                <router-link
-                  to="/articles"
-                  class="text-sm text-primary-600 hover:text-primary-700"
-                >
-                  ← 返回列表
-                </router-link>
-              </div>
-
-              <h1 class="mb-4 text-4xl font-semibold text-slate-900 dark:text-slate-50">
-                {{ article.title }}
-              </h1>
-
-              <div
-                class="flex flex-wrap items-center mb-4 space-x-4 text-sm text-slate-600 dark:text-slate-400"
-              >
-                <span class="flex items-center">
-                  <el-icon class="mr-1"><User /></el-icon>
-                  {{ defaultAuthor }}
-                </span>
-                <span class="flex items-center">
-                  <el-icon class="mr-1"><Calendar /></el-icon>
-                  {{ formatDate(article.publishedTime) }}
-                </span>
-                <span class="flex items-center">
-                  <el-icon class="mr-1"><View /></el-icon>
-                  {{ article.views }} 次阅读
-                </span>
-              </div>
-
-              <div class="flex flex-wrap gap-2 mb-4">
-                <el-tag type="primary">{{ article.categoryName }}</el-tag>
-                <el-tag v-for="tag in article.tags" :key="tag.id" type="info">
-                  {{ tag.name }}
-                </el-tag>
-              </div>
-
-              <p class="text-lg text-slate-600 dark:text-slate-300">
-                {{ article.summary }}
-              </p>
-            </div>
-
-            <!-- 封面图 -->
-            <div v-if="article.coverImage" class="overflow-hidden aspect-video">
-              <img
-                :src="article.coverImage"
-                :alt="article.title"
-                class="object-cover w-full h-full"
-              />
-            </div>
-
-            <!-- 文章内容 -->
-            <div class="p-8 article-content">
-              <div ref="contentRef" class="markdown-content" v-html="renderedContent"></div>
-            </div>
-
-            <!-- 文章底部 -->
-            <div
-              class="p-8 border-t border-slate-200/70 bg-white/70 dark:border-slate-700/70 dark:bg-slate-900/60 article-footer"
+    <div class="px-4 mx-auto max-w-4xl sm:px-6 lg:px-8">
+      <div
+        v-if="article"
+        class="paper-card overflow-hidden"
+      >
+        <!-- 文章头部 -->
+        <div class="p-8 border-b article-header">
+          <div class="mb-4">
+            <router-link
+              to="/articles"
+              class="text-sm text-primary-600 hover:text-primary-700"
             >
-              <div class="flex justify-between items-center">
-                <div class="text-sm text-slate-600 dark:text-slate-400">
-                  最后更新：{{ formatDate(article.updateTime || "") }}
-                </div>
-                <div class="flex space-x-2">
-                  <el-button
-                    :type="article?.isLiked ? 'primary' : 'info'"
-                    :plain="!article?.isLiked"
-                    round
-                    @click="handleLike"
-                    title="点赞"
-                  >
-                    <el-icon class="mr-1"><Pointer /></el-icon>
-                    {{ article?.likes || 0 }}
-                  </el-button>
-                  <el-button
-                    :type="article?.isFavorited ? 'warning' : 'info'"
-                    :plain="!article?.isFavorited"
-                    round
-                    @click="handleFavorite"
-                    title="收藏"
-                  >
-                    <el-icon class="mr-1"><Star /></el-icon>
-                    {{ article?.favorites || 0 }}
-                  </el-button>
-                  <el-button circle @click="handleShare" title="分享">
-                    <el-icon><Share /></el-icon>
-                  </el-button>
-                </div>
-              </div>
+              ← 返回列表
+            </router-link>
+          </div>
+
+          <h1 class="mb-4 text-4xl font-semibold text-slate-900 dark:text-slate-50">
+            {{ article.title }}
+          </h1>
+
+          <div
+            class="flex flex-wrap items-center mb-4 space-x-4 text-sm text-slate-600 dark:text-slate-400"
+          >
+            <span class="flex items-center">
+              <el-icon class="mr-1"><User /></el-icon>
+              {{ defaultAuthor }}
+            </span>
+            <span class="flex items-center">
+              <el-icon class="mr-1"><Calendar /></el-icon>
+              {{ formatDate(article.publishedTime) }}
+            </span>
+            <span class="flex items-center">
+              <el-icon class="mr-1"><View /></el-icon>
+              {{ article.views }} 次阅读
+            </span>
+          </div>
+
+          <div class="flex flex-wrap gap-2 mb-4">
+            <el-tag type="primary">{{ article.categoryName }}</el-tag>
+            <el-tag v-for="tag in article.tags" :key="tag.id" type="info">
+              {{ tag.name }}
+            </el-tag>
+          </div>
+
+          <p class="text-lg text-slate-600 dark:text-slate-300">
+            {{ article.summary }}
+          </p>
+        </div>
+
+        <!-- 封面图 -->
+        <div v-if="article.coverImage" class="overflow-hidden aspect-video">
+          <img
+            :src="article.coverImage"
+            :alt="article.title"
+            class="object-cover w-full h-full"
+          />
+        </div>
+
+        <!-- 文章内容 -->
+        <div class="p-8 article-content">
+          <div ref="contentRef" class="markdown-content" v-html="renderedContent"></div>
+        </div>
+
+        <!-- 文章底部 -->
+        <div
+          class="p-8 border-t border-slate-200/70 bg-white/70 dark:border-slate-700/70 dark:bg-slate-900/60 article-footer"
+        >
+          <div class="flex justify-between items-center">
+            <div class="text-sm text-slate-600 dark:text-slate-400">
+              最后更新：{{ formatDate(article.updateTime || "") }}
             </div>
-          </div>
-
-          <!-- 文章未找到 -->
-          <el-empty v-else description="文章未找到" />
-
-          <!-- 评论区 -->
-          <div v-if="article" class="mt-12">
-            <CommentSection :article-id="articleId" />
-          </div>
-
-          <!-- 相关文章 -->
-          <div v-if="relatedArticles.length > 0" class="mt-12">
-            <h2 class="mb-6 text-2xl font-semibold text-slate-900 dark:text-slate-100">
-              相关文章
-            </h2>
-            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <ArticleCard
-                v-for="relatedArticle in relatedArticles"
-                :key="relatedArticle.id"
-                :article="relatedArticle"
-              />
+            <div class="flex space-x-2">
+              <el-button
+                :type="article?.isLiked ? 'primary' : 'info'"
+                :plain="!article?.isLiked"
+                round
+                @click="handleLike"
+                title="点赞"
+              >
+                <el-icon class="mr-1"><Pointer /></el-icon>
+                {{ article?.likes || 0 }}
+              </el-button>
+              <el-button
+                :type="article?.isFavorited ? 'warning' : 'info'"
+                :plain="!article?.isFavorited"
+                round
+                @click="handleFavorite"
+                title="收藏"
+              >
+                <el-icon class="mr-1"><Star /></el-icon>
+                {{ article?.favorites || 0 }}
+              </el-button>
+              <el-button circle @click="handleShare" title="分享">
+                <el-icon><Share /></el-icon>
+              </el-button>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- 文章未找到 -->
+      <el-empty v-else description="文章未找到" />
+
+      <!-- 评论区 -->
+      <div v-if="article" class="mt-12">
+        <CommentSection :article-id="articleId" />
+      </div>
+
+      <!-- 相关文章 -->
+      <div v-if="relatedArticles.length > 0" class="mt-12">
+        <h2 class="mb-6 text-2xl font-semibold text-slate-900 dark:text-slate-100">
+          相关文章
+        </h2>
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <ArticleCard
+            v-for="relatedArticle in relatedArticles"
+            :key="relatedArticle.id"
+            :article="relatedArticle"
+          />
+        </div>
+      </div>
     </div>
+
+    <!-- 目录（桌面端，固定左侧） -->
+    <aside v-if="article && tocItems.length" class="toc-aside hidden lg:block">
+      <div class="toc-card paper-card">
+        <div class="toc-title">目录</div>
+        <nav class="toc-list">
+          <button
+            v-for="item in tocItems"
+            :key="item.id"
+            type="button"
+            class="toc-item"
+            :class="[
+              tocIndentClass(item.level),
+              activeHeadingId === item.id ? 'is-active' : ''
+            ]"
+            @click="scrollToHeading(item.id)"
+          >
+            {{ item.title }}
+          </button>
+        </nav>
+      </div>
+    </aside>
 
     <!-- 移动端目录按钮 -->
     <div v-if="article && tocItems.length" class="fixed left-4 bottom-6 z-99999 lg:hidden">
@@ -467,12 +463,18 @@ onUnmounted(() => {
   transition: width 120ms linear;
 }
 
-.toc-card {
-  position: sticky;
+.toc-aside {
+  position: fixed;
   top: 96px;
-  padding: 16px 14px;
+  left: max(1rem, calc((100vw - 56rem) / 2 - 16rem));
+  width: 15rem;
   max-height: calc(100vh - 140px);
-  overflow: auto;
+  z-index: 20;
+}
+
+.toc-card {
+  padding: 16px 14px;
+  overflow: hidden;
 }
 
 .toc-title {
@@ -486,6 +488,9 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  max-height: calc(100vh - 190px);
+  overflow: auto;
+  padding-right: 4px;
 }
 
 .toc-item {

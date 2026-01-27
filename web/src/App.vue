@@ -5,6 +5,8 @@
         <component :is="Component" />
       </transition>
     </router-view>
+    <!-- 全局 AI 聊天助手 -->
+    <ChatBot />
   </div>
 </template>
 
@@ -13,6 +15,7 @@ import { onMounted } from "vue";
 import { useAppStore } from "@/stores/app";
 import { useSiteStore } from "@/stores/site";
 import { useUserStore } from "@/stores/user";
+import ChatBot from "@/components/ChatBot.vue";
 
 const appStore = useAppStore();
 const siteStore = useSiteStore();
