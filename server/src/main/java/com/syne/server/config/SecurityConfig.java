@@ -50,7 +50,7 @@ public class SecurityConfig {
                                 "/site/**",
                                 "/comments",
                                 "/comments/**",
-                                "/web/ai/**"
+                                "/web/ai/**", "/file/**"
                         ).permitAll()
                         // 放行 Swagger 相关路径
                         .requestMatchers(

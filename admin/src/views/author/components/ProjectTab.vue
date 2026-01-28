@@ -171,13 +171,11 @@
           />
         </el-form-item>
         <el-form-item label="封面图片" prop="coverImage">
-          <el-input
+          <ImageUpload
             v-model="form.coverImage"
-            placeholder="请输入图片URL或上传"
+            height="180px"
+            tip="建议尺寸 16:9，例如 640x360"
           />
-          <div class="text-xs text-gray-400 mt-1">
-            建议尺寸 16:9，例如 640x360
-          </div>
         </el-form-item>
         <el-form-item label="技术栈" prop="techStack">
           <el-input
@@ -255,6 +253,7 @@ import {
   type FormInstance,
   type FormRules,
 } from "element-plus";
+import ImageUpload from '@/components/ImageUpload.vue'
 import { projectApi } from "@/api/siteContent";
 import type { Project, ProjectForm } from "@/types";
 

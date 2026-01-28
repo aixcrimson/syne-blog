@@ -84,25 +84,11 @@
           >
             <!-- 封面图片 -->
             <el-form-item label="封面图片">
-              <div class="w-full">
-                <el-input
-                  v-model="formData.coverImage"
-                  placeholder="请输入封面图片 URL"
-                  clearable
-                />
-                <!-- 封面预览 -->
-                <div 
-                  v-if="formData.coverImage" 
-                  class="mt-2 rounded-lg overflow-hidden border border-gray-200"
-                >
-                  <img 
-                    :src="formData.coverImage" 
-                    alt="封面预览"
-                    class="w-full h-40 object-cover"
-                    @error="formData.coverImage = ''"
-                  />
-                </div>
-              </div>
+              <ImageUpload
+                v-model="formData.coverImage"
+                height="160px"
+                tip="建议尺寸 16:9，例如 960x540"
+              />
             </el-form-item>
 
             <!-- 分类选择 -->
@@ -187,6 +173,7 @@ import { ArrowLeft } from '@element-plus/icons-vue'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import AiWritingPanel from '@/components/AiWritingPanel.vue'
+import ImageUpload from '@/components/ImageUpload.vue'
 import { articleApi } from '@/api/article'
 import { categoryApi } from '@/api/category'
 import { tagApi } from '@/api/tag'
