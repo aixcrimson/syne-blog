@@ -59,12 +59,28 @@ export function aiWritingStream(
           // 解析 SSE 数据
           const lines = text.split('\n')
           lines.forEach(line => {
-            if (line.startsWith('data: ')) {
-              const content = line.slice(6).replace(/\\n/g, '\n')
-              onMessage(content)
+            // 兼容 "data: xxx" 和 "data:data: xxx" 两种格式
+            let content = ''
+            if (line.startsWith('data:data: ')) {
+              content = line.slice(11).replace(/\\n/g, '\n')
+            } else if (line.startsWith('data: ')) {
+              content = line.slice(6).replace(/\\n/g, '\n')
+            } else {
+              return
             }
+            // 检测流结束标记
+            if (content === '[DONE]') {
+              onDone?.()
+              return
+            }
+            onMessage(content)
           })
           read()
+        }).catch(err => {
+          // 读取过程中出错也要结束 loading
+          if (err.name !== 'AbortError') {
+            onError?.(err)
+          }
         })
       }
       read()

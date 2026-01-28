@@ -93,11 +93,11 @@ minio:
 # Spring AI OpenAI 配置（支持中转站）
 spring.ai:
   openai:
-    api-key: ${OPENAI_API_KEY:sk-xxx}
-    base-url: ${OPENAI_BASE_URL:https://api.openai.com}
+    api-key: ${OPENAI_API_KEY:sk-289e2aafbe6d4d7ebbb127e68aba1867}
+    base-url: ${OPENAI_BASE_URL:http://127.0.0.1:8045}
     chat:
       options:
-        model: ${OPENAI_MODEL:gpt-3.5-turbo}
+        model: ${OPENAI_MODEL:gpt-5.2}
         temperature: 0.7
         max-tokens: 2000
     embedding:
