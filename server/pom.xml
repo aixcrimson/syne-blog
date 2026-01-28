@@ -32,6 +32,9 @@
         <jwt.version>0.12.3</jwt.version>
         <hutool.version>5.8.23</hutool.version>
         <springdoc.version>2.2.0</springdoc.version>
+        <!-- Spring AI -->
+        <spring-ai.version>1.0.0-M4</spring-ai.version>
+        <pgvector.version>0.1.6</pgvector.version>
     </properties>
     <dependencies>
         <!-- Spring Boot Web -->
@@ -120,6 +123,34 @@
             <version>1.17.2</version>
         </dependency>
 
+        <!-- MinIO 对象存储 -->
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.5.7</version>
+        </dependency>
+
+        <!-- Spring AI OpenAI -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
+            <version>${spring-ai.version}</version>
+        </dependency>
+
+        <!-- Spring AI PGVector 向量存储 -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-pgvector-store-spring-boot-starter</artifactId>
+            <version>${spring-ai.version}</version>
+        </dependency>
+
+        <!-- pgvector Java 客户端 -->
+        <dependency>
+            <groupId>com.pgvector</groupId>
+            <artifactId>pgvector</artifactId>
+            <version>${pgvector.version}</version>
+        </dependency>
+
         <!-- Spring Boot DevTools (开发时热部署) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -147,6 +178,18 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <!-- Spring AI 需要 Milestone 仓库 -->
+    <repositories>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>

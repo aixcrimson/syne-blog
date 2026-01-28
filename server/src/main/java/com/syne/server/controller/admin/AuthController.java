@@ -6,6 +6,7 @@ import com.syne.server.model.vo.LoginVO;
 import com.syne.server.model.vo.UserInfoVO;
 import com.syne.server.exception.BusinessException;
 import com.syne.server.service.AuthService;
+import com.syne.server.security.TokenBlacklistService;
 import com.syne.server.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.util.StringUtils;
+
+import java.util.Date;
 
 /**
  * 认证控制器
@@ -29,6 +33,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final JwtUtil jwtUtil;
+    private final TokenBlacklistService tokenBlacklistService;
 
     /**
      * 用户登录
@@ -62,7 +67,22 @@ public class AuthController {
             @Parameter(description = "JWT Token", hidden = true)
             @RequestHeader(value = "Authorization", required = false) String token
     ) {
-        // TODO: 实现Token （Redis + 黑名单）机制
+        if (!StringUtils.hasText(token)) {
+            log.info("用户退出登录（未携带Token）");
+            return Result.success("退出登录成功");
+        }
+
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        Date expiration = jwtUtil.getExpirationFromToken(token);
+        if (expiration != null) {
+            tokenBlacklistService.blacklist(token, expiration);
+        } else {
+            log.warn("退出登录时解析Token过期时间失败");
+        }
+
         log.info("用户退出登录");
         return Result.success("退出登录成功");
     }

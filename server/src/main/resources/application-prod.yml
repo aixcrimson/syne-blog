@@ -1,5 +1,5 @@
 spring:
-  # 生产环境数据源配置（通过环境变量覆盖）
+  # 生产环境数据源配置(通过环境变量覆盖)
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/syne_blog}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
@@ -10,6 +10,12 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
+
+  # Redis 配置（External URL 需要 SSL）
+  data:
+    redis:
+      ssl:
+        enabled: true
 
 # MyBatis-Plus 配置（生产环境关闭SQL日志）
 mybatis-plus:

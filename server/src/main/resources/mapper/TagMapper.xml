@@ -9,6 +9,7 @@
         <result property="slug" column="slug"/>
         <result property="color" column="color"/>
         <result property="usageCount" column="usage_count"/>
+        <result property="articleCount" column="article_count"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
     </resultMap>
@@ -16,30 +17,39 @@
     <!-- 查询标签列表 -->
     <select id="selectTagList" resultMap="TagListVOMap">
         SELECT
-            id,
-            name,
-            slug,
-            COALESCE(color, '#409EFF') AS color,
-            COALESCE(usage_count, 0) AS usage_count,
-            create_time,
-            update_time
-        FROM tags
-        WHERE deleted = 0
+            t.id,
+            t.name,
+            t.slug,
+            COALESCE(t.color, '#409EFF') AS color,
+            COALESCE(t.usage_count, 0) AS usage_count,
+            COALESCE(atc.article_count, 0) AS article_count,
+            t.create_time,
+            t.update_time
+        FROM tags t
+        LEFT JOIN (
+            SELECT
+                tag_id,
+                COUNT(*) AS article_count
+            FROM article_tags
+            WHERE deleted = 0
+            GROUP BY tag_id
+        ) atc ON atc.tag_id = t.id
+        WHERE t.deleted = 0
         <if test="keyword != null and keyword != ''">
-            AND (name ILIKE CONCAT('%', #{keyword}, '%') OR slug ILIKE CONCAT('%', #{keyword}, '%'))
+            AND (t.name ILIKE CONCAT('%', #{keyword}, '%') OR t.slug ILIKE CONCAT('%', #{keyword}, '%'))
         </if>
         <choose>
             <when test="sortBy == 'usage_count'">
-                ORDER BY usage_count
+                ORDER BY t.usage_count
             </when>
             <when test="sortBy == 'create_time'">
-                ORDER BY create_time
+                ORDER BY t.create_time
             </when>
             <when test="sortBy == 'name'">
-                ORDER BY name
+                ORDER BY t.name
             </when>
             <otherwise>
-                ORDER BY usage_count
+                ORDER BY t.usage_count
             </otherwise>
         </choose>
         <choose>

@@ -1,6 +1,8 @@
 package com.syne.server.security;
 
+import com.syne.server.common.Result;
 import com.syne.server.utils.JwtUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,6 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -38,8 +41,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String jwt = getJwtFromRequest(request);
 
             if (StringUtils.hasText(jwt)) {
-                // 验证JWT并设置认证信息
-                authenticateUser(jwt, request);
+                if (tokenBlacklistService.isBlacklisted(jwt)) {
+                    log.debug("JWT在黑名单中，已拒绝认证");
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json;charset=UTF-8");
+                    Result<?> result = Result.error(401, "Token已失效，请重新登录");
+                    response.getWriter().write(new ObjectMapper().writeValueAsString(result));
+                    return;
+                } else {
+                    // 验证JWT并设置认证信息
+                    authenticateUser(jwt, request);
+                }
             }
         } catch (Exception ex) {
             log.error("无法设置用户认证", ex);

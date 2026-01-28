@@ -61,8 +61,8 @@ public class DashboardServiceImpl implements DashboardService {
         // 获取总点赞数
         LambdaQueryWrapper<Article> likesQuery = new LambdaQueryWrapper<>();
         likesQuery.select(Article::getLikes);
-        List<Article> liekdArticles = articleMapper.selectList(viewQuery);
-        stats.setTotalLikes(liekdArticles.stream().mapToLong(a -> a.getLikes() != null ? a.getLikes() : 0).sum());
+        List<Article> likedArticles = articleMapper.selectList(likesQuery);
+        stats.setTotalLikes(likedArticles.stream().mapToLong(a -> a.getLikes() != null ? a.getLikes() : 0).sum());
 
         return stats;
     };
