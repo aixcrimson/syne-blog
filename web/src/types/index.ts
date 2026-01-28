@@ -150,6 +150,26 @@ export interface Timeline {
   sortOrder: number
 }
 
+// ==================== 聊天历史相关 ====================
+
+/** 聊天消息 */
+export interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: number
+}
+
+/** 聊天会话 */
+export interface ChatSession {
+  id: string
+  title: string
+  messages: ChatMessage[]
+  createdAt: number
+  updatedAt: number
+}
+
+// ==================== 认证相关 ====================
+
 // 登录参数
 export interface LoginData {
   username?: string
