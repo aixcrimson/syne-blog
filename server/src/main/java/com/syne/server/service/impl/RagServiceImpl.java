@@ -95,6 +95,10 @@ public class RagServiceImpl implements RagService {
      * 从向量数据库检索相关上下文
      */
     private String retrieveContext(String question) {
+        if (!aiProperties.getRag().isEnabled()) {
+            return "暂无相关博客内容";
+        }
+
         try {
             int topK = aiProperties.getRag().getTopK();
             double threshold = aiProperties.getRag().getSimilarityThreshold();

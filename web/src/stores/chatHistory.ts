@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import { useUserStore } from './user'
+import { chatHistoryApi } from '@/api/chat'
 import type { ChatSession, ChatMessage } from '@/types'
 
 const STORAGE_KEY = 'syne_chat_history'
@@ -112,25 +113,29 @@ export const useChatHistoryStore = defineStore('chatHistory', () => {
 
   /** 从服务器加载数据 */
   async function loadFromServer() {
-    // TODO: 后端 API 实现后启用
-    // if (!userStore.isLoggedIn) return
-    // try {
-    //   const data = await chatHistoryApi.getSessions()
-    //   sessions.value = data
-    // } catch (error) {
-    //   console.error('从服务器加载失败:', error)
-    // }
+    if (!userStore.isLoggedIn) return
+    try {
+      const data = await chatHistoryApi.getSessions()
+      if (Array.isArray(data)) {
+        sessions.value = data
+        if (!currentSessionId.value || !sessions.value.find(s => s.id === currentSessionId.value)) {
+          currentSessionId.value = sessions.value[0]?.id || null
+        }
+        saveToLocal()
+      }
+    } catch (error) {
+      console.error('从服务器加载失败:', error)
+    }
   }
 
   /** 同步到服务器 */
   async function syncToServer() {
-    // TODO: 后端 API 实现后启用
-    // if (!userStore.isLoggedIn) return
-    // try {
-    //   await chatHistoryApi.syncSessions(sessions.value)
-    // } catch (error) {
-    //   console.error('同步到服务器失败:', error)
-    // }
+    if (!userStore.isLoggedIn) return
+    try {
+      await chatHistoryApi.syncSessions(sessions.value)
+    } catch (error) {
+      console.error('同步到服务器失败:', error)
+    }
   }
 
   // ==================== 会话管理 ====================
@@ -150,13 +155,21 @@ export const useChatHistoryStore = defineStore('chatHistory', () => {
 
     initialized.value = true
 
-    // TODO: 登录状态变化时同步数据
-    // watch(() => userStore.isLoggedIn, async (isLoggedIn) => {
-    //   if (isLoggedIn) {
-    //     await syncToServer()
-    //     await loadFromServer()
-    //   }
-    // })
+    watch(
+      () => userStore.isLoggedIn,
+      async (isLoggedIn) => {
+        if (isLoggedIn) {
+          await syncToServer()
+          await loadFromServer()
+        } else {
+          loadFromLocal()
+          if (sessions.value.length > 0 && !currentSessionId.value) {
+            currentSessionId.value = sessions.value[0]?.id || null
+          }
+        }
+      },
+      { immediate: true }
+    )
   }
 
   /** 创建新会话 */

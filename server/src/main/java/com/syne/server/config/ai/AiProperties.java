@@ -25,6 +25,11 @@ public class AiProperties {
     @Data
     public static class RagConfig {
         /**
+         * 是否启用 RAG 检索
+         */
+        private boolean enabled = true;
+
+        /**
          * 检索相关文档数量
          */
         private int topK = 5;

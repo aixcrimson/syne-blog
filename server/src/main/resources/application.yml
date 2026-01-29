@@ -114,6 +114,7 @@ spring.ai:
 ai:
   enabled: true
   rag:
+    enabled: false
     top-k: 5
     similarity-threshold: 0.7
 
