@@ -36,24 +36,47 @@ export function aiChatStream(
       if (!response.ok) throw new Error('请求失败')
       const reader = response.body?.getReader()
       const decoder = new TextDecoder()
+      let buffer = ''
 
       function read() {
         reader?.read().then(({ done, value }) => {
           if (done) {
+            if (buffer) {
+              buffer += decoder.decode()
+              buffer = buffer.replace(/\r\n/g, '\n')
+              parseBuffer()
+            }
             onDone?.()
             return
           }
-          const text = decoder.decode(value)
-          // 解析 SSE 数据
-          const lines = text.split('\n')
-          lines.forEach(line => {
-            if (line.startsWith('data: ')) {
-              const content = line.slice(6).replace(/\\n/g, '\n')
-              onMessage(content)
-            }
-          })
+          const text = decoder.decode(value, { stream: true })
+          buffer += text
+          buffer = buffer.replace(/\r\n/g, '\n')
+          parseBuffer()
           read()
         })
+      }
+
+      function parseBuffer() {
+        let delimiterIndex = buffer.indexOf('\n\n')
+        while (delimiterIndex !== -1) {
+          const rawEvent = buffer.slice(0, delimiterIndex)
+          buffer = buffer.slice(delimiterIndex + 2)
+          const lines = rawEvent.split('\n')
+          const dataLines: string[] = []
+          lines.forEach(line => {
+            if (line.startsWith('data:')) {
+              dataLines.push(line.slice(5).trimStart())
+            }
+          })
+          if (dataLines.length > 0) {
+            let content = dataLines.join('\n').replace(/\\n/g, '\n')
+            // 兜底清理，防止 data: 前缀泄漏到正文
+            content = content.replace(/^data:\s?/gm, '')
+            onMessage(content)
+          }
+          delimiterIndex = buffer.indexOf('\n\n')
+        }
       }
       read()
     })

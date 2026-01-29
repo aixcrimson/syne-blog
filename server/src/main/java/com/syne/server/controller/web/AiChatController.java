@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,7 @@ public class AiChatController {
     public Flux<String> chatStream(@Valid @RequestBody AiChatRequestDTO request) {
         List<Map<String, String>> history = convertHistory(request.getHistory());
         return ragService.chatStream(request.getMessage(), history)
-                .map(content -> "data: " + content.replace("\n", "\\n") + "\n\n");
+                .map(this::toSseEvent);
     }
 
     /**
@@ -59,5 +60,16 @@ public class AiChatController {
         return history.stream()
                 .map(msg -> Map.of("role", msg.getRole(), "content", msg.getContent()))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 将内容转换为规范 SSE 事件，确保每行都有 data: 前缀
+     */
+    private String toSseEvent(String content) {
+        if (content == null) {
+            return "data: \n\n";
+        }
+        String escaped = content.replace("\r\n", "\\n").replace("\n", "\\n");
+        return "data: " + escaped + "\n\n";
     }
 }

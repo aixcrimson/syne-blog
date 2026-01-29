@@ -25,6 +25,15 @@
       </button>
     </Transition>
 
+    <!-- 遮罩层：点击关闭弹窗 -->
+    <Transition name="fade">
+      <div
+        v-show="isOpen"
+        class="fixed inset-0 z-[-1]"
+        @click="isOpen = false"
+      />
+    </Transition>
+
     <!-- 聊天窗口 -->
     <Transition name="slide-up">
       <div
@@ -618,6 +627,17 @@ onUnmounted(() => {
 .slide-left-leave-to {
   opacity: 0;
   transform: translateX(-100%);
+}
+
+/* 遮罩层动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 /* 响应式 */
