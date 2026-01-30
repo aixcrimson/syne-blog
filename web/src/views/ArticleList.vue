@@ -1,9 +1,9 @@
 <template>
   <div class="article-list py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
         <!-- 移动端筛选按钮 -->
-        <div class="mb-4 lg:hidden">
+        <div class="mb-4 xl:hidden">
           <el-button
             type="primary"
             class="w-full"
@@ -16,7 +16,7 @@
 
         <!-- 侧边栏 (桌面端) -->
         <Sidebar
-          class="hidden lg:block lg:col-span-1"
+          class="hidden xl:block xl:col-span-1"
           @category-click="handleCategorySelect"
         />
 
@@ -31,7 +31,7 @@
         </el-drawer>
 
         <!-- 主内容区 -->
-        <div class="lg:col-span-3">
+        <div class="xl:col-span-4">
           <!-- 页面标题 -->
           <div class="mb-6">
             <div class="flex items-center gap-4">

@@ -8,9 +8,10 @@
     />
 
     <div class="fixed right-4 top-1/2 z-50 -translate-y-1/2">
-      <div class="relative flex items-center">
-        <!-- 展开的菜单项 - 在按钮左侧 -->
-        <Transition
+      <div class="relative flex flex-col items-center gap-3">
+        <div class="relative flex items-center">
+          <!-- 展开的菜单项 - 在按钮左侧 -->
+          <Transition
           enter-active-class="transition-all duration-300 ease-out"
           enter-from-class="opacity-0 translate-x-4 scale-95"
           enter-to-class="opacity-100 translate-x-0 scale-100"
@@ -152,6 +153,57 @@
             />
           </svg>
         </button>
+        </div>
+
+        <!-- 目录按钮 - 在主按钮下方，大屏幕隐藏 -->
+        <div v-if="tocStore.tocItems.length" class="relative xl:hidden">
+          <!-- 目录弹出面板 - 在按钮左侧 -->
+          <Transition
+            enter-active-class="transition-all duration-200 ease-out"
+            enter-from-class="opacity-0 translate-x-2 scale-95"
+            enter-to-class="opacity-100 translate-x-0 scale-100"
+            leave-active-class="transition-all duration-150 ease-in"
+            leave-from-class="opacity-100 translate-x-0 scale-100"
+            leave-to-class="opacity-0 translate-x-2 scale-95"
+          >
+            <div
+              v-show="tocStore.showToc"
+              class="absolute right-full bottom-0 mr-3 w-56 max-h-80 overflow-hidden rounded-2xl border border-slate-200/70 bg-white/95 shadow-xl backdrop-blur-md dark:border-slate-700/70 dark:bg-slate-800/95"
+            >
+              <div class="p-3 border-b border-slate-200/70 dark:border-slate-700/70">
+                <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">目录</span>
+              </div>
+              <nav class="p-2 max-h-64 overflow-y-auto">
+                <button
+                  v-for="item in tocStore.tocItems"
+                  :key="item.id"
+                  type="button"
+                  class="w-full text-left text-sm py-1.5 px-2 rounded-lg transition-colors cursor-pointer truncate hover:bg-slate-100 dark:hover:bg-slate-700/50"
+                  :class="[
+                    tocIndentClass(item.level),
+                    tocStore.activeHeadingId === item.id
+                      ? 'text-primary-600 bg-primary-50 dark:bg-primary-900/30'
+                      : 'text-slate-600 dark:text-slate-400'
+                  ]"
+                  :title="item.title"
+                  @click="scrollToHeading(item.id)"
+                >
+                  {{ item.title }}
+                </button>
+              </nav>
+            </div>
+          </Transition>
+
+          <button
+            class="flex items-center justify-center w-12 h-12 rounded-xl border border-slate-200/70 bg-white/80 shadow-lg backdrop-blur-md transition-all duration-300 cursor-pointer hover:scale-105 hover:shadow-xl dark:border-slate-700/70 dark:bg-slate-800/80"
+            :class="tocStore.showToc ? 'ring-2 ring-primary-500' : ''"
+            @click.stop="tocStore.toggleToc"
+          >
+            <svg class="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   </Teleport>
@@ -160,10 +212,12 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
+import { useTocStore } from '@/stores/toc'
 import { Sunny, Moon, Check } from '@element-plus/icons-vue'
 import type { ThemeColor } from '@/types'
 
 const appStore = useAppStore()
+const tocStore = useTocStore()
 
 const isExpanded = ref(false)
 const showColorPicker = ref(false)
@@ -197,6 +251,7 @@ const toggleExpand = () => {
 const closeAll = () => {
   isExpanded.value = false
   showColorPicker.value = false
+  tocStore.closeToc()
 }
 
 const scrollToTop = () => {
@@ -216,5 +271,18 @@ const scrollToBottom = () => {
 const handleThemeColorChange = (color: ThemeColor) => {
   appStore.setThemeColor(color)
   showColorPicker.value = false
+}
+
+const tocIndentClass = (level: number) => {
+  if (level >= 4) return 'pl-6'
+  if (level === 3) return 'pl-4'
+  return ''
+}
+
+const scrollToHeading = (id: string) => {
+  const target = document.getElementById(id)
+  if (!target) return
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  tocStore.closeToc()
 }
 </script>

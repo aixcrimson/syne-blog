@@ -5,7 +5,7 @@
       class="hero relative min-h-[calc(100vh-64px)]"
     >
       <div
-        class="flex items-center px-4 py-20 mx-auto max-w-7xl h-full sm:px-6 lg:px-8"
+        class="flex items-center px-4 py-20 mx-auto max-w-[1600px] h-full sm:px-6 lg:px-8"
       >
         <div class="max-w-3xl text-left">
           <p class="page-mono text-xs uppercase tracking-[0.35em] text-slate-500 dark:text-slate-400">
@@ -49,13 +49,13 @@
 
     <!-- 内容 -->
     <section id="main-content" class="pt-16 pb-8 bg-transparent">
-      <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div class="px-4 mx-auto max-w-[1600px] sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-5">
           <!-- 侧边栏 -->
-          <Sidebar class="hidden lg:block lg:col-span-1" />
+          <Sidebar class="hidden xl:block xl:col-span-1" />
 
           <!-- 最新文章 -->
-          <div class="lg:col-span-3">
+          <div class="xl:col-span-4">
             <div class="flex items-center gap-4 mb-6">
               <span class="page-mono text-xs text-slate-500 dark:text-slate-400">
                 #01
