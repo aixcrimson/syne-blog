@@ -76,99 +76,6 @@
             </button>
           </el-tooltip>
 
-          <!-- 明暗模式切换 -->
-          <el-tooltip content="切换明暗模式" placement="bottom">
-            <button
-              class="hidden justify-center items-center w-10 h-10 rounded-full transition-colors theme-mode-btn md:flex hover:bg-slate-100/70 dark:hover:bg-slate-800/60"
-              @click="appStore.toggleThemeMode"
-            >
-              <el-icon
-                class="text-xl"
-                :class="
-                  appStore.isDarkMode ? 'text-yellow-400' : 'text-slate-700'
-                "
-              >
-                <Sunny v-if="!appStore.isDarkMode" />
-                <Moon v-else />
-              </el-icon>
-            </button>
-          </el-tooltip>
-
-          <!-- 背景模式切换 -->
-          <el-tooltip content="切换背景模式" placement="bottom">
-            <button
-              class="hidden justify-center items-center h-10 px-3 rounded-full border border-slate-200/70 bg-white/70 text-[10px] font-semibold tracking-[0.2em] uppercase text-slate-600 transition-colors md:flex hover:border-slate-300 hover:text-slate-900 dark:border-slate-800/70 dark:bg-slate-900/60 dark:text-slate-300"
-              aria-label="切换背景模式"
-              @click="appStore.toggleBackgroundMode"
-            >
-              <span class="page-mono">{{
-                appStore.backgroundMode === "paper" ? "纸卡" : "图片"
-              }}</span>
-            </button>
-          </el-tooltip>
-
-          <!-- 主题颜色切换 -->
-          <el-dropdown @command="handleThemeColorChange" trigger="click">
-            <el-button circle class="theme-color-toggle" title="切换主题色">
-              <el-icon>
-                <Brush />
-              </el-icon>
-            </el-button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="blue">
-                  <div class="flex items-center space-x-2">
-                    <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
-                    <span>蓝色</span>
-                    <el-icon v-if="appStore.themeColor === 'blue'" class="ml-2"
-                      ><Check
-                    /></el-icon>
-                  </div>
-                </el-dropdown-item>
-                <el-dropdown-item command="purple">
-                  <div class="flex items-center space-x-2">
-                    <div class="w-4 h-4 bg-purple-500 rounded-full"></div>
-                    <span>紫色</span>
-                    <el-icon
-                      v-if="appStore.themeColor === 'purple'"
-                      class="ml-2"
-                      ><Check
-                    /></el-icon>
-                  </div>
-                </el-dropdown-item>
-                <el-dropdown-item command="green">
-                  <div class="flex items-center space-x-2">
-                    <div class="w-4 h-4 bg-green-500 rounded-full"></div>
-                    <span>绿色</span>
-                    <el-icon v-if="appStore.themeColor === 'green'" class="ml-2"
-                      ><Check
-                    /></el-icon>
-                  </div>
-                </el-dropdown-item>
-                <el-dropdown-item command="orange">
-                  <div class="flex items-center space-x-2">
-                    <div class="w-4 h-4 bg-orange-500 rounded-full"></div>
-                    <span>橙色</span>
-                    <el-icon
-                      v-if="appStore.themeColor === 'orange'"
-                      class="ml-2"
-                      ><Check
-                    /></el-icon>
-                  </div>
-                </el-dropdown-item>
-                <el-dropdown-item command="pink">
-                  <div class="flex items-center space-x-2">
-                    <div class="w-4 h-4 bg-pink-500 rounded-full"></div>
-                    <span>粉色</span>
-                    <el-icon v-if="appStore.themeColor === 'pink'" class="ml-2"
-                      ><Check
-                    /></el-icon>
-                  </div>
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-
           <!-- 登录/用户信息 -->
           <div v-if="!userStore.isLoggedIn" class="hidden md:block">
             <el-button type="primary" round @click="router.push('/login')">
@@ -425,17 +332,13 @@ import { useSiteStore } from "@/stores/site";
 import { ElMessage } from "element-plus";
 import {
   Menu,
-  Brush,
-  Check,
   Search,
-  Sunny,
-  Moon,
   House,
   Document,
   Compass,
   User,
 } from "@element-plus/icons-vue";
-import type { MenuItem, ThemeColor } from "@/types";
+import type { MenuItem } from "@/types";
 import logoImage from "@/assets/images/common/logo.png";
 
 const appStore = useAppStore();
@@ -493,15 +396,6 @@ const handleLogout = () => {
   router.push("/");
 };
 
-/**
- * 处理主题颜色切换
- */
-const handleThemeColorChange = (color: ThemeColor) => {
-  console.log("Header: 切换主题色到", color);
-  console.log("当前 appStore:", appStore);
-  appStore.setThemeColor(color);
-  console.log("切换完成，新颜色:", appStore.themeColor);
-};
 </script>
 
 <style scoped>
