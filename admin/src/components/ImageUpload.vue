@@ -47,7 +47,7 @@ import { ElMessage } from 'element-plus'
 import { Plus, Delete, Edit } from '@element-plus/icons-vue'
 import { fileApi } from '@/api/file'
 
-const props = defineProps({
+defineProps({
   modelValue: {
     type: String,
     default: ''
