@@ -591,7 +591,7 @@ CREATE TRIGGER trigger_article_tags_delete AFTER DELETE ON article_tags
 -- 初始化数据
 -- ============================================
 
--- 插入默认管理员用户（密码: admin123）
+-- 插入默认管理员用户（密码: 123456）
 INSERT INTO users (username, email, password_hash, avatar, bio, github, role, status, create_by, update_by)
 VALUES ('Syne', 'hitori150221@outlook.com', '$2b$10$QfJm8HeuJNc5omMxnjXK6.2aePWUHind7K9FphKeq13TGdpcyFvyq', NULL, '热爱技术，专注于软件开发', 'https://github.com/aixcrimson', 1, 1, 1, 1);
 
