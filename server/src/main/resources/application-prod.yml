@@ -14,8 +14,8 @@ spring:
   # Redis 配置（External URL 需要 SSL）
   data:
     redis:
-      ssl:
-        enabled: true
+      # ssl:
+        # enabled: true
 
 # MyBatis-Plus 配置（生产环境关闭SQL日志）
 mybatis-plus:

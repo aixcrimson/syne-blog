@@ -1,0 +1,146 @@
+version: '3.8'
+
+services:
+  # PostgreSQL + pgvector
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: syne-blog-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: syne_blog
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-ChangeMe123!}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - syne-blog-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 后端服务
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: syne-blog-server
+    restart: always
+    env_file:
+      - .env
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD:-ChangeMe123!}
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/syne_blog
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-ChangeMe123!}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # MinIO 配置
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-http://minio:9000}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minio}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minio123456}
+      # AI 配置
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-sk-xxx}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-http://127.0.0.1:8045}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      minio:
+        condition: service_healthy
+    networks:
+      - syne-blog-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # 博客前台
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+    container_name: syne-blog-web
+    restart: always
+    networks:
+      - syne-blog-network
+
+  # 管理后台
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+    container_name: syne-blog-admin
+    restart: always
+    networks:
+      - syne-blog-network
+
+  # Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: syne-blog-nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx-logs:/var/log/nginx
+    depends_on:
+      - server
+      - web
+      - admin
+    networks:
+      - syne-blog-network
+
+  # Redis (可选，如果需要)
+  redis:
+    image: redis:7-alpine
+    container_name: syne-blog-redis
+    restart: always
+    networks:
+      - syne-blog-network
+    volumes:
+      - redis-data:/data
+
+  # MinIO 对象存储 (可选)
+  minio:
+    image: minio/minio:latest
+    container_name: syne-blog-minio
+    restart: always
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minio123456}
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - syne-blog-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  postgres-data:
+  redis-data:
+  minio-data:
+  nginx-logs:
+
+networks:
+  syne-blog-network:
+    driver: bridge
