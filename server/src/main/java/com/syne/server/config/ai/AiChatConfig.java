@@ -1,8 +1,5 @@
 package com.syne.server.config.ai;
 
-import org.springframework.ai.chat.client.Request;
-import org.springframework.ai.chat.client.RequestInterceptor;
-import org.springframework.ai.chat.client.Response;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.openai.OpenAiChatModel;
@@ -12,10 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import reactor.core.publisher.Flux;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * AI Chat 配置（支持自定义 provider）
@@ -41,33 +34,24 @@ public class AiChatConfig {
 
     @Bean
     public ChatModel chatModel() {
-        // 构建 OpenAI API
-        OpenAiApi openAiApi = OpenAiApi.builder()
-                .apiKey(apiKey)
-                .baseUrl(baseUrl)
-                .build();
+        OpenAiApi openAiApi = new OpenAiApi(baseUrl, apiKey);
 
         OpenAiChatOptions options = OpenAiChatOptions.builder()
-                .model(model)
+                .withModel(model)
                 .build();
 
-        return OpenAiChatModel.builder()
-                .openAiApi(openAiApi)
-                .defaultChatOptions(options)
-                .build();
+        return new OpenAiChatModel(openAiApi, options);
     }
 
     @Bean
     public ChatClient.Builder customChatClientBuilder(ChatModel chatModel) {
         ChatClient.Builder builder = ChatClient.builder(chatModel);
-        
-        // 如果配置了 provider，添加请求拦截器注入 header
+
+        // 如果配置了 provider，添加到默认系统提示中
         if (provider != null && !provider.isBlank()) {
-            builder.defaultSystem(systemPrompt -> systemPrompt.text(
-                    systemPrompt.text() + "\n\n[provider:" + provider + "]"
-            ));
+            builder.defaultSystem("You are a helpful AI assistant. Provider: " + provider);
         }
-        
+
         return builder;
     }
 }

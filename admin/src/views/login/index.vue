@@ -173,7 +173,7 @@ const handleLogin = async () => {
 
     // 构建用户信息对象（使用登录接口返回的信息）
     const userInfo: UserInfo = {
-      id: response.userId,
+      id: response.id,
       username: response.username,
       email: response.email,
       role: response.role,

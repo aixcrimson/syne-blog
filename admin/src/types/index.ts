@@ -458,7 +458,7 @@ export interface LoginResponse {
   /** Token类型 */
   tokenType?: string
   /** 用户ID */
-  userId: number
+  id: number
   /** 用户名 */
   username: string
   /** 邮箱 */

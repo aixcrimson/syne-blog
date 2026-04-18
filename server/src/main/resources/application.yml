@@ -81,7 +81,7 @@ navigation:
 
 # MinIO 对象存储配置
 minio:
-  endpoint: ${MINIO_ENDPOINT:http://localhost:9100}
+  endpoint: ${MINIO_ENDPOINT:http://107.173.199.221:9000}
   access-key: ${MINIO_ACCESS_KEY:minio}
   secret-key: ${MINIO_SECRET_KEY:minio123456}
   bucket-name: ${MINIO_BUCKET:syne-blog}

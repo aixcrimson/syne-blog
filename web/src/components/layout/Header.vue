@@ -6,16 +6,16 @@
       <div class="flex justify-between items-center h-16">
         <!-- Logo - 左侧 -->
         <div class="flex items-center min-w-[200px] space-x-2">
-          <div
-            class="flex justify-center items-center w-8 h-8 bg-gradient-to-br rounded-lg transition-all duration-300 cursor-pointer from-primary-500 to-primary-700 hover:scale-105 hover:shadow-lg"
-            @click="logoModalOpen = true"
+          <router-link
+            to="/"
+            class="flex justify-center items-center w-8 h-8 rounded-lg transition-opacity duration-300 hover:opacity-70"
           >
             <img
               :src="logoImage"
               alt="syne-blog logo"
               class="w-full h-full rounded-md"
             />
-          </div>
+          </router-link>
           <router-link
             to="/"
             class="text-xl font-semibold text-slate-900 transition-colors dark:text-slate-50 hover:text-primary-600"
@@ -232,69 +232,6 @@
     </nav>
   </header>
 
-  <!-- Logo 放大展示弹窗 -->
-  <Teleport to="body">
-    <Transition
-      enter-active-class="transition-all duration-300 ease-out"
-      enter-from-class="opacity-0"
-      enter-to-class="opacity-100"
-      leave-active-class="transition-all duration-200 ease-in"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
-    >
-      <div
-        v-if="logoModalOpen"
-        class="flex fixed inset-0 z-50 justify-center items-center bg-black bg-opacity-80 cursor-pointer"
-        @click="logoModalOpen = false"
-      >
-        <Transition
-          enter-active-class="transition-all duration-300 ease-out"
-          enter-from-class="opacity-0 scale-75"
-          enter-to-class="opacity-100 scale-100"
-          leave-active-class="transition-all duration-200 ease-in"
-          leave-from-class="opacity-100 scale-100"
-          leave-to-class="opacity-0 scale-75"
-        >
-          <div v-if="logoModalOpen" class="relative mx-4 max-w-sm" @click.stop>
-            <!-- 关闭按钮 -->
-            <button
-              class="absolute right-0 -top-10 p-2 text-white transition-colors hover:text-slate-300"
-              @click="logoModalOpen = false"
-            >
-              <svg
-                class="w-8 h-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                ></path>
-              </svg>
-            </button>
-
-            <!-- Logo 图片 -->
-            <div class="p-1 bg-white rounded-2xl shadow-2xl">
-              <img
-                :src="logoImage"
-                alt="syne-blog logo"
-                class="w-full h-full rounded-xl"
-              />
-            </div>
-
-            <!-- 标题 -->
-            <div class="mt-4 text-center">
-              <h3 class="text-xl font-semibold text-white">syne-blog</h3>
-              <p class="mt-1 text-sm text-slate-300">现代化博客平台</p>
-            </div>
-          </div>
-        </Transition>
-      </div>
-    </Transition>
-  </Teleport>
   <!-- 搜索弹窗 -->
   <el-dialog
     v-model="searchVisible"
@@ -346,7 +283,6 @@ const userStore = useUserStore();
 const siteStore = useSiteStore();
 
 const mobileMenuOpen = ref(false);
-const logoModalOpen = ref(false);
 
 const menuItems: MenuItem[] = [
   { name: "首页", path: "/", icon: House },

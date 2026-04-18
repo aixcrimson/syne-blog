@@ -1,7 +1,7 @@
 <template>
   <div class="py-12 about">
     <div class="px-4 mx-auto max-w-4xl sm:px-6 lg:px-8">
-      <!-- 个人信息卡片 -->
+      <!-- 个人信息卡片 - 直接显示 -->
       <div class="paper-card overflow-hidden mb-8">
         <div
           class="h-32 bg-gradient-to-r from-primary-600 to-primary-800"
@@ -47,18 +47,31 @@
         </div>
       </div>
 
-      <!-- 技能栈 (优化版) -->
+      <!-- 技能栈 -->
       <div class="paper-card p-8 mb-8">
         <h2 class="mb-6 text-2xl font-semibold text-slate-900 dark:text-slate-100">
           技术栈
         </h2>
-        <div class="flex flex-wrap gap-3">
+        <!-- 骨架屏 -->
+        <div v-if="loadingSkills" class="flex flex-wrap gap-3">
+          <el-skeleton animated>
+            <template #template>
+              <el-skeleton-item
+                v-for="i in 6"
+                :key="i"
+                variant="rect"
+                style="width: 120px; height: 44px; border-radius: 8px"
+              />
+            </template>
+          </el-skeleton>
+        </div>
+        <!-- 实际内容 -->
+        <div v-else class="flex flex-wrap gap-3">
           <div
             v-for="skill in skills"
             :key="skill.id"
             class="flex items-center px-4 py-2 bg-white/70 rounded-lg border border-slate-200/70 transition-all duration-300 skill-tag dark:bg-slate-900/60 dark:border-slate-800/60 hover:border-blue-300/80 hover:bg-primary-50/70 dark:hover:bg-slate-800/60"
           >
-            <!-- 这里简单处理图标，如果是 font awesome 类名则用 i 标签，否则作为 emoji 显示 (如果后端存的是 emoji) -->
             <i
               v-if="skill.icon && skill.icon.startsWith('fa')"
               :class="skill.icon + ' mr-2 text-xl'"
@@ -75,12 +88,66 @@
         </div>
       </div>
 
-      <!-- 项目展示 (新增) -->
+      <!-- 项目展示 -->
       <div class="paper-card p-8 mb-8">
         <h2 class="mb-6 text-2xl font-semibold text-slate-900 dark:text-slate-100">
           精选项目
         </h2>
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <!-- 骨架屏 -->
+        <div v-if="loadingProjects" class="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div
+            v-for="i in 4"
+            :key="i"
+            class="rounded-xl border border-slate-200/70 dark:border-slate-700/70 overflow-hidden"
+          >
+            <el-skeleton animated>
+              <template #template>
+                <el-skeleton-item
+                  variant="rect"
+                  style="width: 100%; height: 192px"
+                />
+                <div class="p-5">
+                  <div class="flex justify-between items-start mb-2">
+                    <el-skeleton-item
+                      variant="h3"
+                      style="width: 120px; height: 24px"
+                    />
+                    <div class="flex gap-2">
+                      <el-skeleton-item
+                        variant="circle"
+                        style="width: 20px; height: 20px"
+                      />
+                      <el-skeleton-item
+                        variant="circle"
+                        style="width: 20px; height: 20px"
+                      />
+                    </div>
+                  </div>
+                  <el-skeleton-item
+                    variant="text"
+                    style="width: 100%"
+                    class="mb-2"
+                  />
+                  <el-skeleton-item
+                    variant="text"
+                    style="width: 70%"
+                    class="mb-4"
+                  />
+                  <div class="flex gap-2">
+                    <el-skeleton-item
+                      v-for="j in 3"
+                      :key="j"
+                      variant="rect"
+                      style="width: 50px; height: 22px; border-radius: 4px"
+                    />
+                  </div>
+                </div>
+              </template>
+            </el-skeleton>
+          </div>
+        </div>
+        <!-- 实际内容 -->
+        <div v-else class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div
             v-for="project in projects"
             :key="project.id"
@@ -148,7 +215,35 @@
         <h2 class="mb-6 text-2xl font-semibold text-slate-900 dark:text-slate-100">
           成长历程
         </h2>
-        <el-timeline>
+        <!-- 骨架屏 -->
+        <div v-if="loadingTimelines" class="space-y-6">
+          <el-skeleton animated>
+            <template #template>
+              <div
+                v-for="i in 4"
+                :key="i"
+                class="flex gap-4"
+              >
+                <div class="flex flex-col items-center">
+                  <el-skeleton-item
+                    variant="circle"
+                    style="width: 16px; height: 16px"
+                  />
+                  <div class="w-0.5 h-12 bg-slate-200 dark:bg-slate-700 mt-2" />
+                </div>
+                <div class="flex-1 pb-4">
+                  <div class="flex items-center gap-4 mb-2">
+                    <el-skeleton-item variant="text" style="width: 60px" />
+                    <el-skeleton-item variant="h4" style="width: 150px; height: 20px" />
+                  </div>
+                  <el-skeleton-item variant="text" style="width: 90%" />
+                </div>
+              </div>
+            </template>
+          </el-skeleton>
+        </div>
+        <!-- 实际内容 -->
+        <el-timeline v-else>
           <el-timeline-item
             v-for="item in timelines"
             :key="item.id"
@@ -157,10 +252,6 @@
             :color="item.color || '#e5e7eb'"
             :icon="item.icon ? (item.icon.includes('fa') ? '' : item.icon) : ''"
           >
-            <!-- 注意：el-timeline-item 的 icon 属性预期是 Element Plus Icon 组件或名称，
-                 如果后端返回的是 'Star' 这种字符串，Element Plus 可能需要 component is="" 转换，或者我们保留默认圆点。
-                 这里暂时只用颜色，如果需要图标组件，需要动态映射。
-             -->
             <div class="group">
               <h4
                 class="mb-1 font-semibold text-slate-900 transition-colors dark:text-slate-100 group-hover:text-primary-600"
@@ -189,7 +280,12 @@ import defaultAvatar from "@/assets/images/avatar/defalutAvatar.jpg";
 const siteStore = useSiteStore();
 const userInfo = computed(() => siteStore.authorInfo);
 
-// 技能数据 (扁平化，或者前端自行分组)
+// 加载状态
+const loadingSkills = ref(true);
+const loadingProjects = ref(true);
+const loadingTimelines = ref(true);
+
+// 技能数据
 const skills = ref<Skill[]>([]);
 
 // 项目数据
@@ -203,6 +299,8 @@ const fetchSkills = async () => {
     skills.value = await siteApi.getSkills();
   } catch (e) {
     console.error("获取技能失败", e);
+  } finally {
+    loadingSkills.value = false;
   }
 };
 
@@ -211,6 +309,8 @@ const fetchProjects = async () => {
     projects.value = await siteApi.getFeaturedProjects();
   } catch (e) {
     console.error("获取项目失败", e);
+  } finally {
+    loadingProjects.value = false;
   }
 };
 
@@ -219,6 +319,8 @@ const fetchTimelines = async () => {
     timelines.value = await siteApi.getTimelines();
   } catch (e) {
     console.error("获取时间线失败", e);
+  } finally {
+    loadingTimelines.value = false;
   }
 };
 

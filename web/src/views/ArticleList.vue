@@ -1,6 +1,6 @@
 <template>
   <div class="article-list py-12">
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
         <!-- 移动端筛选按钮 -->
         <div class="mb-4 xl:hidden">
@@ -35,14 +35,12 @@
           <!-- 页面标题 -->
           <div class="mb-6">
             <div class="flex items-center gap-4">
-              <span class="page-mono text-xs text-slate-500 dark:text-slate-400">
-                #02
-              </span>
               <h1
                 class="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100"
               >
                 文章列表
               </h1>
+
               <span class="flex-1 h-px bg-slate-200/70 dark:bg-slate-700/60" />
             </div>
             <p class="mt-2 text-slate-600 dark:text-slate-300">
@@ -80,10 +78,17 @@
             </div>
           </div>
 
-          <!-- 文章列表 - 一行一篇 -->
+          <!-- 文章列表 -->
           <div class="space-y-6 mb-8">
+            <!-- 骨架屏 -->
+            <template v-if="loading">
+              <ArticleCardSkeleton v-for="i in pageSize" :key="i" />
+            </template>
+
+            <!-- 文章卡片 -->
             <ArticleCard
               v-for="article in articles"
+              v-else
               :key="article.id"
               :article="article"
             />
@@ -118,6 +123,7 @@ import { ref, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { Search, Filter } from "@element-plus/icons-vue";
 import ArticleCard from "@/components/ArticleCard.vue";
+import ArticleCardSkeleton from "@/components/ArticleCardSkeleton.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import { articleApi } from "@/api/article";
 import type { Article } from "@/types";
