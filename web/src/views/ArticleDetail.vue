@@ -17,10 +17,10 @@
 
     <!-- 主布局容器 -->
     <div class="px-4 mx-auto max-w-[1480px] sm:px-6 lg:px-8">
-      <div class="flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
+      <div class="flex flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,900px)_260px] xl:items-start xl:justify-center">
 
         <!-- 左侧：文章主体 -->
-        <div class="min-w-0 xl:max-w-[1040px] xl:flex-1">
+        <div class="min-w-0 xl:w-full xl:max-w-[900px]">
           <div
             v-if="article"
             class="paper-card overflow-hidden"
@@ -130,7 +130,7 @@
         </div>
 
         <!-- 右侧：目录（大屏幕显示） -->
-        <aside v-if="article && tocItems.length" class="hidden xl:block">
+        <aside v-if="article && tocItems.length" class="hidden xl:block xl:w-[260px]">
           <div class="sticky top-24">
             <div class="toc-card paper-card">
               <div class="toc-title">目录</div>

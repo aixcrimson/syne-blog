@@ -1,7 +1,7 @@
 <template>
   <div class="article-list py-12">
     <div class="max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
+      <div class="flex flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,900px)_260px] xl:items-start xl:justify-center">
 
         <!-- 移动端筛选按钮 -->
         <div class="mb-4 xl:hidden">
@@ -27,7 +27,7 @@
         </el-drawer>
 
         <!-- 主内容区 -->
-        <div class="min-w-0 xl:max-w-[1040px] xl:flex-1">
+        <div class="min-w-0 xl:w-full xl:max-w-[900px]">
 
           <!-- 页面标题 -->
           <div class="mb-6">
@@ -113,7 +113,7 @@
 
         <!-- 侧边栏 (桌面端) -->
         <Sidebar
-          class="hidden xl:block xl:w-[320px] xl:flex-none"
+          class="hidden xl:block xl:w-[260px]"
           @category-click="handleCategorySelect"
         />
       </div>

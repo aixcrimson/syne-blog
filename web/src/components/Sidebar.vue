@@ -1,9 +1,9 @@
 <template>
   <aside class="w-full sidebar">
-    <div class="flex sticky top-20 flex-col gap-4">
+    <div class="flex sticky top-20 flex-col gap-3">
       <!-- 作者信息卡片 -->
       <div class="overflow-hidden paper-card paper-card-hover">
-        <div class="p-5">
+        <div class="p-4">
 
           <div class="flex flex-col items-center text-center">
             <!-- 头像 -->
@@ -11,7 +11,7 @@
               <img
                 :src="siteStore.authorInfo.avatar || defaultAvatar"
                 :alt="siteStore.authorInfo.username"
-                class="w-20 h-20 rounded-full border-4 border-white shadow-lg"
+                class="w-[72px] h-[72px] rounded-full border-4 border-white shadow-lg"
               />
 
               <div
@@ -25,12 +25,12 @@
             >
               {{ siteStore.authorInfo.username }}
             </h3>
-            <p class="mb-3 text-sm leading-6 text-slate-600 dark:text-slate-400">
+            <p class="mb-2.5 text-sm leading-6 text-slate-600 dark:text-slate-400">
               {{ siteStore.authorInfo.bio || "热爱技术,热爱分享" }}
             </p>
 
             <!-- 统计信息 -->
-            <div class="grid grid-cols-3 gap-2 mb-3 w-full">
+            <div class="grid grid-cols-3 gap-1.5 mb-2.5 w-full">
               <div class="stat-item">
                 <div class="text-xl font-bold text-primary-600">
                   {{ stats.totalArticles }}
@@ -88,14 +88,14 @@
 
       <!-- 分类列表卡片 -->
       <div class="overflow-hidden paper-card paper-card-hover">
-        <div class="px-5 py-3 border-b border-slate-200/70 dark:border-slate-700/70">
+        <div class="px-4 py-2.5 border-b border-slate-200/70 dark:border-slate-700/70">
 
           <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100">
             分类列表
           </h3>
         </div>
-        <div class="p-4">
-          <div class="space-y-1.5">
+        <div class="p-3">
+          <div class="space-y-1">
 
             <!-- 加载中 -->
             <div v-if="loadingCategories" class="flex justify-center items-center py-8">
@@ -109,11 +109,11 @@
               <div
                 v-for="category in categories"
                 :key="category.id"
-                class="flex justify-between items-center px-3 py-2.5 rounded-lg transition-colors cursor-pointer category-item hover:bg-slate-50/70 dark:hover:bg-slate-800/50"
+                class="flex justify-between items-center px-2.5 py-2 rounded-lg transition-colors cursor-pointer category-item hover:bg-slate-50/70 dark:hover:bg-slate-800/50"
 
                 @click="handleCategoryClick(category.id)"
               >
-                <div class="flex gap-3 items-center">
+                <div class="flex gap-2.5 items-center">
                   <div class="w-2 h-2 rounded-full bg-primary-500"></div>
                   <span
                     class="text-sm font-medium text-slate-700 dark:text-slate-300"
@@ -121,7 +121,7 @@
                   >
                 </div>
                 <span
-                  class="px-2 py-1 text-xs text-slate-500 bg-slate-100/80 rounded-full dark:text-slate-400 dark:bg-slate-800/60"
+                  class="px-1.5 py-0.5 text-xs text-slate-500 bg-slate-100/80 rounded-full dark:text-slate-400 dark:bg-slate-800/60"
                 >
                   {{ category.articleCount }}
                 </span>
