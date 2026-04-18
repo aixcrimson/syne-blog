@@ -475,6 +475,48 @@ COMMENT ON COLUMN timelines.color IS '节点颜色类型';
 CREATE INDEX idx_timelines_deleted ON timelines(deleted);
 
 -- ============================================
+-- 15. Chat history tables (chat_sessions, chat_messages)
+-- Store user chat sessions and messages
+-- ============================================
+DROP TABLE IF EXISTS chat_messages CASCADE;
+DROP TABLE IF EXISTS chat_sessions CASCADE;
+
+CREATE TABLE chat_sessions (
+  id VARCHAR(64) PRIMARY KEY,
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title VARCHAR(200) NOT NULL,
+  created_at BIGINT NOT NULL,
+  updated_at BIGINT NOT NULL
+);
+
+COMMENT ON TABLE chat_sessions IS 'Chat sessions';
+COMMENT ON COLUMN chat_sessions.id IS 'Session id (string)';
+COMMENT ON COLUMN chat_sessions.user_id IS 'Owner user id';
+COMMENT ON COLUMN chat_sessions.created_at IS 'Created at (ms)';
+COMMENT ON COLUMN chat_sessions.updated_at IS 'Updated at (ms)';
+
+CREATE INDEX idx_chat_sessions_user_id ON chat_sessions(user_id);
+CREATE INDEX idx_chat_sessions_updated_at ON chat_sessions(updated_at);
+
+CREATE TABLE chat_messages (
+  id BIGSERIAL PRIMARY KEY,
+  session_id VARCHAR(64) NOT NULL REFERENCES chat_sessions(id) ON DELETE CASCADE,
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  role VARCHAR(20) NOT NULL CHECK (role IN ('user', 'assistant')),
+  content TEXT NOT NULL,
+  message_ts BIGINT NOT NULL
+);
+
+COMMENT ON TABLE chat_messages IS 'Chat messages';
+COMMENT ON COLUMN chat_messages.session_id IS 'Session id';
+COMMENT ON COLUMN chat_messages.user_id IS 'Owner user id';
+COMMENT ON COLUMN chat_messages.message_ts IS 'Message timestamp (ms)';
+
+CREATE INDEX idx_chat_messages_session_id ON chat_messages(session_id);
+CREATE INDEX idx_chat_messages_user_id ON chat_messages(user_id);
+CREATE INDEX idx_chat_messages_session_ts ON chat_messages(session_id, message_ts);
+
+-- ============================================
 -- 触发器函数：自动更新 update_time 字段
 -- ============================================
 CREATE OR REPLACE FUNCTION update_update_time_column()
@@ -549,7 +591,7 @@ CREATE TRIGGER trigger_article_tags_delete AFTER DELETE ON article_tags
 -- 初始化数据
 -- ============================================
 
--- 插入默认管理员用户（密码: admin123）
+-- 插入默认管理员用户（密码: 123456）
 INSERT INTO users (username, email, password_hash, avatar, bio, github, role, status, create_by, update_by)
 VALUES ('Syne', 'hitori150221@outlook.com', '$2b$10$QfJm8HeuJNc5omMxnjXK6.2aePWUHind7K9FphKeq13TGdpcyFvyq', NULL, '热爱技术，专注于软件开发', 'https://github.com/aixcrimson', 1, 1, 1, 1);
 

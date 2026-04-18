@@ -7,6 +7,13 @@
         <h1 class="text-2xl font-bold text-gray-800">{{ pageTitle }}</h1>
       </div>
       <div class="flex items-center gap-3">
+        <!-- AI 写作助手 -->
+        <AiWritingPanel
+          v-if="!loading"
+          :content="formData.content"
+          :selected-text="selectedText"
+          @apply="handleAiApply"
+        />
         <el-button @click="handleSaveDraft" :loading="saving">
           保存草稿
         </el-button>
@@ -58,6 +65,7 @@
               :toolbars-exclude="['github']"
               style="height: 600px"
               class="md-editor-custom"
+              @onSelect="handleSelect"
             />
           </el-form-item>
         </el-form>
@@ -76,25 +84,12 @@
           >
             <!-- 封面图片 -->
             <el-form-item label="封面图片">
-              <div class="w-full">
-                <el-input
-                  v-model="formData.coverImage"
-                  placeholder="请输入封面图片 URL"
-                  clearable
-                />
-                <!-- 封面预览 -->
-                <div 
-                  v-if="formData.coverImage" 
-                  class="mt-2 rounded-lg overflow-hidden border border-gray-200"
-                >
-                  <img 
-                    :src="formData.coverImage" 
-                    alt="封面预览"
-                    class="w-full h-40 object-cover"
-                    @error="formData.coverImage = ''"
-                  />
-                </div>
-              </div>
+              <ImageUpload
+                v-model="formData.coverImage"
+                height="160px"
+                tip="建议尺寸 16:9，例如 960x540；未上传时将自动获取随机封面并保存本次结果"
+
+              />
             </el-form-item>
 
             <!-- 分类选择 -->
@@ -178,6 +173,8 @@ import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'elem
 import { ArrowLeft } from '@element-plus/icons-vue'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
+import AiWritingPanel from '@/components/AiWritingPanel.vue'
+import ImageUpload from '@/components/ImageUpload.vue'
 import { articleApi } from '@/api/article'
 import { categoryApi } from '@/api/category'
 import { tagApi } from '@/api/tag'
@@ -197,6 +194,30 @@ const articleId = computed(() => Number(route.params.id) || 0)
 /** 页面标题 */
 const pageTitle = computed(() => isEdit.value ? '编辑文章' : '新建文章')
 
+/** 选中的文本 */
+const selectedText = ref('')
+
+/**
+ * 处理文本选中
+ */
+const handleSelect = (selection: any) => {
+  // md-editor-v3 的 onSelect 事件返回选中的文本对象
+  selectedText.value = typeof selection === 'string' ? selection : selection?.text || ''
+}
+
+/**
+ * 处理 AI 内容应用
+ */
+const handleAiApply = (content: string) => {
+  if (selectedText.value) {
+    // 如果有选中文本，替换它
+    formData.content = formData.content.replace(selectedText.value, content)
+  } else {
+    // 否则追加到末尾
+    formData.content += '\n\n' + content
+  }
+}
+
 // ==================== 状态 ====================
 
 /** 表单引用 */
@@ -211,8 +232,13 @@ const loading = ref(false)
 /** 保存中状态 */
 const saving = ref(false)
 
+/** 随机封面 API（未上传时请求一次并保存本次真实图片地址） */
+const DEFAULT_ARTICLE_COVER_API = 'https://www.loliapi.com/acg/'
+
+
 /** 分类列表 */
 const categoryList = ref<Category[]>([])
+
 
 /** 标签列表 */
 const tagList = ref<Tag[]>([])
@@ -373,10 +399,58 @@ const validateForm = async (): Promise<boolean> => {
 }
 
 /**
+ * 获取本次随机封面的真实图片地址
+ */
+const resolveRandomCoverImage = async (): Promise<string> => {
+  const requestUrl = `${DEFAULT_ARTICLE_COVER_API}?t=${Date.now()}`
+  const response = await fetch(requestUrl, {
+    method: 'GET',
+    redirect: 'follow',
+    cache: 'no-store'
+  })
+
+  if (!response.ok || !response.url) {
+    throw new Error('自动获取随机封面失败，请重试或手动上传封面')
+  }
+
+  const finalUrl = response.url
+  const finalUrlInfo = new URL(finalUrl)
+  const apiUrlInfo = new URL(DEFAULT_ARTICLE_COVER_API)
+  const isStillApiUrl = finalUrlInfo.origin === apiUrlInfo.origin && finalUrlInfo.pathname === apiUrlInfo.pathname
+
+  if (isStillApiUrl) {
+    throw new Error('随机封面接口未返回真实图片地址，请稍后重试')
+  }
+
+  return finalUrl
+}
+
+/**
+ * 构造提交用文章数据
+ */
+const buildArticlePayload = async (status: ArticleStatus): Promise<ArticleForm> => {
+  const currentCoverImage = formData.coverImage?.trim()
+  const coverImage = currentCoverImage || await resolveRandomCoverImage()
+
+  if (!currentCoverImage) {
+    formData.coverImage = coverImage
+  }
+
+  return {
+    ...formData,
+    coverImage,
+    status,
+    ...(isEdit.value && { id: articleId.value })
+  }
+}
+
+
+/**
  * 保存草稿
  * @requirements 6.5 - 保存草稿功能
  */
 const handleSaveDraft = async () => {
+
   // 草稿模式下只验证标题
   if (!formData.title.trim()) {
     ElMessage.warning('请输入文章标题')
@@ -385,11 +459,7 @@ const handleSaveDraft = async () => {
   
   saving.value = true
   try {
-    const data: ArticleForm = {
-      ...formData,
-      status: ArticleStatus.DRAFT,
-      ...(isEdit.value && { id: articleId.value })
-    }
+    const data = await buildArticlePayload(ArticleStatus.DRAFT)
     
     if (isEdit.value) {
       await articleApi.update(articleId.value, data)
@@ -401,9 +471,11 @@ const handleSaveDraft = async () => {
       router.replace(`/article/edit/${result.id}`)
     }
   } catch (error) {
+
     console.error('保存草稿失败:', error)
-    ElMessage.error('保存草稿失败')
+    ElMessage.error(error instanceof Error ? error.message : '保存草稿失败')
   } finally {
+
     saving.value = false
   }
 }
@@ -421,11 +493,7 @@ const handlePublish = async () => {
   
   saving.value = true
   try {
-    const data: ArticleForm = {
-      ...formData,
-      status: ArticleStatus.PUBLISHED,
-      ...(isEdit.value && { id: articleId.value })
-    }
+    const data = await buildArticlePayload(ArticleStatus.PUBLISHED)
     
     if (isEdit.value) {
       await articleApi.update(articleId.value, data)
@@ -438,9 +506,11 @@ const handlePublish = async () => {
     // 返回列表页
     router.push('/article/list')
   } catch (error) {
+
     console.error('发布文章失败:', error)
-    ElMessage.error('发布文章失败')
+    ElMessage.error(error instanceof Error ? error.message : '发布文章失败')
   } finally {
+
     saving.value = false
   }
 }

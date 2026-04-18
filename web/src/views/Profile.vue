@@ -16,17 +16,18 @@
                 >
                 <img
                   :src="
-                    userStore.currentUser?.avatar ||
+                    formData.avatar ||
                     'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
                   "
                   alt="Avatar"
                   class="object-cover w-full h-full"
                 />
               </div>
+              <input type="file" ref="fileInputRef" class="hidden" accept="image/*" @change="handleFileChange" />
               <!-- 相机图标 -->
                 <div
                   class="flex absolute right-2 bottom-2 justify-center items-center w-10 h-10 text-white rounded-full shadow-lg transition-transform duration-300 cursor-pointer bg-primary-500 hover:bg-primary-600 hover:scale-110 active:scale-95 motion-reduce:transform-none"
-                  title="更换头像"
+                  title="更换头像" @click="handleAvatarClick"
                 >
                 <el-icon :size="20"><Camera /></el-icon>
               </div>
@@ -217,11 +218,51 @@ import { ElMessage, type FormInstance, type FormRules } from "element-plus";
 import { Camera } from "@element-plus/icons-vue";
 import { userApi } from "@/api/user";
 import { articleApi } from "@/api/article";
+import { fileApi } from "@/api/file";
 import ArticleCard from "@/components/ArticleCard.vue";
 
 const userStore = useUserStore();
 const activeTab = ref("profile");
 const saving = ref(false);
+
+const fileInputRef = ref<HTMLInputElement | null>(null);
+const avatarLoading = ref(false);
+
+const handleAvatarClick = () => {
+  fileInputRef.value?.click();
+};
+
+const handleFileChange = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (!file) return;
+
+  const isImage = file.type.startsWith("image/");
+  if (!isImage) {
+    ElMessage.error("请上传图片文件");
+    return;
+  }
+
+  const isLt10M = file.size / 1024 / 1024 < 10;
+  if (!isLt10M) {
+    ElMessage.error("图片大小不能超过 10MB!");
+    return;
+  }
+
+  avatarLoading.value = true;
+  try {
+    const res = await fileApi.uploadImage(file);
+    formData.avatar = res.url;
+    ElMessage.success("头像上传成功");
+  } catch (error) {
+    ElMessage.error("头像上传失败");
+  } finally {
+    avatarLoading.value = false;
+    if (fileInputRef.value) {
+      fileInputRef.value.value = "";
+    }
+  }
+};
 
 const formData = reactive({
   username: "",

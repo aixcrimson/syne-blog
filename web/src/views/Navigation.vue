@@ -52,14 +52,12 @@
           class="space-y-6"
         >
           <div class="flex items-center gap-4">
-            <span class="page-mono text-xs text-slate-500 dark:text-slate-400">
-              #{{ index + 1 }}
-            </span>
             <h2
               class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100"
             >
               {{ category.categoryName }}
             </h2>
+
             <span class="flex-1 h-px bg-slate-200/70 dark:bg-slate-700/60" />
           </div>
           <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">

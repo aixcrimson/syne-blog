@@ -141,6 +141,11 @@ provide('isMobile', isMobile)
 .main-container {
   flex: 1;
   min-height: 100vh;
+  /* 防止内容溢出产生横向滚动条 */
+  overflow-x: hidden;
+  /* 确保宽度正确计算 */
+  width: 100%;
+  max-width: 100%;
 }
 
 /* 移动端遮罩层 */

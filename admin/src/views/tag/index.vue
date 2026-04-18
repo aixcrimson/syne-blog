@@ -70,14 +70,14 @@
                   @click="handleEdit(row)" 
                 />
               </el-tooltip>
-              <el-tooltip :content="row.usageCount > 0 ? '该标签下有文章，无法删除' : '删除'">
+              <el-tooltip :content="row.articleCount > 0 ? '该标签下有文章，无法删除' : '删除'">
                 <span>
                   <el-button 
                     type="danger" 
                     :icon="Delete" 
                     size="small" 
                     circle
-                    :disabled="row.usageCount > 0"
+                    :disabled="row.articleCount > 0"
                     @click="handleDelete(row)" 
                   />
                 </span>
@@ -404,3 +404,4 @@ onMounted(() => {
   border-radius: 6px;
 }
 </style>
+

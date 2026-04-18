@@ -637,36 +637,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return Result.success(data);
     }
 
-//     @Override
-// public Result<String> increaseViews(Long id) {
-//     // 1. 检查文章是否存在
-//     Article article = this.getById(id);
-//     if(article == null || article.getDeleted() == 1) {
-//         throw new BusinessException("文章不存在");
-//     }
-
-//     // 2. 获取客户端IP
-//     HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-//     String ipAddress = IpUtils.getClientIp(request);
-
-//     // 3. 检查是否在时间窗口内（例如：同一IP 5分钟内只能增加1次浏览量）
-//     String cacheKey = "article:view:" + id + ":" + ipAddress;
-//     if (redisTemplate.hasKey(cacheKey)) {
-//         // 5分钟内已经访问过，不增加浏览量
-//         return Result.success("浏览量已记录");
-//     }
-
-//     // 4. 增加浏览量
-//     article.setViews(article.getViews() + 1);
-//     this.updateById(article);
-
-//     // 5. 设置缓存（5分钟过期）
-//     redisTemplate.opsForValue().set(cacheKey, "1", 5, TimeUnit.MINUTES);
-
-//     log.info("增加浏览量成功：articleId={}, ip={}, newViews={}", id, ipAddress, article.getViews());
-//     return Result.success("浏览量增加成功");
-// }
-
     @Override
     public PageResult<ArticleListVO> getLikedArticleList(PageQuery pageQuery) {
         // 获取当前用户ID

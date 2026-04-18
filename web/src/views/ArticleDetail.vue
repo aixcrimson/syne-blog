@@ -15,31 +15,11 @@
       ></div>
     </div>
 
-    <div class="px-4 mx-auto max-w-6xl sm:px-6 lg:px-8">
-      <div class="relative flex gap-8">
-        <!-- 目录（桌面端） -->
-        <aside v-if="article && tocItems.length" class="hidden lg:block w-60 shrink-0">
-          <div class="toc-card paper-card">
-            <div class="toc-title">目录</div>
-            <nav class="toc-list">
-              <button
-                v-for="item in tocItems"
-                :key="item.id"
-                type="button"
-                class="toc-item"
-                :class="[
-                  tocIndentClass(item.level),
-                  activeHeadingId === item.id ? 'is-active' : ''
-                ]"
-                @click="scrollToHeading(item.id)"
-              >
-                {{ item.title }}
-              </button>
-            </nav>
-          </div>
-        </aside>
-
-        <div class="min-w-0 flex-1">
+    <!-- 主布局容器 -->
+    <div class="px-4 mx-auto max-w-[1400px] sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-8">
+        <!-- 左侧：文章主体 -->
+        <div class="min-w-0">
           <div
             v-if="article"
             class="paper-card overflow-hidden"
@@ -161,41 +141,32 @@
             </div>
           </div>
         </div>
+
+        <!-- 右侧：目录（大屏幕显示） -->
+        <aside v-if="article && tocItems.length" class="hidden xl:block">
+          <div class="sticky top-24">
+            <div class="toc-card paper-card">
+              <div class="toc-title">目录</div>
+              <nav class="toc-list">
+                <button
+                  v-for="item in tocItems"
+                  :key="item.id"
+                  type="button"
+                  class="toc-item"
+                  :class="[
+                    tocIndentClass(item.level),
+                    activeHeadingId === item.id ? 'is-active' : ''
+                  ]"
+                  @click="scrollToHeading(item.id)"
+                >
+                  {{ item.title }}
+                </button>
+              </nav>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
-
-    <!-- 移动端目录按钮 -->
-    <div v-if="article && tocItems.length" class="fixed left-4 bottom-6 z-99999 lg:hidden">
-      <el-button type="primary" round @click="tocDrawerOpen = true">
-        <el-icon class="mr-1"><Menu /></el-icon>
-        目录
-      </el-button>
-    </div>
-
-    <!-- 目录抽屉（移动端） -->
-    <el-drawer
-      v-model="tocDrawerOpen"
-      title="目录"
-      direction="ltr"
-      size="70%"
-      class="toc-drawer lg:hidden"
-    >
-      <nav v-if="tocItems.length" class="toc-list">
-        <button
-          v-for="item in tocItems"
-          :key="item.id"
-          type="button"
-          class="toc-item"
-          :class="[
-            tocIndentClass(item.level),
-            activeHeadingId === item.id ? 'is-active' : ''
-          ]"
-          @click="handleTocSelect(item.id)"
-        >
-          {{ item.title }}
-        </button>
-      </nav>
-    </el-drawer>
   </div>
 </template>
 
@@ -209,7 +180,6 @@ import {
   Star,
   Share,
   Pointer,
-  Menu,
 } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import ArticleCard from "@/components/ArticleCard.vue";
@@ -219,8 +189,10 @@ import { formatDate } from "@/utils/format";
 import { articleApi } from "@/api/article";
 import type { Article } from "@/types";
 import { useUserStore } from "@/stores/user";
+import { useTocStore } from "@/stores/toc";
 
 const userStore = useUserStore();
+const tocStore = useTocStore();
 const route = useRoute();
 
 const articleId = computed(() => Number(route.params.id));
@@ -228,7 +200,6 @@ const article = ref<Article | null>(null);
 const relatedArticles = ref<Article[]>([]);
 const loading = ref(false);
 const contentRef = ref<HTMLElement | null>(null);
-const tocDrawerOpen = ref(false);
 const readingProgress = ref(0);
 const activeHeadingId = ref("");
 const headingPositions = ref<{ id: string; top: number }[]>([]);
@@ -390,11 +361,6 @@ const scrollToHeading = (id: string) => {
   target.scrollIntoView({ behavior: "smooth", block: "start" });
 };
 
-const handleTocSelect = (id: string) => {
-  scrollToHeading(id);
-  tocDrawerOpen.value = false;
-};
-
 const tocIndentClass = (level: number) => {
   if (level >= 4) return "toc-indent-2";
   if (level === 3) return "toc-indent-1";
@@ -439,9 +405,20 @@ watch(renderedContent, async () => {
   handleScroll();
 });
 
+// 同步目录数据到 toc store
+watch(tocItems, (items) => {
+  tocStore.setTocItems(items);
+}, { immediate: true });
+
+// 同步当前激活标题到 toc store
+watch(activeHeadingId, (id) => {
+  tocStore.setActiveHeadingId(id);
+});
+
 onUnmounted(() => {
   window.removeEventListener("scroll", handleScroll);
   window.removeEventListener("resize", handleResize);
+  tocStore.clear();
 });
 </script>
 
@@ -468,11 +445,8 @@ onUnmounted(() => {
 }
 
 .toc-card {
-  position: sticky;
-  top: 96px;
   padding: 16px 14px;
-  max-height: calc(100vh - 140px);
-  overflow: auto;
+  overflow: hidden;
 }
 
 .toc-title {
@@ -486,6 +460,9 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  max-height: calc(100vh - 200px);
+  overflow: auto;
+  padding-right: 4px;
 }
 
 .toc-item {

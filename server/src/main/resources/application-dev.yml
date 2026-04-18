@@ -1,10 +1,15 @@
 spring:
-  # 数据源配置（开发环境）
-  # ⚠️ 密码请在 application-dev-local.yml 中配置（该文件不会提交到 Git）
   datasource:
     url: jdbc:postgresql://localhost:5432/syne_blog?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: postgres
-    password: ${DB_PASSWORD}
+    password: 201314
+
+  data:
+    redis:
+      password: 201314
+
+jwt:
+  secret: dev-local-secret-key-for-development-only
 
 # MyBatis-Plus SQL 日志（开发环境开启）
 mybatis-plus:

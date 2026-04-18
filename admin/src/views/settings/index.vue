@@ -24,7 +24,11 @@
           <!-- 头像上传 -->
           <el-form-item label="头像" prop="avatar">
             <div class="flex items-center gap-4" :class="isMobile ? 'flex-col items-start' : ''">
-              <div class="relative w-20 h-20 overflow-hidden rounded-full group flex-shrink-0">
+              <div
+                class="relative w-20 h-20 overflow-hidden rounded-full group flex-shrink-0"
+                v-loading="avatarLoading"
+                element-loading-background="rgba(0, 0, 0, 0.5)"
+              >
                 <el-avatar
                   :size="80"
                   :src="avatarPreview || profileForm.avatar"
@@ -249,6 +253,7 @@ import {
 import { useUserStore } from '@/stores/user'
 import { userApi } from '@/api/user'
 import { authApi } from '@/api/auth'
+import { fileApi } from '@/api/file'
 import type { UpdateProfileParams, ChangePasswordParams } from '@/types'
 import { useResponsive } from '@/utils/useResponsive'
 
@@ -267,6 +272,7 @@ const avatarInputRef = ref<HTMLInputElement>()
 // ==================== 加载状态 ====================
 const profileLoading = ref(false)
 const passwordLoading = ref(false)
+const avatarLoading = ref(false)
 
 // ==================== 头像预览 ====================
 const avatarPreview = ref<string>('')
@@ -380,36 +386,44 @@ const triggerAvatarUpload = () => {
  * 处理头像文件选择
  * @requirements 12.2 - 头像上传预览
  */
-const handleAvatarChange = (event: Event) => {
+const handleAvatarChange = async (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   // 验证文件类型
-  const validTypes = ['image/jpeg', 'image/png', 'image/gif']
+  const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
   if (!validTypes.includes(file.type)) {
-    ElMessage.error('请上传 JPG、PNG 或 GIF 格式的图片')
+    ElMessage.error('请上传 JPG、PNG、GIF 或 WebP 格式的图片')
     return
   }
-  
-  // 验证文件大小（最大 2MB）
-  const maxSize = 2 * 1024 * 1024
+
+  // 验证文件大小（最大 10MB）
+  const maxSize = 10 * 1024 * 1024
   if (file.size > maxSize) {
-    ElMessage.error('图片大小不能超过 2MB')
+    ElMessage.error('图片大小不能超过 10MB')
     return
   }
-  
-  // 创建预览
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    avatarPreview.value = e.target?.result as string
-    profileForm.avatar = avatarPreview.value
+
+  try {
+    avatarLoading.value = true
+    // 上传文件
+    const result = await fileApi.uploadImage(file)
+
+    // 更新预览和表单数据
+    avatarPreview.value = result.url
+    profileForm.avatar = result.url
+
+    ElMessage.success('头像上传成功')
+  } catch (error) {
+    console.error('头像上传失败:', error)
+    // 错误信息已由拦截器处理，这里不再重复提示
+  } finally {
+    avatarLoading.value = false
+    // 清空 input，允许重复选择同一文件
+    target.value = ''
   }
-  reader.readAsDataURL(file)
-  
-  // 清空 input，允许重复选择同一文件
-  target.value = ''
 }
 
 /**

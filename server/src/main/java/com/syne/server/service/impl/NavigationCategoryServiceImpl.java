@@ -13,6 +13,7 @@ import com.syne.server.mapper.NavigationCategoryMapper;
 import com.syne.server.model.dto.SortOrderDTO;
 import com.syne.server.service.NavigationCategoryService;
 import com.syne.server.service.NavigationSiteService;
+import com.syne.server.utils.NavigationCacheManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ public class NavigationCategoryServiceImpl extends ServiceImpl<NavigationCategor
 
     private final NavigationCategoryMapper navigationCategoryMapper;
     private final NavigationSiteService navigationSiteService;
+    private final NavigationCacheManager navigationCacheManager;
 
     @Override
     public PageResult<NavigationCategory> listNavigationCategories(PageQuery pageQuery) {
@@ -66,6 +68,7 @@ public class NavigationCategoryServiceImpl extends ServiceImpl<NavigationCategor
         category.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : 0);
 
         navigationCategoryMapper.insert(category);
+        navigationCacheManager.invalidateAll();
         return category;
     }
 
@@ -82,6 +85,7 @@ public class NavigationCategoryServiceImpl extends ServiceImpl<NavigationCategor
         category.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : 0);
 
         navigationCategoryMapper.updateById(category);
+        navigationCacheManager.invalidateAll();
         return category;
     }
 
@@ -99,6 +103,9 @@ public class NavigationCategoryServiceImpl extends ServiceImpl<NavigationCategor
         }
 
         int result = navigationCategoryMapper.deleteById(id);
+        if (result > 0) {
+            navigationCacheManager.invalidateAll();
+        }
         return result > 0;
     }
 
@@ -112,6 +119,9 @@ public class NavigationCategoryServiceImpl extends ServiceImpl<NavigationCategor
         }
 
         int result = navigationCategoryMapper.deleteBatchIds(ids);
+        if (result > 0) {
+            navigationCacheManager.invalidateAll();
+        }
         return result > 0;
     }
 
@@ -140,6 +150,7 @@ public class NavigationCategoryServiceImpl extends ServiceImpl<NavigationCategor
             navigationCategoryMapper.updateById(category);
         }
 
+        navigationCacheManager.invalidateAll();
         return true;
     }
 }

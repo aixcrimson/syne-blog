@@ -100,17 +100,6 @@ psql -U postgres -d syne_blog -f src/main/resources/sql/schema-postgres.sql
 
 **推荐方式：使用本地配置文件（密码不会提交到 Git）**
 
-```bash
-# 1. 复制配置模板
-cd src/main/resources
-cp application-dev.yml application-dev-local.yml
-
-# 2. 编辑 application-dev-local.yml
-# 修改 password 字段为你的实际数据库密码
-# 此文件已在 .gitignore 中，不会被提交
-```
-
-**或者使用环境变量：**
 
 ```bash
 # Windows PowerShell

@@ -65,6 +65,7 @@ export interface Tag {
   color: string
   /** 使用次数 */
   usageCount: number
+  articleCount: number
   /** 创建时间 */
   createTime: string
 }
@@ -457,7 +458,7 @@ export interface LoginResponse {
   /** Token类型 */
   tokenType?: string
   /** 用户ID */
-  userId: number
+  id: number
   /** 用户名 */
   username: string
   /** 邮箱 */
@@ -697,4 +698,5 @@ export interface TimelineForm {
   /** 排序权重 */
   sortOrder: number
 }
+
 

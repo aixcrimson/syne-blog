@@ -6,16 +6,16 @@
       <div class="flex justify-between items-center h-16">
         <!-- Logo - 左侧 -->
         <div class="flex items-center min-w-[200px] space-x-2">
-          <div
-            class="flex justify-center items-center w-8 h-8 bg-gradient-to-br rounded-lg transition-all duration-300 cursor-pointer from-primary-500 to-primary-700 hover:scale-105 hover:shadow-lg"
-            @click="logoModalOpen = true"
+          <router-link
+            to="/"
+            class="flex justify-center items-center w-8 h-8 rounded-lg transition-opacity duration-300 hover:opacity-70"
           >
             <img
               :src="logoImage"
               alt="syne-blog logo"
               class="w-full h-full rounded-md"
             />
-          </div>
+          </router-link>
           <router-link
             to="/"
             class="text-xl font-semibold text-slate-900 transition-colors dark:text-slate-50 hover:text-primary-600"
@@ -75,99 +75,6 @@
               </el-icon>
             </button>
           </el-tooltip>
-
-          <!-- 明暗模式切换 -->
-          <el-tooltip content="切换明暗模式" placement="bottom">
-            <button
-              class="hidden justify-center items-center w-10 h-10 rounded-full transition-colors theme-mode-btn md:flex hover:bg-slate-100/70 dark:hover:bg-slate-800/60"
-              @click="appStore.toggleThemeMode"
-            >
-              <el-icon
-                class="text-xl"
-                :class="
-                  appStore.isDarkMode ? 'text-yellow-400' : 'text-slate-700'
-                "
-              >
-                <Sunny v-if="!appStore.isDarkMode" />
-                <Moon v-else />
-              </el-icon>
-            </button>
-          </el-tooltip>
-
-          <!-- 背景模式切换 -->
-          <el-tooltip content="切换背景模式" placement="bottom">
-            <button
-              class="hidden justify-center items-center h-10 px-3 rounded-full border border-slate-200/70 bg-white/70 text-[10px] font-semibold tracking-[0.2em] uppercase text-slate-600 transition-colors md:flex hover:border-slate-300 hover:text-slate-900 dark:border-slate-800/70 dark:bg-slate-900/60 dark:text-slate-300"
-              aria-label="切换背景模式"
-              @click="appStore.toggleBackgroundMode"
-            >
-              <span class="page-mono">{{
-                appStore.backgroundMode === "paper" ? "纸卡" : "图片"
-              }}</span>
-            </button>
-          </el-tooltip>
-
-          <!-- 主题颜色切换 -->
-          <el-dropdown @command="handleThemeColorChange" trigger="click">
-            <el-button circle class="theme-color-toggle" title="切换主题色">
-              <el-icon>
-                <Brush />
-              </el-icon>
-            </el-button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="blue">
-                  <div class="flex items-center space-x-2">
-                    <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
-                    <span>蓝色</span>
-                    <el-icon v-if="appStore.themeColor === 'blue'" class="ml-2"
-                      ><Check
-                    /></el-icon>
-                  </div>
-                </el-dropdown-item>
-                <el-dropdown-item command="purple">
-                  <div class="flex items-center space-x-2">
-                    <div class="w-4 h-4 bg-purple-500 rounded-full"></div>
-                    <span>紫色</span>
-                    <el-icon
-                      v-if="appStore.themeColor === 'purple'"
-                      class="ml-2"
-                      ><Check
-                    /></el-icon>
-                  </div>
-                </el-dropdown-item>
-                <el-dropdown-item command="green">
-                  <div class="flex items-center space-x-2">
-                    <div class="w-4 h-4 bg-green-500 rounded-full"></div>
-                    <span>绿色</span>
-                    <el-icon v-if="appStore.themeColor === 'green'" class="ml-2"
-                      ><Check
-                    /></el-icon>
-                  </div>
-                </el-dropdown-item>
-                <el-dropdown-item command="orange">
-                  <div class="flex items-center space-x-2">
-                    <div class="w-4 h-4 bg-orange-500 rounded-full"></div>
-                    <span>橙色</span>
-                    <el-icon
-                      v-if="appStore.themeColor === 'orange'"
-                      class="ml-2"
-                      ><Check
-                    /></el-icon>
-                  </div>
-                </el-dropdown-item>
-                <el-dropdown-item command="pink">
-                  <div class="flex items-center space-x-2">
-                    <div class="w-4 h-4 bg-pink-500 rounded-full"></div>
-                    <span>粉色</span>
-                    <el-icon v-if="appStore.themeColor === 'pink'" class="ml-2"
-                      ><Check
-                    /></el-icon>
-                  </div>
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
 
           <!-- 登录/用户信息 -->
           <div v-if="!userStore.isLoggedIn" class="hidden md:block">
@@ -325,69 +232,6 @@
     </nav>
   </header>
 
-  <!-- Logo 放大展示弹窗 -->
-  <Teleport to="body">
-    <Transition
-      enter-active-class="transition-all duration-300 ease-out"
-      enter-from-class="opacity-0"
-      enter-to-class="opacity-100"
-      leave-active-class="transition-all duration-200 ease-in"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
-    >
-      <div
-        v-if="logoModalOpen"
-        class="flex fixed inset-0 z-50 justify-center items-center bg-black bg-opacity-80 cursor-pointer"
-        @click="logoModalOpen = false"
-      >
-        <Transition
-          enter-active-class="transition-all duration-300 ease-out"
-          enter-from-class="opacity-0 scale-75"
-          enter-to-class="opacity-100 scale-100"
-          leave-active-class="transition-all duration-200 ease-in"
-          leave-from-class="opacity-100 scale-100"
-          leave-to-class="opacity-0 scale-75"
-        >
-          <div v-if="logoModalOpen" class="relative mx-4 max-w-sm" @click.stop>
-            <!-- 关闭按钮 -->
-            <button
-              class="absolute right-0 -top-10 p-2 text-white transition-colors hover:text-slate-300"
-              @click="logoModalOpen = false"
-            >
-              <svg
-                class="w-8 h-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                ></path>
-              </svg>
-            </button>
-
-            <!-- Logo 图片 -->
-            <div class="p-1 bg-white rounded-2xl shadow-2xl">
-              <img
-                :src="logoImage"
-                alt="syne-blog logo"
-                class="w-full h-full rounded-xl"
-              />
-            </div>
-
-            <!-- 标题 -->
-            <div class="mt-4 text-center">
-              <h3 class="text-xl font-semibold text-white">syne-blog</h3>
-              <p class="mt-1 text-sm text-slate-300">现代化博客平台</p>
-            </div>
-          </div>
-        </Transition>
-      </div>
-    </Transition>
-  </Teleport>
   <!-- 搜索弹窗 -->
   <el-dialog
     v-model="searchVisible"
@@ -425,17 +269,13 @@ import { useSiteStore } from "@/stores/site";
 import { ElMessage } from "element-plus";
 import {
   Menu,
-  Brush,
-  Check,
   Search,
-  Sunny,
-  Moon,
   House,
   Document,
   Compass,
   User,
 } from "@element-plus/icons-vue";
-import type { MenuItem, ThemeColor } from "@/types";
+import type { MenuItem } from "@/types";
 import logoImage from "@/assets/images/common/logo.png";
 
 const appStore = useAppStore();
@@ -443,7 +283,6 @@ const userStore = useUserStore();
 const siteStore = useSiteStore();
 
 const mobileMenuOpen = ref(false);
-const logoModalOpen = ref(false);
 
 const menuItems: MenuItem[] = [
   { name: "首页", path: "/", icon: House },
@@ -493,15 +332,6 @@ const handleLogout = () => {
   router.push("/");
 };
 
-/**
- * 处理主题颜色切换
- */
-const handleThemeColorChange = (color: ThemeColor) => {
-  console.log("Header: 切换主题色到", color);
-  console.log("当前 appStore:", appStore);
-  appStore.setThemeColor(color);
-  console.log("切换完成，新颜色:", appStore.themeColor);
-};
 </script>
 
 <style scoped>

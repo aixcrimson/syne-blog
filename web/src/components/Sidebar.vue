@@ -1,26 +1,6 @@
 <template>
   <aside class="w-full sidebar">
     <div class="flex sticky top-20 flex-col gap-6">
-      <!-- 公告栏 -->
-      <div
-        class="p-5 paper-card paper-card-hover"
-      >
-        <div class="flex gap-2 items-center mb-3">
-          <div class="w-2 h-2 rounded-full animate-pulse bg-primary-500"></div>
-          <p class="text-lg font-bold text-primary-600">公告栏</p>
-        </div>
-        <div v-if="notices.length > 0" class="space-y-2">
-          <p
-            v-for="notice in notices"
-            :key="notice.id"
-            class="text-sm leading-relaxed text-slate-700 dark:text-slate-300"
-          >
-            📢 {{ notice.content }}
-          </p>
-        </div>
-        <p v-else class="text-sm leading-relaxed text-slate-500">暂无公告</p>
-      </div>
-
       <!-- 标签页切换卡片 -->
       <div
         class="overflow-hidden paper-card paper-card-hover"
@@ -47,31 +27,41 @@
           <!-- 文章分类标签页 -->
           <div v-show="activeTab === 'categories'" class="categories-content">
             <div class="space-y-2">
-              <div
-                v-for="category in categories"
-                :key="category.id"
-                class="flex justify-between items-center p-3 rounded-lg transition-colors cursor-pointer category-item hover:bg-slate-50/70 dark:hover:bg-slate-800/50"
-                @click="handleCategoryClick(category.id)"
-              >
-                <div class="flex gap-3 items-center">
-                  <div class="w-2 h-2 rounded-full bg-primary-500"></div>
-                  <span
-                    class="text-sm font-medium text-slate-700 dark:text-slate-300"
-                    >{{ category.name }}</span
-                  >
-                </div>
-                <span
-                  class="px-2 py-1 text-xs text-slate-500 bg-slate-100/80 rounded-full dark:text-slate-400 dark:bg-slate-800/60"
-                >
-                  {{ category.articleCount }}
-                </span>
+              <!-- 加载中 -->
+              <div v-if="loadingCategories" class="flex justify-center items-center py-8">
+                <el-icon class="is-loading text-2xl text-primary-500">
+                  <Loading />
+                </el-icon>
               </div>
 
-              <el-empty
-                v-if="categories.length === 0"
-                description="暂无分类"
-                :image-size="60"
-              />
+              <!-- 分类列表 -->
+              <template v-else>
+                <div
+                  v-for="category in categories"
+                  :key="category.id"
+                  class="flex justify-between items-center p-3 rounded-lg transition-colors cursor-pointer category-item hover:bg-slate-50/70 dark:hover:bg-slate-800/50"
+                  @click="handleCategoryClick(category.id)"
+                >
+                  <div class="flex gap-3 items-center">
+                    <div class="w-2 h-2 rounded-full bg-primary-500"></div>
+                    <span
+                      class="text-sm font-medium text-slate-700 dark:text-slate-300"
+                      >{{ category.name }}</span
+                    >
+                  </div>
+                  <span
+                    class="px-2 py-1 text-xs text-slate-500 bg-slate-100/80 rounded-full dark:text-slate-400 dark:bg-slate-800/60"
+                  >
+                    {{ category.articleCount }}
+                  </span>
+                </div>
+
+                <el-empty
+                  v-if="categories.length === 0"
+                  description="暂无分类"
+                  :image-size="60"
+                />
+              </template>
             </div>
           </div>
           <!-- 个人信息标签页 -->
@@ -159,10 +149,10 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { Loading } from "@element-plus/icons-vue";
 import { useSiteStore } from "@/stores/site";
 import { articleApi } from "@/api/article";
-import { siteApi } from "@/api/site";
-import type { CategoryInfo, StatsInfo, Notice } from "@/types";
+import type { CategoryInfo, StatsInfo } from "@/types";
 import defaultAvatar from "@/assets/images/avatar/defalutAvatar.jpg";
 
 const siteStore = useSiteStore();
@@ -170,6 +160,9 @@ const siteStore = useSiteStore();
 const emit = defineEmits<{
   (e: "category-click", id: number): void;
 }>();
+
+// 加载状态
+const loadingCategories = ref(true);
 
 // 分类数据
 const categories = ref<CategoryInfo[]>([]);
@@ -179,8 +172,6 @@ const stats = ref<StatsInfo>({
   totalCategories: 0,
   totalViews: 0,
 });
-// 公告数据
-const notices = ref<Notice[]>([]);
 
 /**
  * 标签页配置
@@ -205,10 +196,13 @@ const activeTab = ref<"categories" | "profile">("categories");
  * 获取分类列表
  */
 const fetchCategories = async () => {
+  loadingCategories.value = true;
   try {
     categories.value = await articleApi.getCategories();
   } catch (e) {
     console.error("获取分类失败:", e);
+  } finally {
+    loadingCategories.value = false;
   }
 };
 
@@ -224,17 +218,6 @@ const fetchStats = async () => {
 };
 
 /**
- * 获取公告列表
- */
-const fetchNotices = async () => {
-  try {
-    notices.value = await siteApi.getNotices();
-  } catch (e) {
-    console.error("获取公告失败:", e);
-  }
-};
-
-/**
  * 点击分类,跳转到文章列表页并筛选该分类
  */
 const handleCategoryClick = (id: number): void => {
@@ -244,7 +227,6 @@ const handleCategoryClick = (id: number): void => {
 onMounted(() => {
   fetchCategories();
   fetchStats();
-  fetchNotices();
 });
 </script>
 <style scoped>

@@ -1,52 +1,66 @@
 <template>
   <div
-    class="paper-card paper-card-hover overflow-hidden cursor-pointer article-card flex flex-col h-full"
+    class="group relative overflow-hidden rounded-2xl cursor-pointer article-card h-80 border border-slate-200/70 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 dark:border-slate-700/70"
     @click="handleClick"
   >
-    <!-- 封面图 -->
-    <div v-if="article.coverImage" class="overflow-hidden h-48 shrink-0">
+    <!-- 封面图作为背景 -->
+    <div class="absolute inset-0">
       <img
+        v-if="article.coverImage"
         :src="article.coverImage"
         :alt="article.title"
-        class="object-cover w-full h-full transition-transform duration-300 hover:scale-110 motion-reduce:transform-none"
+        class="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110 motion-reduce:transform-none"
+      />
+      <!-- 无封面时的占位背景 -->
+      <div
+        v-else
+        class="w-full h-full bg-gradient-to-br from-primary-400 to-primary-600"
       />
     </div>
 
-    <!-- 卡片内容 -->
-    <div class="p-6 flex flex-col flex-1">
+    <!-- 渐变遮罩层 -->
+    <div
+      class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"
+    />
+
+    <!-- 卡片内容 - 定位在底部 -->
+    <div class="absolute inset-x-0 bottom-0 p-6 flex flex-col">
+      <!-- 标签 -->
+      <div class="flex flex-wrap gap-2 mb-3">
+        <span
+          class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-primary-500/90 text-white backdrop-blur-sm"
+        >
+          {{ article.categoryName }}
+        </span>
+        <span
+          v-for="tag in article.tags?.slice(0, 2)"
+          :key="tag.id"
+          class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-white/20 text-white backdrop-blur-sm"
+        >
+          {{ tag.name }}
+        </span>
+      </div>
+
       <!-- 标题 -->
       <h3
-        class="mb-2 text-xl font-semibold text-slate-900 transition-colors dark:text-slate-100 line-clamp-2 hover:text-primary-600"
+        class="mb-2 text-xl font-semibold text-white line-clamp-2 drop-shadow-sm"
       >
         {{ article.title }}
       </h3>
 
       <!-- 摘要 -->
-      <p class="mb-4 text-sm text-slate-600 dark:text-slate-400 line-clamp-3">
+      <p class="mb-4 text-sm text-white/80 line-clamp-2">
         {{ article.summary }}
       </p>
 
-      <!-- 标签 -->
-      <div class="flex flex-wrap gap-2 mb-4">
-        <el-tag type="primary" size="small">{{ article.categoryName }}</el-tag>
-        <el-tag
-          v-for="tag in article.tags"
-          :key="tag.id"
-          type="info"
-          size="small"
-        >
-          {{ tag.name }}
-        </el-tag>
-      </div>
-
       <!-- 元信息 -->
       <div
-        class="flex flex-wrap justify-between items-center text-xs text-slate-500 dark:text-slate-500 mt-auto pt-2 gap-2"
+        class="flex flex-wrap justify-between items-center text-xs text-white/70 pt-2 border-t border-white/20 gap-2"
       >
         <div class="flex items-center gap-x-3">
           <span class="flex items-center shrink-0">
             <el-icon class="mr-1"><Calendar /></el-icon>
-             {{ formatDate(article.publishedTime) }}
+            {{ formatDate(article.publishedTime) }}
           </span>
           <span class="flex items-center shrink-0">
             <el-icon class="mr-1"><View /></el-icon>
@@ -57,7 +71,7 @@
             {{ article.likes || 0 }}
           </span>
         </div>
-        <el-button text type="primary" size="small" class="shrink-0"> 阅读更多 → </el-button>
+        <span class="text-white/90 font-medium shrink-0">阅读更多 →</span>
       </div>
     </div>
   </div>

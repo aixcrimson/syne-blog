@@ -17,6 +17,7 @@ import com.syne.server.mapper.NavigationCategoryMapper;
 import com.syne.server.mapper.NavigationSiteMapper;
 import com.syne.server.model.dto.SortOrderDTO;
 import com.syne.server.service.NavigationSiteService;
+import com.syne.server.utils.NavigationCacheManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,7 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
 
     private final NavigationSiteMapper navigationSiteMapper;
     private final NavigationCategoryMapper navigationCategoryMapper;
+    private final NavigationCacheManager navigationCacheManager;
 
     @Override
     public PageResult<NavigationSite> listNavigationSites(PageQuery pageQuery) {
@@ -88,6 +90,7 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
         site.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : 0);
 
         navigationSiteMapper.insert(site);
+        navigationCacheManager.invalidateAll();
         return site;
     }
 
@@ -112,6 +115,7 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
         site.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : 0);
 
         navigationSiteMapper.updateById(site);
+        navigationCacheManager.invalidateAll();
         return site;
     }
 
@@ -124,6 +128,9 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
         }
 
         int result = navigationSiteMapper.deleteById(id);
+        if (result > 0) {
+            navigationCacheManager.invalidateAll();
+        }
         return result > 0;
     }
 
@@ -131,6 +138,9 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
     @Transactional
     public boolean batchDeleteNavigationSites(List<Long> ids) {
         int result = navigationSiteMapper.deleteBatchIds(ids);
+        if (result > 0) {
+            navigationCacheManager.invalidateAll();
+        }
         return result > 0;
     }
 
@@ -192,11 +202,23 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
 
     @Override
     public List<NavigationSiteShowVO> listAllSiteShowVOs(){
-        return navigationSiteMapper.listAllSiteShowVOs();
+        List<NavigationSiteShowVO> cached = navigationCacheManager.getAllSitesCache();
+        if (cached != null) {
+            return cached;
+        }
+
+        List<NavigationSiteShowVO> siteVOs = navigationSiteMapper.listAllSiteShowVOs();
+        navigationCacheManager.setAllSitesCache(siteVOs);
+        return siteVOs;
     }
 
     @Override
     public List<NavigationCategoryWithSitesVO> listAllCategoryWithSites() {
+        List<NavigationCategoryWithSitesVO> cached = navigationCacheManager.getAllCategoryWithSitesCache();
+        if (cached != null) {
+            return cached;
+        }
+
         // 查询所有分类
         LambdaQueryWrapper<NavigationCategory> categoryWrapper = new LambdaQueryWrapper<>();
         categoryWrapper.orderByAsc(NavigationCategory::getSortOrder).orderByDesc(NavigationCategory::getCreateTime);
@@ -214,7 +236,7 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
                 .collect(Collectors.groupingBy(NavigationSite::getCategoryId));
 
         // 转换为VO
-        return categories.stream().map(category -> {
+        List<NavigationCategoryWithSitesVO> result = categories.stream().map(category -> {
             NavigationCategoryWithSitesVO vo = new NavigationCategoryWithSitesVO();
             vo.setId(category.getId());
             vo.setName(category.getName());
@@ -243,6 +265,8 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
             vo.setSites(siteVOs);
             return vo;
         }).collect(Collectors.toList());
+        navigationCacheManager.setAllCategoryWithSitesCache(result);
+        return result;
     }
 
     @Override
@@ -265,6 +289,7 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
             navigationSiteMapper.updateById(site);
         }
 
+        navigationCacheManager.invalidateAll();
         return true;
     }
 }
