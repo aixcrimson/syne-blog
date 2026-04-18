@@ -107,6 +107,8 @@ services:
     image: redis:7-alpine
     container_name: syne-blog-redis
     restart: always
+    ports:
+      - "6379:6379"
     networks:
       - syne-blog-network
     volumes:

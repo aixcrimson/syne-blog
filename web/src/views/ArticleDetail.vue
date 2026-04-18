@@ -16,10 +16,11 @@
     </div>
 
     <!-- 主布局容器 -->
-    <div class="px-4 mx-auto max-w-[1400px] sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-8">
+    <div class="px-4 mx-auto max-w-[1480px] sm:px-6 lg:px-8">
+      <div class="flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
+
         <!-- 左侧：文章主体 -->
-        <div class="min-w-0">
+        <div class="min-w-0 xl:max-w-[1040px] xl:flex-1">
           <div
             v-if="article"
             class="paper-card overflow-hidden"
@@ -126,20 +127,6 @@
           <div v-if="article" class="mt-12">
             <CommentSection :article-id="articleId" />
           </div>
-
-          <!-- 相关文章 -->
-          <div v-if="relatedArticles.length > 0" class="mt-12">
-            <h2 class="mb-6 text-2xl font-semibold text-slate-900 dark:text-slate-100">
-              相关文章
-            </h2>
-            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <ArticleCard
-                v-for="relatedArticle in relatedArticles"
-                :key="relatedArticle.id"
-                :article="relatedArticle"
-              />
-            </div>
-          </div>
         </div>
 
         <!-- 右侧：目录（大屏幕显示） -->
@@ -182,7 +169,6 @@ import {
   Pointer,
 } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
-import ArticleCard from "@/components/ArticleCard.vue";
 import CommentSection from "@/components/CommentSection.vue";
 import { renderMarkdownWithToc } from "@/utils/markdown";
 import { formatDate } from "@/utils/format";
@@ -197,7 +183,6 @@ const route = useRoute();
 
 const articleId = computed(() => Number(route.params.id));
 const article = ref<Article | null>(null);
-const relatedArticles = ref<Article[]>([]);
 const loading = ref(false);
 const contentRef = ref<HTMLElement | null>(null);
 const readingProgress = ref(0);
@@ -231,14 +216,7 @@ const fetchArticle = async () => {
   }
 };
 
-// 获取推荐文章
-const fetchRecommendedArticles = async () => {
-  try {
-    relatedArticles.value = await articleApi.getRecommended(3);
-  } catch (e) {
-    console.error("获取推荐文章失败:", e);
-  }
-};
+
 
 const handleLike = async () => {
   try {
@@ -384,7 +362,6 @@ onMounted(() => {
     // 文章加载成功后再增加浏览量，确保 article.value 存在，且体验更好
     handleIncreaseViews();
   });
-  fetchRecommendedArticles();
   window.scrollTo({ top: 0, behavior: "smooth" });
   window.addEventListener("scroll", handleScroll, { passive: true });
   window.addEventListener("resize", handleResize);
@@ -395,8 +372,7 @@ watch(articleId, () => {
   fetchArticle().then(() => {
     handleIncreaseViews();
   });
-  // 推荐文章也刷新一下
-  fetchRecommendedArticles();
+
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
 

@@ -1,7 +1,8 @@
 <template>
   <div class="article-list py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
+    <div class="max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
+
         <!-- 移动端筛选按钮 -->
         <div class="mb-4 xl:hidden">
           <el-button
@@ -14,13 +15,8 @@
           </el-button>
         </div>
 
-        <!-- 侧边栏 (桌面端) -->
-        <Sidebar
-          class="hidden xl:block xl:col-span-1"
-          @category-click="handleCategorySelect"
-        />
-
         <!-- 侧边栏抽屉 (移动端) -->
+
         <el-drawer
           v-model="drawerVisible"
           title="筛选与分类"
@@ -31,7 +27,8 @@
         </el-drawer>
 
         <!-- 主内容区 -->
-        <div class="xl:col-span-4">
+        <div class="min-w-0 xl:max-w-[1040px] xl:flex-1">
+
           <!-- 页面标题 -->
           <div class="mb-6">
             <div class="flex items-center gap-4">
@@ -113,7 +110,14 @@
             />
           </div>
         </div>
+
+        <!-- 侧边栏 (桌面端) -->
+        <Sidebar
+          class="hidden xl:block xl:w-[320px] xl:flex-none"
+          @category-click="handleCategorySelect"
+        />
       </div>
+
     </div>
   </div>
 </template>
