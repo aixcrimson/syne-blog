@@ -127,6 +127,38 @@
           <div v-if="article" class="mt-12">
             <CommentSection :article-id="articleId" />
           </div>
+
+          <!-- 上一篇 / 下一篇 -->
+          <div v-if="adjacentArticles.length > 0" class="mt-12">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <router-link
+                v-for="item in adjacentArticles"
+                :key="`${item.type}-${item.article.id}`"
+                :to="{ name: 'ArticleDetail', params: { id: item.article.id } }"
+                class="article-nav-card paper-card paper-card-hover"
+              >
+                <div class="article-nav-card__media">
+                  <img
+                    v-if="item.article.coverImage"
+                    :src="item.article.coverImage"
+                    :alt="item.article.title"
+                    class="article-nav-card__image"
+                  />
+                  <div v-else class="article-nav-card__fallback"></div>
+                  <div class="article-nav-card__overlay"></div>
+                </div>
+                <div class="article-nav-card__content">
+                  <div class="article-nav-card__default">
+                    <span class="article-nav-card__eyebrow">{{ item.label }}</span>
+                    <h2 class="article-nav-card__title">{{ item.article.title }}</h2>
+                  </div>
+                  <p class="article-nav-card__summary">
+                    {{ item.article.summary || item.article.title }}
+                  </p>
+                </div>
+              </router-link>
+            </div>
+          </div>
         </div>
 
         <!-- 右侧：目录（大屏幕显示） -->
@@ -183,11 +215,19 @@ const route = useRoute();
 
 const articleId = computed(() => Number(route.params.id));
 const article = ref<Article | null>(null);
+const prevArticle = ref<Article | null>(null);
+const nextArticle = ref<Article | null>(null);
 const loading = ref(false);
 const contentRef = ref<HTMLElement | null>(null);
 const readingProgress = ref(0);
 const activeHeadingId = ref("");
 const headingPositions = ref<{ id: string; top: number }[]>([]);
+
+type ArticleNavItem = {
+  type: "prev" | "next";
+  label: string;
+  article: Article;
+};
 
 // 默认作者
 const defaultAuthor = "站长";
@@ -203,12 +243,35 @@ const tocItems = computed(() =>
   markdownResult.value.toc.filter((item) => item.level >= 2 && item.level <= 4)
 );
 
+const adjacentArticles = computed<ArticleNavItem[]>(() => {
+  const items: ArticleNavItem[] = [];
+
+  if (prevArticle.value) {
+    items.push({
+      type: "prev",
+      label: "上一篇",
+      article: prevArticle.value,
+    });
+  }
+
+  if (nextArticle.value) {
+    items.push({
+      type: "next",
+      label: "下一篇",
+      article: nextArticle.value,
+    });
+  }
+
+  return items;
+});
+
 // 获取文章详情
 const fetchArticle = async () => {
   loading.value = true;
   try {
     article.value = await articleApi.getById(articleId.value);
   } catch (e) {
+    article.value = null;
     console.error("获取文章详情失败:", e);
     ElMessage.error("获取文章失败");
   } finally {
@@ -216,7 +279,27 @@ const fetchArticle = async () => {
   }
 };
 
+// 获取上一篇和下一篇文章
+const fetchAdjacentArticles = async () => {
+  try {
+    const res = await articleApi.getList({ page: 1, pageSize: 1000 });
+    const articles = res.list || [];
+    const currentIndex = articles.findIndex((item) => item.id === articleId.value);
 
+    if (currentIndex === -1) {
+      prevArticle.value = null;
+      nextArticle.value = null;
+      return;
+    }
+
+    prevArticle.value = currentIndex < articles.length - 1 ? articles[currentIndex + 1] : null;
+    nextArticle.value = currentIndex > 0 ? articles[currentIndex - 1] : null;
+  } catch (e) {
+    prevArticle.value = null;
+    nextArticle.value = null;
+    console.error("获取上一篇和下一篇文章失败:", e);
+  }
+};
 
 const handleLike = async () => {
   try {
@@ -357,11 +440,17 @@ const handleIncreaseViews = async () => {
   }
 };
 
-onMounted(() => {
-  fetchArticle().then(() => {
+const loadArticlePage = async () => {
+  await Promise.all([fetchArticle(), fetchAdjacentArticles()]);
+
+  if (article.value) {
     // 文章加载成功后再增加浏览量，确保 article.value 存在，且体验更好
     handleIncreaseViews();
-  });
+  }
+};
+
+onMounted(() => {
+  loadArticlePage();
   window.scrollTo({ top: 0, behavior: "smooth" });
   window.addEventListener("scroll", handleScroll, { passive: true });
   window.addEventListener("resize", handleResize);
@@ -369,10 +458,7 @@ onMounted(() => {
 
 // 监听路由参数变化，重新加载数据
 watch(articleId, () => {
-  fetchArticle().then(() => {
-    handleIncreaseViews();
-  });
-
+  loadArticlePage();
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
@@ -467,5 +553,129 @@ onUnmounted(() => {
 
 .toc-indent-2 {
   padding-left: 32px;
+}
+
+.article-nav-card {
+  position: relative;
+  display: block;
+  min-height: 200px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.article-nav-card__media {
+  position: absolute;
+  inset: 0;
+}
+
+.article-nav-card__image,
+.article-nav-card__fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 400ms ease;
+}
+
+.article-nav-card__fallback {
+  background:
+    linear-gradient(135deg, rgba(59, 130, 246, 0.85), rgba(168, 85, 247, 0.8)),
+    linear-gradient(45deg, rgba(15, 23, 42, 0.12), rgba(255, 255, 255, 0.08));
+}
+
+.article-nav-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.68), rgba(15, 23, 42, 0.3));
+}
+
+.article-nav-card__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  min-height: 200px;
+  padding: 24px;
+  color: #fff;
+}
+
+.article-nav-card__default,
+.article-nav-card__summary {
+  max-width: min(100%, 420px);
+  transition: opacity 260ms ease, transform 260ms ease;
+}
+
+.article-nav-card__default {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.article-nav-card__eyebrow {
+  font-size: 0.875rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.article-nav-card__title {
+  margin: 0;
+  font-size: 1.625rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: inherit;
+  text-wrap: balance;
+}
+
+.article-nav-card__summary {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  left: 24px;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  opacity: 0;
+  transform: translateY(12px);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.article-nav-card:hover .article-nav-card__image,
+.article-nav-card:hover .article-nav-card__fallback {
+  transform: scale(1.08);
+}
+
+.article-nav-card:hover .article-nav-card__default {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.article-nav-card:hover .article-nav-card__summary {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 767px) {
+  .article-nav-card,
+  .article-nav-card__content {
+    min-height: 180px;
+  }
+
+  .article-nav-card__content {
+    padding: 20px;
+  }
+
+  .article-nav-card__title {
+    font-size: 1.375rem;
+  }
+
+  .article-nav-card__summary {
+    right: 20px;
+    bottom: 20px;
+    left: 20px;
+    -webkit-line-clamp: 4;
+  }
 }
 </style>
