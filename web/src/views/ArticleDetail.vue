@@ -162,8 +162,12 @@
         </div>
 
         <!-- 右侧：目录（大屏幕显示） -->
-        <aside v-if="article && tocItems.length" class="hidden xl:block xl:w-[260px]">
-          <div class="sticky top-24">
+        <aside
+          v-if="article && tocItems.length"
+          ref="tocAsideRef"
+          class="hidden xl:block xl:w-[260px]"
+        >
+          <div class="toc-sidebar-shell" :style="tocSidebarStyle">
             <div class="toc-card paper-card">
               <div class="toc-title">目录</div>
               <nav class="toc-list">
@@ -219,9 +223,11 @@ const prevArticle = ref<Article | null>(null);
 const nextArticle = ref<Article | null>(null);
 const loading = ref(false);
 const contentRef = ref<HTMLElement | null>(null);
+const tocAsideRef = ref<HTMLElement | null>(null);
 const readingProgress = ref(0);
 const activeHeadingId = ref("");
 const headingPositions = ref<{ id: string; top: number }[]>([]);
+const tocSidebarMetrics = ref<{ left: number; width: number } | null>(null);
 
 type ArticleNavItem = {
   type: "prev" | "next";
@@ -263,6 +269,20 @@ const adjacentArticles = computed<ArticleNavItem[]>(() => {
   }
 
   return items;
+});
+
+const tocSidebarStyle = computed(() => {
+  if (!tocSidebarMetrics.value) {
+    return {
+      opacity: "0",
+      pointerEvents: "none",
+    };
+  }
+
+  return {
+    left: `${tocSidebarMetrics.value.left}px`,
+    width: `${tocSidebarMetrics.value.width}px`,
+  };
 });
 
 // 获取文章详情
@@ -374,6 +394,29 @@ const updateHeadingPositions = async () => {
   }));
 };
 
+const updateTocSidebarMetrics = async () => {
+  await nextTick();
+
+  if (
+    !tocAsideRef.value ||
+    window.innerWidth < 1280 ||
+    !article.value ||
+    !tocItems.value.length
+  ) {
+    tocSidebarMetrics.value = null;
+    return;
+  }
+
+  const { left, width } = tocAsideRef.value.getBoundingClientRect();
+
+  if (width <= 0) {
+    tocSidebarMetrics.value = null;
+    return;
+  }
+
+  tocSidebarMetrics.value = { left, width };
+};
+
 const updateActiveHeading = () => {
   if (!headingPositions.value.length) {
     activeHeadingId.value = "";
@@ -412,14 +455,17 @@ const handleScroll = () => {
 };
 
 const handleResize = () => {
-  updateHeadingPositions();
+  void updateHeadingPositions();
+  void updateTocSidebarMetrics();
   handleScroll();
 };
 
 const scrollToHeading = (id: string) => {
   const target = document.getElementById(id);
   if (!target) return;
-  target.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  const top = target.getBoundingClientRect().top + window.scrollY - 96;
+  window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
 };
 
 const tocIndentClass = (level: number) => {
@@ -463,13 +509,14 @@ watch(articleId, () => {
 });
 
 watch(renderedContent, async () => {
-  await updateHeadingPositions();
+  await Promise.all([updateHeadingPositions(), updateTocSidebarMetrics()]);
   handleScroll();
 });
 
 // 同步目录数据到 toc store
 watch(tocItems, (items) => {
   tocStore.setTocItems(items);
+  void updateTocSidebarMetrics();
 }, { immediate: true });
 
 // 同步当前激活标题到 toc store
@@ -510,6 +557,14 @@ onUnmounted(() => {
   padding: 16px 14px;
   overflow: hidden;
 }
+
+.toc-sidebar-shell {
+  position: fixed;
+  top: 96px;
+  z-index: 30;
+  transition: opacity 0.2s ease;
+}
+
 
 .toc-title {
   font-size: 0.875rem;
