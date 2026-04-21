@@ -279,7 +279,7 @@ const tocSidebarStyle = computed(() => {
   if (!tocSidebarMetrics.value) {
     return {
       opacity: "0",
-      pointerEvents: "none",
+      pointerEvents: "none" as const,
     };
   }
 
