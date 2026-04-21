@@ -5,6 +5,8 @@ import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
 import com.syne.server.model.vo.ArticleDetailVO;
 import com.syne.server.model.vo.ArticleListVO;
+import com.syne.server.model.vo.ArticleSearchVO;
+
 import com.syne.server.service.ArticleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -75,6 +77,16 @@ public class ArticleController {
     }
 
     /**
+     * 获取顶部搜索使用的文章索引
+     */
+    @Operation(summary = "获取文章搜索索引", description = "获取顶部本地搜索使用的文章索引数据")
+    @GetMapping("/search-index")
+    public Result<List<ArticleSearchVO>> getSearchIndexArticles() {
+        List<ArticleSearchVO> result = articleService.getSearchIndexArticles();
+        return Result.success(result);
+    }
+
+    /**
      * 根据ID获取文章详情
      *
      * @param id 文章ID
@@ -90,6 +102,7 @@ public class ArticleController {
         ArticleDetailVO article = articleService.getUserArticleById(id);
         return Result.success(article);
     }
+
 
     /**
      * 获取推荐文章列表

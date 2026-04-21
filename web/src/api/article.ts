@@ -2,7 +2,8 @@
  * 文章相关 API
  */
 import { get, post } from './request'
-import type { Article, CategoryInfo, TagInfo, StatsInfo } from '@/types'
+import type { Article, ArticleSearchItem, CategoryInfo, TagInfo, StatsInfo } from '@/types'
+
 import type { PaginationParams, PaginationResponse } from '@/types/api'
 
 /**
@@ -28,6 +29,13 @@ export const articleApi = {
   },
 
   /**
+   * 获取顶部搜索使用的文章索引
+   */
+  getSearchIndex() {
+    return get<ArticleSearchItem[]>('/articles/search-index')
+  },
+
+  /**
    * 获取推荐文章
    * @param limit 数量限制
    * @returns 推荐文章列表
@@ -35,6 +43,7 @@ export const articleApi = {
   getRecommended(limit: number = 5) {
     return get<Article[]>('/articles/recommended', { limit })
   },
+
 
   /**
    * 获取我点赞的文章列表

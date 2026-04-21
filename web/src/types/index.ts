@@ -22,6 +22,18 @@ export interface Article {
   isFavorited?: boolean
 }
 
+export interface ArticleSearchItem {
+  id: number
+  title: string
+  summary: string
+  content: string
+  categoryName: string
+  tags: { id: number; name: string }[]
+  publishedTime: string
+  views: number
+}
+
+
 // 分类信息接口
 export interface CategoryInfo {
   id: number

@@ -130,7 +130,11 @@
 
           <!-- 上一篇 / 下一篇 -->
           <div v-if="adjacentArticles.length > 0" class="mt-12">
-            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div
+              class="grid grid-cols-1 gap-6"
+              :class="adjacentArticles.length > 1 ? 'md:grid-cols-2' : 'md:grid-cols-1'"
+            >
+
               <router-link
                 v-for="item in adjacentArticles"
                 :key="`${item.type}-${item.article.id}`"

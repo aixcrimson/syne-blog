@@ -9,6 +9,8 @@ import com.syne.server.model.entity.*;
 import com.syne.server.model.dto.ArticleDTO;
 import com.syne.server.model.vo.ArticleDetailVO;
 import com.syne.server.model.vo.ArticleListVO;
+import com.syne.server.model.vo.ArticleSearchVO;
+
 import com.syne.server.exception.BusinessException;
 import com.syne.server.mapper.*;
 import com.syne.server.service.ArticleService;
@@ -407,7 +409,36 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
+    public List<ArticleSearchVO> getSearchIndexArticles() {
+        List<Article> articles = this.lambdaQuery()
+                .eq(Article::getDeleted, 0)
+                .eq(Article::getStatus, 1)
+                .orderByDesc(Article::getIsTop)
+                .orderByDesc(Article::getPublishedTime)
+                .orderByDesc(Article::getCreateTime)
+                .list();
+
+        return articles.stream().map(article -> {
+            Category category = article.getCategoryId() != null
+                    ? categoryMapper.selectById(article.getCategoryId())
+                    : null;
+
+            ArticleSearchVO articleSearchVO = new ArticleSearchVO();
+            articleSearchVO.setId(article.getId());
+            articleSearchVO.setTitle(article.getTitle());
+            articleSearchVO.setSummary(article.getSummary());
+            articleSearchVO.setContent(article.getContent());
+            articleSearchVO.setCategoryName(category != null ? category.getName() : null);
+            articleSearchVO.setTags(tagService.getTagsByArticleId(article.getId()));
+            articleSearchVO.setPublishedTime(article.getPublishedTime());
+            articleSearchVO.setViews(article.getViews());
+            return articleSearchVO;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
     public ArticleDetailVO getUserArticleById(Long id) {
+
         // 获取文章基本信息
         Article article = this.getById(id);
         if(article == null || article.getDeleted() == 1) {

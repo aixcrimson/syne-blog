@@ -9,6 +9,8 @@ import com.syne.server.model.entity.Article;
 import com.syne.server.model.dto.ArticleDTO;
 import com.syne.server.model.vo.ArticleDetailVO;
 import com.syne.server.model.vo.ArticleListVO;
+import com.syne.server.model.vo.ArticleSearchVO;
+
 
 import java.util.List;
 import java.util.Map;
@@ -90,11 +92,18 @@ public interface ArticleService extends IService<Article> {
     PageResult<ArticleListVO> getUserArticleList(PageQuery pageQuery, String keyword, Long categoryId, List<Long> tagIds);
 
     /**
+     * 获取用户端搜索索引
+     * @return 搜索索引列表
+     */
+    List<ArticleSearchVO> getSearchIndexArticles();
+
+    /**
      * 用户端获取文章详情
      * @param id 文章ID
      * @return 文章详情
      */
     ArticleDetailVO getUserArticleById(Long id);
+
 
     /**
      * 获取推荐文章列表
