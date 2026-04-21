@@ -62,7 +62,6 @@ CREATE TABLE categories (
   name VARCHAR(50) NOT NULL UNIQUE,
   slug VARCHAR(50) NOT NULL UNIQUE,
   description TEXT DEFAULT NULL,
-  icon VARCHAR(255) DEFAULT NULL,
   sort_order INTEGER NOT NULL DEFAULT 0,
   create_by BIGINT DEFAULT NULL,
   update_by BIGINT DEFAULT NULL,
@@ -307,7 +306,6 @@ DROP TABLE IF EXISTS navigation_categories CASCADE;
 CREATE TABLE navigation_categories (
   id BIGSERIAL PRIMARY KEY,
   name VARCHAR(50) NOT NULL UNIQUE,
-  icon VARCHAR(255) DEFAULT NULL,
   sort_order INTEGER NOT NULL DEFAULT 0,
   create_by BIGINT DEFAULT NULL,
   update_by BIGINT DEFAULT NULL,
@@ -339,7 +337,6 @@ CREATE TABLE navigation_sites (
   name VARCHAR(100) NOT NULL,
   description TEXT DEFAULT NULL,
   url VARCHAR(500) NOT NULL,
-  icon VARCHAR(500) DEFAULT NULL,
   sort_order INTEGER NOT NULL DEFAULT 0,
   create_by BIGINT DEFAULT NULL,
   update_by BIGINT DEFAULT NULL,
@@ -396,7 +393,6 @@ DROP TABLE IF EXISTS skills CASCADE;
 CREATE TABLE skills (
   id BIGSERIAL PRIMARY KEY,
   name VARCHAR(50) NOT NULL,
-  icon VARCHAR(255) DEFAULT NULL,
   percentage INTEGER NOT NULL DEFAULT 0 CHECK (percentage BETWEEN 0 AND 100),
   color VARCHAR(20) DEFAULT NULL,
   sort_order INTEGER NOT NULL DEFAULT 0,
@@ -409,7 +405,6 @@ CREATE TABLE skills (
 
 COMMENT ON TABLE skills IS '技能栈表';
 COMMENT ON COLUMN skills.name IS '技能名称';
-COMMENT ON COLUMN skills.icon IS '技能图标';
 COMMENT ON COLUMN skills.percentage IS '熟练度百分比';
 COMMENT ON COLUMN skills.color IS '进度条颜色';
 COMMENT ON COLUMN skills.sort_order IS '排序权重';
@@ -457,7 +452,6 @@ CREATE TABLE timelines (
   year VARCHAR(20) NOT NULL,
   title VARCHAR(100) NOT NULL,
   description TEXT DEFAULT NULL,
-  icon VARCHAR(50) DEFAULT NULL,
   color VARCHAR(20) DEFAULT 'primary',
   create_by BIGINT DEFAULT NULL,
   update_by BIGINT DEFAULT NULL,
@@ -468,7 +462,6 @@ CREATE TABLE timelines (
 
 COMMENT ON TABLE timelines IS '时间线表';
 COMMENT ON COLUMN timelines.year IS '年份或时间点';
-COMMENT ON COLUMN timelines.icon IS '图标名称';
 COMMENT ON COLUMN timelines.color IS '节点颜色类型';
 
 
@@ -634,11 +627,11 @@ INSERT INTO article_tags (article_id, tag_id, create_by, update_by) VALUES
 (5, 8, 1, 1);                  -- 算法文章关联算法
 
 -- 插入导航分类
-INSERT INTO navigation_categories (name, icon, sort_order, create_by, update_by) VALUES
-('开发工具', '🛠️', 100, 1, 1),
-('学习资源', '📚', 90, 1, 1),
-('技术社区', '💬', 80, 1, 1),
-('设计资源', '🎨', 70, 1, 1);
+INSERT INTO navigation_categories (name, sort_order, create_by, update_by) VALUES
+('开发工具', 100, 1, 1),
+('学习资源', 90, 1, 1),
+('技术社区', 80, 1, 1),
+('设计资源', 70, 1, 1);
 
 -- 插入导航站点
 INSERT INTO navigation_sites (category_id, name, description, url, sort_order, create_by, update_by) VALUES
@@ -655,12 +648,12 @@ INSERT INTO notices (content, is_show, sort_order, create_by, update_by) VALUES
 ('本站源码已在 GitHub 开源，欢迎 Star！⭐', 1, 90, 1, 1);
 
 -- 插入技能栈
-INSERT INTO skills (name, icon, percentage, color, sort_order, create_by, update_by) VALUES
-('Vue.js', '🟩', 90, 'rgb(66, 184, 131)', 100, 1, 1),
-('React', '⚛️', 85, 'rgb(97, 218, 251)', 90, 1, 1),
-('Java', '☕', 80, 'rgb(248, 152, 32)', 80, 1, 1),
-('Spring Boot', '🍃', 85, 'rgb(109, 179, 63)', 70, 1, 1),
-('Docker', '🐳', 75, 'rgb(36, 150, 237)', 60, 1, 1);
+INSERT INTO skills (name, percentage, color, sort_order, create_by, update_by) VALUES
+('Vue.js', 90, 'rgb(66, 184, 131)', 100, 1, 1),
+('React', 85, 'rgb(97, 218, 251)', 90, 1, 1),
+('Java', 80, 'rgb(248, 152, 32)', 80, 1, 1),
+('Spring Boot', 85, 'rgb(109, 179, 63)', 70, 1, 1),
+('Docker', 75, 'rgb(36, 150, 237)', 60, 1, 1);
 
 -- 插入项目
 INSERT INTO projects (title, description, cover_image, github_url, preview_url, tech_stack, is_featured, sort_order, create_by, update_by) VALUES
@@ -668,8 +661,8 @@ INSERT INTO projects (title, description, cover_image, github_url, preview_url, 
 ('React Admin', '基于 React 的后台管理系统模板', NULL, 'https://github.com/aixcrimson/react-admin', NULL, 'React,Ant Design,Vite', 1, 90, 1, 1);
 
 -- 插入时间线
-INSERT INTO timelines (year, title, description, icon, color, create_by, update_by) VALUES
-('2025', '技术沉淀', '深入研究云原生技术，开始全栈开发之路', '🌟', 'rgb(59, 130, 246)', 1, 1),
-('2024', '开源贡献', '参与多个开源项目，贡献代码', '🚀', 'rgb(34, 197, 94)', 1, 1),
-('2023', '初入职场', '加入某互联网大厂，担任前端开发工程师', '💼', 'rgb(234, 179, 8)', 1, 1),
-('2022', '毕业季', '获得计算机科学与技术学士学位', '🎓', 'rgb(107, 114, 128)', 1, 1);
+INSERT INTO timelines (year, title, description, color, create_by, update_by) VALUES
+('2025', '技术沉淀', '深入研究云原生技术，开始全栈开发之路', 'rgb(59, 130, 246)', 1, 1),
+('2024', '开源贡献', '参与多个开源项目，贡献代码', 'rgb(34, 197, 94)', 1, 1),
+('2023', '初入职场', '加入某互联网大厂，担任前端开发工程师', 'rgb(234, 179, 8)', 1, 1),
+('2022', '毕业季', '获得计算机科学与技术学士学位', 'rgb(107, 114, 128)', 1, 1);

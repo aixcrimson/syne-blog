@@ -99,7 +99,6 @@ public class BookmarkImportServiceImpl implements BookmarkImportService {
                     // 创建新分类
                     NavigationCategory category = new NavigationCategory();
                     category.setName(mapping.getNewCategoryName());
-                    category.setIcon(mapping.getNewCategoryIcon());
                     category.setSortOrder((int) (categoryService.count() + newCategories.size()));
 
 
@@ -115,7 +114,6 @@ public class BookmarkImportServiceImpl implements BookmarkImportService {
                 for (NavigationCategory category : newCategories) {
                     NavigationCategoryDTO dto = new NavigationCategoryDTO();
                     dto.setName(category.getName());
-                    dto.setIcon(category.getIcon());
                     dto.setSortOrder(category.getSortOrder());
                     NavigationCategory created = categoryService.createNavigationCategory(dto);
                     folderToCategoryMap.put(created.getName(), created.getId());
@@ -189,7 +187,6 @@ public class BookmarkImportServiceImpl implements BookmarkImportService {
                     dto.setName(site.getName());
                     dto.setDescription(site.getDescription());
                     dto.setUrl(site.getUrl());
-                    dto.setIcon(site.getIcon());
                     dto.setSortOrder(site.getSortOrder());
                     siteService.createNavigationSite(dto);
                 }

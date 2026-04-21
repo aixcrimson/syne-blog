@@ -69,7 +69,6 @@ public class SkillServiceImpl extends ServiceImpl<SkillMapper, Skill> implements
         Skill existing = this.getSkillById(id);
         
         existing.setName(skill.getName());
-        existing.setIcon(skill.getIcon());
         existing.setPercentage(skill.getPercentage());
         existing.setColor(skill.getColor());
         existing.setSortOrder(skill.getSortOrder());

@@ -20,8 +20,6 @@ public class NavigationCategoryDTO {
     @Size(max = 50, message = "分类名称长度不能超过50个字符")
     private String name;
 
-    @Schema(description = "分类图标")
-    private String icon;
 
     @Schema(description = "排序权重")
     private Integer sortOrder;

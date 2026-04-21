@@ -64,7 +64,6 @@ public class NavigationCategoryServiceImpl extends ServiceImpl<NavigationCategor
     public NavigationCategory createNavigationCategory(NavigationCategoryDTO dto) {
         NavigationCategory category = new NavigationCategory();
         category.setName(dto.getName());
-        category.setIcon(dto.getIcon());
         category.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : 0);
 
         navigationCategoryMapper.insert(category);
@@ -81,7 +80,6 @@ public class NavigationCategoryServiceImpl extends ServiceImpl<NavigationCategor
         }
 
         category.setName(dto.getName());
-        category.setIcon(dto.getIcon());
         category.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : 0);
 
         navigationCategoryMapper.updateById(category);

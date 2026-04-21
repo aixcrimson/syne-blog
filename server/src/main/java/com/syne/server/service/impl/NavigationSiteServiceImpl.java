@@ -86,7 +86,6 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
         site.setName(dto.getName());
         site.setDescription(dto.getDescription());
         site.setUrl(dto.getUrl());
-        site.setIcon(dto.getIcon());
         site.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : 0);
 
         navigationSiteMapper.insert(site);
@@ -111,7 +110,6 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
         site.setName(dto.getName());
         site.setDescription(dto.getDescription());
         site.setUrl(dto.getUrl());
-        site.setIcon(dto.getIcon());
         site.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : 0);
 
         navigationSiteMapper.updateById(site);
@@ -160,7 +158,6 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
             vo.setName(site.getName());
             vo.setDescription(site.getDescription());
             vo.setUrl(site.getUrl());
-            vo.setIcon(site.getIcon());
             vo.setSortOrder(site.getSortOrder());
             vo.setCreateTime(site.getCreateTime());
             vo.setUpdateTime(site.getUpdateTime());
@@ -192,7 +189,6 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
             vo.setName(site.getName());
             vo.setDescription(site.getDescription());
             vo.setUrl(site.getUrl());
-            vo.setIcon(site.getIcon());
             vo.setSortOrder(site.getSortOrder());
             vo.setCreateTime(site.getCreateTime());
             vo.setUpdateTime(site.getUpdateTime());
@@ -240,7 +236,6 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
             NavigationCategoryWithSitesVO vo = new NavigationCategoryWithSitesVO();
             vo.setId(category.getId());
             vo.setName(category.getName());
-            vo.setIcon(category.getIcon());
             vo.setSortOrder(category.getSortOrder());
             vo.setCreateTime(category.getCreateTime());
             vo.setUpdateTime(category.getUpdateTime());
@@ -255,7 +250,6 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
                 siteVO.setName(site.getName());
                 siteVO.setDescription(site.getDescription());
                 siteVO.setUrl(site.getUrl());
-                siteVO.setIcon(site.getIcon());
                 siteVO.setSortOrder(site.getSortOrder());
                 siteVO.setCreateTime(site.getCreateTime());
                 siteVO.setUpdateTime(site.getUpdateTime());

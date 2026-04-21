@@ -66,7 +66,6 @@ public class TimelineServiceImpl extends ServiceImpl<TimelineMapper, Timeline> i
         existing.setYear(timeline.getYear());
         existing.setTitle(timeline.getTitle());
         existing.setDescription(timeline.getDescription());
-        existing.setIcon(timeline.getIcon());
         existing.setColor(timeline.getColor());
 
         

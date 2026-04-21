@@ -65,7 +65,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         category.setName(categoryDTO.getName());
         category.setSlug(categoryDTO.getSlug());
         category.setDescription(categoryDTO.getDescription());
-        category.setIcon(categoryDTO.getIcon());
         category.setSortOrder(categoryDTO.getSortOrder());
 
         // 保存
@@ -87,7 +86,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         category.setName(categoryDTO.getName());
         category.setSlug(categoryDTO.getSlug());
         category.setDescription(categoryDTO.getDescription());
-        category.setIcon(categoryDTO.getIcon());
         category.setSortOrder(categoryDTO.getSortOrder());
 
         // 保存

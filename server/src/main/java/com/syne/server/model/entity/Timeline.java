@@ -37,10 +37,6 @@ public class Timeline extends BaseEntity {
      */
     private String description;
 
-    /**
-     * 图标名称
-     */
-    private String icon;
 
     /**
      * 节点颜色类型
