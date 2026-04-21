@@ -139,11 +139,7 @@
                     placeholder="新分类名称"
                     class="mb-2"
                   />
-                  <IconSelector
-                    v-model="row.newCategoryIcon"
-                    placeholder="分类图标"
-                    :clearable="true"
-                  />
+
                 </template>
                 <div v-else>-</div>
               </template>
@@ -242,7 +238,6 @@ import {
   CircleCheckFilled,
   CircleCloseFilled,
 } from "@element-plus/icons-vue";
-import IconSelector from "@/components/IconSelector.vue";
 import { navigationApi } from "@/api/navigation";
 import type {
   BookmarkPreviewDTO,
@@ -257,7 +252,6 @@ interface FolderMappingItem {
   mappingType: "existing" | "new" | "";
   categoryId: number | null;
   newCategoryName: string;
-  newCategoryIcon: string;
 }
 
 // 组件属性
@@ -346,7 +340,6 @@ const nextStep = async () => {
         mappingType: "existing" as const,
         categoryId: null,
         newCategoryName: cat.name,
-        newCategoryIcon: "",
       }));
 
       currentStep.value = 1;
@@ -369,7 +362,6 @@ const handleFolderSelect = (row: FolderMappingItem) => {
     row.mappingType = "";
     row.categoryId = null;
     row.newCategoryName = "";
-    row.newCategoryIcon = "";
   }
 };
 
@@ -377,7 +369,6 @@ const handleMappingTypeChange = (row: FolderMappingItem) => {
   row.categoryId = null;
   if (row.mappingType === "new") {
     row.newCategoryName = row.folder;
-    row.newCategoryIcon = "";
   }
 };
 
@@ -400,7 +391,6 @@ const handleImport = async () => {
         categoryId: 0, // 临时值，后端会创建新分类
         createNew: true,
         newCategoryName: mapping.newCategoryName,
-        newCategoryIcon: mapping.newCategoryIcon,
       });
     }
 

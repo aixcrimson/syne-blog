@@ -45,16 +45,6 @@
                 颜色:
                 <el-tag :type="row.color" size="small">{{ row.color }}</el-tag>
               </div>
-              <div class="text-xs text-gray-400">
-                图标:
-                <el-icon
-                  v-if="row.icon && isElementIcon(row.icon)"
-                  class="align-text-top"
-                >
-                  <component :is="row.icon" />
-                </el-icon>
-                <span v-else>{{ row.icon || "-" }}</span>
-              </div>
             </div>
           </template>
         </el-table-column>
@@ -146,13 +136,6 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="图标" prop="icon">
-          <IconSelector
-            v-model="form.icon"
-            placeholder="请选择图标"
-            :clearable="true"
-          />
-        </el-form-item>
 
       </el-form>
       <template #footer>
@@ -177,9 +160,6 @@ import {
 import dayjs from "dayjs";
 import { timelineApi } from "@/api/siteContent";
 import type { Timeline, TimelineForm } from "@/types";
-import IconSelector from "@/components/IconSelector.vue";
-import * as ElementPlusIconsVue from "@element-plus/icons-vue";
-
 // ==================== 状态 ====================
 const loading = ref(false);
 const list = ref<Timeline[]>([]);
@@ -193,7 +173,6 @@ const form = reactive<TimelineForm>({
   year: "",
   title: "",
   description: "",
-  icon: "",
   color: "primary",
   sortOrder: 0,
 });
@@ -223,16 +202,6 @@ const formatDate = (date: string) => {
   return date ? dayjs(date).format("YYYY-MM-DD HH:mm") : "-";
 };
 
-/** 检测是否为 Element Plus 图标 */
-const isElementIcon = (icon: string): boolean => {
-  return !!(
-    icon &&
-    typeof icon === "string" &&
-    !/\p{Extended_Pictographic}/u.test(icon) &&
-    /^[A-Z]/.test(icon) &&
-    icon in ElementPlusIconsVue
-  );
-};
 
 const loadData = async () => {
   loading.value = true;
@@ -258,7 +227,6 @@ const handleEdit = (row: Timeline) => {
   form.year = row.year;
   form.title = row.title;
   form.description = row.description;
-  form.icon = row.icon;
   form.color = row.color;
 
   dialogVisible.value = true;
@@ -290,7 +258,6 @@ const resetForm = () => {
   form.year = "";
   form.title = "";
   form.description = "";
-  form.icon = "";
   form.color = "primary";
   form.sortOrder = 0;
   formRef.value?.clearValidate();

@@ -44,10 +44,7 @@
                 <el-icon class="category-drag-handle cursor-move text-gray-400 hover:text-gray-600">
                   <Rank />
                 </el-icon>
-                <el-icon v-if="category.icon && isElementIcon(category.icon)" class="text-xl">
-                  <component :is="category.icon" />
-                </el-icon>
-                <span v-else-if="category.icon" class="text-xl">{{ category.icon }}</span>
+
                 <span class="font-medium text-gray-800">{{ category.name }}</span>
                 <el-tag type="info" size="small">{{ category.sites?.length || 0 }} 个站点</el-tag>
               </div>
@@ -87,12 +84,7 @@
                       <el-icon class="site-drag-handle cursor-move text-gray-400 hover:text-gray-600">
                         <Rank />
                       </el-icon>
-                      <div v-if="site.icon" class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded">
-                        <el-icon v-if="isElementIcon(site.icon)" class="text-lg">
-                          <component :is="site.icon" />
-                        </el-icon>
-                        <span v-else class="text-lg">{{ site.icon }}</span>
-                      </div>
+
                       <div class="flex-1 min-w-0">
                         <div class="font-medium text-gray-800 truncate">{{ site.name }}</div>
                         <div class="text-xs text-gray-400 truncate">{{ site.url }}</div>
@@ -136,13 +128,6 @@
         <el-form-item label="名称" prop="name">
           <el-input v-model="categoryForm.name" placeholder="请输入分类名称" maxlength="50" show-word-limit />
         </el-form-item>
-        <el-form-item label="图标" prop="icon">
-          <IconSelector
-            v-model="categoryForm.icon"
-            placeholder="请选择图标"
-            :clearable="true"
-          />
-        </el-form-item>
         <el-form-item label="排序" prop="sortOrder">
           <el-input-number v-model="categoryForm.sortOrder" :min="0" :max="9999" />
         </el-form-item>
@@ -176,13 +161,6 @@
         <el-form-item label="描述" prop="description">
           <el-input v-model="siteForm.description" type="textarea" :rows="2" placeholder="请输入站点描述" maxlength="200" show-word-limit />
         </el-form-item>
-        <el-form-item label="图标" prop="icon">
-          <IconSelector
-            v-model="siteForm.icon"
-            placeholder="请选择图标"
-            :clearable="true"
-          />
-        </el-form-item>
         <el-form-item label="排序" prop="sortOrder">
           <el-input-number v-model="siteForm.sortOrder" :min="0" :max="9999" />
         </el-form-item>
@@ -215,14 +193,11 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Plus, Edit, Delete, Rank, Link, Upload } from '@element-plus/icons-vue'
-import IconSelector from '@/components/IconSelector.vue'
 import draggable from 'vuedraggable'
 import { navigationApi, type NavigationCategoryForm, type NavigationSiteForm } from '@/api/navigation'
 import type { NavigationCategory, NavigationSite, SortOrderItem } from '@/types'
 import { isValidUrl } from '@/utils/validate'
 import BookmarkImport from './components/BookmarkImport.vue'
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-
 /** vuedraggable change 事件类型 */
 interface DragChangeEvent {
   added?: { element: NavigationSite; newIndex: number }
@@ -235,14 +210,6 @@ const loading = ref(false)
 
 /** 分类列表 */
 const categoryList = ref<NavigationCategory[]>([])
-
-/** 检测是否为 Element Plus 图标 */
-const isElementIcon = (icon: string): boolean => {
-  return !!(icon && typeof icon === 'string' &&
-         !/\p{Extended_Pictographic}/u.test(icon) &&
-         /^[A-Z]/.test(icon) &&
-         icon in ElementPlusIconsVue)
-}
 
 /** 站点总数 */
 const totalSites = computed(() => 
@@ -269,7 +236,6 @@ const categorySubmitting = ref(false)
 /** 分类表单数据 */
 const categoryForm = reactive<NavigationCategoryForm>({
   name: '',
-  icon: '',
   sortOrder: 0
 })
 
@@ -307,7 +273,6 @@ const siteForm = reactive<NavigationSiteForm>({
   name: '',
   description: '',
   url: '',
-  icon: '',
   sortOrder: 0
 })
 
@@ -384,7 +349,6 @@ const loadCategoryList = async () => {
 /** 重置分类表单 */
 const resetCategoryForm = () => {
   categoryForm.name = ''
-  categoryForm.icon = ''
   categoryForm.sortOrder = categoryList.value.length
   categoryFormRef.value?.clearValidate()
 }
@@ -408,7 +372,6 @@ const handleEditCategory = (category: NavigationCategory) => {
   isCategoryEdit.value = true
   editingCategoryId.value = category.id
   categoryForm.name = category.name
-  categoryForm.icon = category.icon || ''
   categoryForm.sortOrder = category.sortOrder
   categoryDialogVisible.value = true
 }
@@ -491,7 +454,6 @@ const resetSiteForm = () => {
   siteForm.name = ''
   siteForm.description = ''
   siteForm.url = ''
-  siteForm.icon = ''
   siteForm.sortOrder = 0
   siteFormRef.value?.clearValidate()
 }
@@ -520,7 +482,6 @@ const handleEditSite = (site: NavigationSite, category: NavigationCategory) => {
   siteForm.name = site.name
   siteForm.description = site.description || ''
   siteForm.url = site.url
-  siteForm.icon = site.icon || ''
   siteForm.sortOrder = site.sortOrder
   siteDialogVisible.value = true
 }

@@ -33,17 +33,6 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="图标" prop="icon" width="100" align="center">
-          <template #default="{ row }">
-             <div class="flex items-center justify-center">
-              <el-icon v-if="row.icon && isElementIcon(row.icon)" class="text-xl">
-                <component :is="row.icon" />
-              </el-icon>
-              <span v-else-if="row.icon" class="text-xl">{{ row.icon }}</span>
-              <span v-else class="text-gray-400">-</span>
-            </div>
-          </template>
-        </el-table-column>
 
         <el-table-column label="颜色" width="100" align="center">
           <template #default="{ row }">
@@ -124,13 +113,6 @@
             />
           </div>
         </el-form-item>
-        <el-form-item label="图标" prop="icon">
-          <IconSelector
-            v-model="form.icon"
-            placeholder="请选择图标"
-            :clearable="true"
-          />
-        </el-form-item>
         <el-form-item label="排序" prop="sortOrder">
           <el-input-number
             v-model="form.sortOrder"
@@ -163,9 +145,6 @@ import {
 import dayjs from "dayjs";
 import { skillApi } from "@/api/siteContent";
 import type { Skill, SkillForm } from "@/types";
-import IconSelector from "@/components/IconSelector.vue";
-import * as ElementPlusIconsVue from "@element-plus/icons-vue";
-
 // ==================== 状态 ====================
 const loading = ref(false);
 const list = ref<Skill[]>([]);
@@ -177,7 +156,6 @@ const editId = ref<number | null>(null);
 const formRef = ref<FormInstance>();
 const form = reactive<SkillForm>({
   name: "",
-  icon: "",
   percentage: 50,
   color: "rgb(59, 130, 246)",
   sortOrder: 0,
@@ -211,16 +189,6 @@ const formatDate = (date: string) => {
   return date ? dayjs(date).format("YYYY-MM-DD HH:mm") : "-";
 };
 
-/** 检测是否为 Element Plus 图标 */
-const isElementIcon = (icon: string): boolean => {
-  return !!(
-    icon &&
-    typeof icon === "string" &&
-    !/\p{Extended_Pictographic}/u.test(icon) &&
-    /^[A-Z]/.test(icon) &&
-    icon in ElementPlusIconsVue
-  );
-};
 
 const loadData = async () => {
   loading.value = true;
@@ -244,7 +212,6 @@ const handleEdit = (row: Skill) => {
   isEdit.value = true;
   editId.value = row.id;
   form.name = row.name;
-  form.icon = row.icon;
   form.percentage = row.percentage;
   form.color = row.color;
   form.sortOrder = row.sortOrder;
@@ -275,7 +242,6 @@ const handleDelete = async (row: Skill) => {
 
 const resetForm = () => {
   form.name = "";
-  form.icon = "";
   form.percentage = 50;
   form.color = "rgb(59, 130, 246)";
   form.sortOrder = 0;
