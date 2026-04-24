@@ -38,7 +38,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tags> implements TagS
         // 查询标签列表
         List<TagListVO> list = tagMapper.selectTagList(
                 keyword,
-                StringUtils.hasText(sortBy) ? sortBy : "usage_count",
+                StringUtils.hasText(sortBy) ? sortBy : "article_count",
                 StringUtils.hasText(sortOrder) ? sortOrder : "desc",
                 pageQuery.getOffset(),
                 pageQuery.getPageSize()
@@ -192,9 +192,9 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tags> implements TagS
         }
 
         // 检查标签是否被文章使用
-        Integer usageCount = tagMapper.countArticleTagsByTagId(id);
-        if (usageCount > 0) {
-            throw new BusinessException("标签'" + tags.getName() + "'正在被" + usageCount + "篇文章使用，无法删除");
+        Integer articleCount = tagMapper.countArticleTagsByTagId(id);
+        if (articleCount > 0) {
+            throw new BusinessException("标签'" + tags.getName() + "'正在被" + articleCount + "篇文章使用，无法删除");
         }
 
         // 逻辑删除
@@ -224,20 +224,6 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tags> implements TagS
 
     @Override
     public List<TagListVO> getAllTagList(){
-        // 查询所有未删除的标签
-        List<Tags> tags = this.list(); // ServiceImpl 的 list() 方法默认会处理逻辑删除
-
-        if (tags == null || tags.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<TagListVO> list = new ArrayList<>();
-        for (Tags tag : tags) {
-            TagListVO vo = new TagListVO();
-            BeanUtils.copyProperties(tag, vo);
-            list.add(vo);
-        }
-
-        return list;
+        return tagMapper.selectAllTagList();
     }
 }

@@ -63,8 +63,7 @@ export interface Tag {
   slug: string
   /** 标签颜色 */
   color: string
-  /** 使用次数 */
-  usageCount: number
+  /** 有效文章数 */
   articleCount: number
   /** 创建时间 */
   createTime: string

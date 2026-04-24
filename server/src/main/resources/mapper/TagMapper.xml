@@ -8,7 +8,6 @@
         <result property="name" column="name"/>
         <result property="slug" column="slug"/>
         <result property="color" column="color"/>
-        <result property="usageCount" column="usage_count"/>
         <result property="articleCount" column="article_count"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
@@ -21,26 +20,27 @@
             t.name,
             t.slug,
             COALESCE(t.color, '#409EFF') AS color,
-            COALESCE(t.usage_count, 0) AS usage_count,
             COALESCE(atc.article_count, 0) AS article_count,
             t.create_time,
             t.update_time
         FROM tags t
         LEFT JOIN (
             SELECT
-                tag_id,
+                at.tag_id,
                 COUNT(*) AS article_count
-            FROM article_tags
-            WHERE deleted = 0
-            GROUP BY tag_id
+            FROM article_tags at
+            INNER JOIN articles a ON a.id = at.article_id
+            WHERE at.deleted = 0
+              AND a.deleted = 0
+            GROUP BY at.tag_id
         ) atc ON atc.tag_id = t.id
         WHERE t.deleted = 0
         <if test="keyword != null and keyword != ''">
             AND (t.name ILIKE CONCAT('%', #{keyword}, '%') OR t.slug ILIKE CONCAT('%', #{keyword}, '%'))
         </if>
         <choose>
-            <when test="sortBy == 'usage_count'">
-                ORDER BY t.usage_count
+            <when test="sortBy == 'usage_count' or sortBy == 'article_count'">
+                ORDER BY COALESCE(atc.article_count, 0)
             </when>
             <when test="sortBy == 'create_time'">
                 ORDER BY t.create_time
@@ -49,7 +49,7 @@
                 ORDER BY t.name
             </when>
             <otherwise>
-                ORDER BY t.usage_count
+                ORDER BY COALESCE(atc.article_count, 0)
             </otherwise>
         </choose>
         <choose>
@@ -73,11 +73,39 @@
         </if>
     </select>
 
+    <!-- 查询所有标签列表 -->
+    <select id="selectAllTagList" resultMap="TagListVOMap">
+        SELECT
+            t.id,
+            t.name,
+            t.slug,
+            COALESCE(t.color, '#409EFF') AS color,
+            COALESCE(atc.article_count, 0) AS article_count,
+            t.create_time,
+            t.update_time
+        FROM tags t
+        LEFT JOIN (
+            SELECT
+                at.tag_id,
+                COUNT(*) AS article_count
+            FROM article_tags at
+            INNER JOIN articles a ON a.id = at.article_id
+            WHERE at.deleted = 0
+              AND a.deleted = 0
+            GROUP BY at.tag_id
+        ) atc ON atc.tag_id = t.id
+        WHERE t.deleted = 0
+        ORDER BY COALESCE(atc.article_count, 0) DESC, t.create_time DESC
+    </select>
+
     <!-- 检查标签是否被文章使用 -->
     <select id="countArticleTagsByTagId" resultType="java.lang.Integer">
         SELECT COUNT(*)
-        FROM article_tags
-        WHERE tag_id = #{tagId} AND deleted = 0
+        FROM article_tags at
+        INNER JOIN articles a ON a.id = at.article_id
+        WHERE at.tag_id = #{tagId}
+          AND at.deleted = 0
+          AND a.deleted = 0
     </select>
 
 </mapper>

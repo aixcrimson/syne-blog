@@ -51,7 +51,7 @@ public class TagController {
         @Parameter(description = "搜索关键词", example = "Vue")
         @RequestParam(required = false) String keyword,
 
-        @Parameter(description = "排序字段", example = "usage_count")
+        @Parameter(description = "排序字段", example = "article_count")
         @RequestParam(required = false) String sortBy,
 
         @Parameter(description = "排序方向", example = "desc")

@@ -372,6 +372,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 .set(Article::getUpdateTime, LocalDateTime.now());
 
         this.update(updateWrapper);
+        articleTagMapper.deleteByArticleId(id);
 
         log.info("删除文章成功：id={}, title={}", id, article.getTitle());
     }

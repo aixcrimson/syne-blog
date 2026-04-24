@@ -46,10 +46,10 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="使用次数" width="100" align="center">
+        <el-table-column label="有效文章数" width="100" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.usageCount > 0 ? 'success' : 'info'" size="small">
-              {{ row.usageCount }}
+            <el-tag :type="row.articleCount > 0 ? 'success' : 'info'" size="small">
+              {{ row.articleCount }}
             </el-tag>
           </template>
         </el-table-column>
