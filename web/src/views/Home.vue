@@ -41,10 +41,10 @@
       :style="{ minHeight: mainContentMinHeight }"
     >
       <div class="px-4 mx-auto max-w-[1480px] sm:px-6 lg:px-8">
-        <div class="flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
+        <div class="flex flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,900px)_260px] xl:items-start xl:justify-center">
 
           <!-- 最新文章 -->
-          <div class="min-w-0 xl:max-w-[1040px] xl:flex-1">
+          <div class="min-w-0 xl:w-full xl:max-w-[900px]">
 
             <div class="flex items-center gap-4 mb-6">
               <h2
@@ -80,7 +80,7 @@
           </div>
 
           <!-- 侧边栏 -->
-          <Sidebar class="hidden xl:block xl:w-[320px] xl:flex-none" />
+          <Sidebar class="hidden xl:block xl:w-[260px] xl:flex-none" />
         </div>
       </div>
 
