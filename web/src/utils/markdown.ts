@@ -65,7 +65,14 @@ export function renderMarkdownWithToc(content: string): { html: string; toc: Toc
     if (token.type !== 'heading_open') continue
     const level = Number(token.tag.slice(1))
     const titleToken = tokens[i + 1]
-    const title = titleToken?.content?.trim() || ''
+    // 提取纯文本标题，过滤掉 Markdown 符号（如 **）
+    const title = titleToken?.children
+      ? titleToken.children
+          .filter(t => t.type === 'text' || t.type === 'code_inline')
+          .map(t => t.content)
+          .join('')
+          .trim()
+      : titleToken?.content?.trim() || ''
     const id = buildSlug(title || `section-${toc.length + 1}`, slugCounts)
     token.attrSet('id', id)
     if (title) {

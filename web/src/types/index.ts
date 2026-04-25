@@ -45,6 +45,7 @@ export interface CategoryInfo {
 export interface TagInfo {
   id: number
   name: string
+  articleCount?: number
 }
 
 // 统计信息接口

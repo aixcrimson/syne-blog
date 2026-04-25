@@ -89,14 +89,12 @@
       <!-- 分类列表卡片 -->
       <div class="overflow-hidden paper-card paper-card-hover">
         <div class="px-4 py-2.5 border-b border-slate-200/70 dark:border-slate-700/70">
-
           <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100">
             分类列表
           </h3>
         </div>
         <div class="p-3">
           <div class="space-y-1">
-
             <!-- 加载中 -->
             <div v-if="loadingCategories" class="flex justify-center items-center py-8">
               <el-icon class="is-loading text-2xl text-primary-500">
@@ -110,7 +108,6 @@
                 v-for="category in categories"
                 :key="category.id"
                 class="flex justify-between items-center px-2.5 py-2 rounded-lg transition-colors cursor-pointer category-item hover:bg-slate-50/70 dark:hover:bg-slate-800/50"
-
                 @click="handleCategoryClick(category.id)"
               >
                 <div class="flex gap-2.5 items-center">
@@ -136,6 +133,42 @@
           </div>
         </div>
       </div>
+
+      <!-- 标签云卡片 -->
+      <div class="overflow-hidden paper-card paper-card-hover">
+        <div class="px-4 py-2.5 border-b border-slate-200/70 dark:border-slate-700/70">
+          <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100">
+            标签云
+          </h3>
+        </div>
+        <div class="p-4">
+          <div v-if="loadingTags" class="flex justify-center items-center py-6">
+            <el-icon class="is-loading text-2xl text-primary-500">
+              <Loading />
+            </el-icon>
+          </div>
+          <div v-else class="flex flex-wrap gap-2">
+            <div
+              v-for="tag in tags"
+              :key="tag.id"
+              class="px-3 py-1 text-xs font-medium transition-all duration-300 rounded-full cursor-pointer select-none"
+              :class="[
+                selectedTagIds?.includes(tag.id)
+                  ? 'bg-primary-500 text-white shadow-sm scale-105'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+              ]"
+              @click="handleTagClick(tag.id)"
+            >
+              {{ tag.name }}
+            </div>
+            <el-empty
+              v-if="tags.length === 0"
+              description="暂无标签"
+              :image-size="40"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   </aside>
 </template>
@@ -144,20 +177,27 @@ import { ref, onMounted } from "vue";
 import { Loading } from "@element-plus/icons-vue";
 import { useSiteStore } from "@/stores/site";
 import { articleApi } from "@/api/article";
-import type { CategoryInfo, StatsInfo } from "@/types";
+import type { CategoryInfo, TagInfo, StatsInfo } from "@/types";
 import defaultAvatar from "@/assets/images/avatar/defalutAvatar.jpg";
 
 const siteStore = useSiteStore();
 
+const props = defineProps<{
+  selectedTagIds?: number[];
+}>();
+
 const emit = defineEmits<{
   (e: "category-click", id: number): void;
+  (e: "tag-click", id: number): void;
 }>();
 
 // 加载状态
 const loadingCategories = ref(true);
+const loadingTags = ref(true);
 
-// 分类数据
+// 数据
 const categories = ref<CategoryInfo[]>([]);
+const tags = ref<TagInfo[]>([]);
 // 统计数据
 const stats = ref<StatsInfo>({
   totalArticles: 0,
@@ -169,7 +209,6 @@ const stats = ref<StatsInfo>({
  * 获取分类列表
  */
 const fetchCategories = async () => {
-
   loadingCategories.value = true;
   try {
     categories.value = await articleApi.getCategories();
@@ -179,6 +218,22 @@ const fetchCategories = async () => {
     loadingCategories.value = false;
   }
 };
+
+/**
+ * 获取标签列表
+ */
+const fetchTags = async () => {
+  loadingTags.value = true;
+  try {
+    tags.value = await articleApi.getTags();
+  } catch (e) {
+    console.error("获取标签失败:", e);
+  } finally {
+    loadingTags.value = false;
+  }
+};
+
+
 
 /**
  * 获取统计信息
@@ -198,8 +253,16 @@ const handleCategoryClick = (id: number): void => {
   emit("category-click", id);
 };
 
+/**
+ * 点击标签
+ */
+const handleTagClick = (id: number): void => {
+  emit("tag-click", id);
+};
+
 onMounted(() => {
   fetchCategories();
+  fetchTags();
   fetchStats();
 });
 </script>
@@ -211,5 +274,14 @@ onMounted(() => {
 
 .stat-item:hover {
   transform: scale(1.1);
+}
+
+.tag-pill {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tag-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.3);
 }
 </style>

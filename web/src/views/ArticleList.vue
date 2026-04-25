@@ -23,7 +23,11 @@
           direction="ltr"
           size="80%"
         >
-          <Sidebar @category-click="handleCategorySelect" />
+          <Sidebar
+            :selected-tag-ids="selectedTagIds"
+            @category-click="handleCategorySelect"
+            @tag-click="handleTagSelect"
+          />
         </el-drawer>
 
         <!-- 主内容区 -->
@@ -45,34 +49,19 @@
             </p>
           </div>
 
-          <!-- 搜索和筛选 -->
+          <!-- 搜索区 -->
           <div class="paper-card p-6 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <el-input
-                v-model="searchKeyword"
-                placeholder="搜索文章..."
-                clearable
-                @input="handleSearch"
-              >
-                <template #prefix>
-                  <el-icon><Search /></el-icon>
-                </template>
-              </el-input>
-
-              <el-select
-                v-model="selectedTag"
-                placeholder="选择标签"
-                clearable
-                @change="handleFilter"
-              >
-                <el-option
-                  v-for="tag in tags"
-                  :key="tag.id"
-                  :label="tag.name"
-                  :value="tag.id"
-                />
-              </el-select>
-            </div>
+            <el-input
+              v-model="searchKeyword"
+              placeholder="搜索文章标题或摘要..."
+              clearable
+              size="large"
+              @input="handleSearch"
+            >
+              <template #prefix>
+                <el-icon><Search /></el-icon>
+              </template>
+            </el-input>
           </div>
 
           <!-- 文章列表 -->
@@ -114,7 +103,9 @@
         <!-- 侧边栏 (桌面端) -->
         <Sidebar
           class="hidden xl:block xl:w-[260px]"
+          :selected-tag-ids="selectedTagIds"
           @category-click="handleCategorySelect"
+          @tag-click="handleTagSelect"
         />
       </div>
 
@@ -131,7 +122,6 @@ import ArticleCardSkeleton from "@/components/ArticleCardSkeleton.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import { articleApi } from "@/api/article";
 import type { Article } from "@/types";
-import type { TagInfo } from "@/types";
 
 const route = useRoute();
 
@@ -141,12 +131,11 @@ const currentPage = ref(1);
 const pageSize = ref(6);
 const searchKeyword = ref("");
 const selectedCategory = ref<number | string>("");
-const selectedTag = ref<number | string>("");
+const selectedTagIds = ref<number[]>([]);
 const loading = ref(false);
 
 const articles = ref<Article[]>([]);
 const totalArticles = ref(0);
-const tags = ref<TagInfo[]>([]);
 
 // 获取文章列表
 const loadArticles = async () => {
@@ -158,7 +147,7 @@ const loadArticles = async () => {
       pageSize: pageSize.value,
       keyword: searchKeyword.value || undefined,
       categoryId: selectedCategory.value || undefined,
-      tagIds: selectedTag.value || undefined,
+      tagIds: selectedTagIds.value.length > 0 ? selectedTagIds.value.join(',') : undefined,
     };
 
     const res = await articleApi.getList(params);
@@ -168,15 +157,6 @@ const loadArticles = async () => {
     console.error("获取文章列表失败:", error);
   } finally {
     loading.value = false;
-  }
-};
-
-// 获取标签列表
-const loadTags = async () => {
-  try {
-    tags.value = await articleApi.getTags();
-  } catch (error) {
-    console.error("获取标签失败:", error);
   }
 };
 
@@ -191,14 +171,22 @@ const handleSearch = () => {
   loadArticles();
 };
 
-const handleFilter = () => {
-  currentPage.value = 1;
-  loadArticles();
-};
-
 const handleCategorySelect = (id: number) => {
   selectedCategory.value = id;
+  selectedTagIds.value = []; // 切换分类时重置标签
   drawerVisible.value = false;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+const handleTagSelect = (id: number) => {
+  const index = selectedTagIds.value.indexOf(id);
+  if (index > -1) {
+    selectedTagIds.value.splice(index, 1);
+  } else {
+    selectedTagIds.value.push(id);
+  }
+  selectedCategory.value = ""; // 切换标签时重置分类
+  // drawerVisible.value = false; // 多选模式下不自动关闭抽屉，方便用户连续选择
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
@@ -215,10 +203,10 @@ const handleSizeChange = (size: number) => {
 };
 
 // 监听过滤条件变化
-watch([searchKeyword, selectedCategory, selectedTag], () => {
+watch([searchKeyword, selectedCategory, selectedTagIds], () => {
   currentPage.value = 1;
   loadArticles();
-});
+}, { deep: true });
 
 onMounted(() => {
   if (route.query.category) {
@@ -227,7 +215,10 @@ onMounted(() => {
   if (route.query.keyword) {
     searchKeyword.value = route.query.keyword as string;
   }
+  if (route.query.tag) {
+    const tags = String(route.query.tag).split(',').map(Number).filter(n => !isNaN(n));
+    selectedTagIds.value = tags;
+  }
   loadArticles();
-  loadTags();
 });
 </script>
