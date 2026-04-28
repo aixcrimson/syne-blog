@@ -120,7 +120,7 @@ ai:
 
 # 服务器配置
 server:
-  port: ${PORT:8081}
+  port: ${PORT:8080}
   servlet:
     context-path: /api
     encoding:
