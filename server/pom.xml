@@ -189,7 +189,27 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <!-- 替换为阿里云镜像，解决官方仓库无法访问问题 -->
+            <url>https://maven.aliyun.com/repository/spring-milestones/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
     </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://maven.aliyun.com/repository/spring-milestones/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 
     <build>
         <plugins>
