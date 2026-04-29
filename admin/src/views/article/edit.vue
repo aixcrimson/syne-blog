@@ -38,7 +38,7 @@
             <el-input
               v-model="formData.title"
               placeholder="请输入文章标题"
-              maxlength="200"
+              maxlength="50"
               show-word-limit
               size="large"
               class="title-input"
@@ -206,15 +206,32 @@ const handleSelect = (selection: any) => {
 }
 
 /**
- * 处理 AI 内容应用
+ * 处理 AI 内容应用 - 按 action 类型路由到不同字段
  */
-const handleAiApply = (content: string) => {
-  if (selectedText.value) {
-    // 如果有选中文本，替换它
-    formData.content = formData.content.replace(selectedText.value, content)
-  } else {
-    // 否则追加到末尾
-    formData.content += '\n\n' + content
+const handleAiApply = (payload: { action: string; content: string }) => {
+  const { action, content } = payload
+  switch (action) {
+    case 'summary':
+      // 应用到摘要字段
+      formData.summary = content
+      break
+    case 'title':
+      // 应用到标题字段
+      formData.title = content
+      break
+    case 'continue':
+      // 始终追加到文章末尾
+      formData.content += '\n\n' + content
+      break
+    case 'polish':
+      // 替换选中文本或全量覆盖
+      if (selectedText.value) {
+        formData.content = formData.content.replace(selectedText.value, content)
+      } else {
+        formData.content = content
+      }
+      break
+    // outline 不会触发 apply
   }
 }
 
@@ -270,7 +287,7 @@ initialFormData.value = JSON.stringify(formData)
 const formRules: FormRules = {
   title: [
     { required: true, message: '请输入文章标题', trigger: 'blur' },
-    { max: 200, message: '标题不能超过200个字符', trigger: 'blur' }
+    { max: 50, message: '标题不能超过50个字符', trigger: 'blur' }
   ],
   content: [
     { required: true, message: '请输入文章内容', trigger: 'blur' }
