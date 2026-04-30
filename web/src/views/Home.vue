@@ -41,7 +41,7 @@
       :style="{ minHeight: mainContentMinHeight }"
     >
       <div class="px-4 mx-auto max-w-[1480px] sm:px-6 lg:px-8">
-        <div class="flex flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,900px)_260px] xl:items-start xl:justify-center">
+        <div class="flex flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,900px)_260px] xl:justify-center">
 
           <!-- 最新文章 -->
           <div class="min-w-0 xl:w-full xl:max-w-[900px]">
@@ -129,7 +129,7 @@ const getLatestArticles = async () => {
   try {
     const res = await articleApi.getList({
       page: 1,
-      pageSize: 6,
+      pageSize: 3,
     });
     latestArticles.value = res.list;
   } catch (error) {

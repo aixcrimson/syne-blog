@@ -1,7 +1,7 @@
 <template>
   <div class="article-list py-12">
     <div class="max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,900px)_260px] xl:items-start xl:justify-center">
+      <div class="flex flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,900px)_260px] xl:justify-center">
 
         <!-- 移动端筛选按钮 -->
         <div class="mb-4 xl:hidden">
