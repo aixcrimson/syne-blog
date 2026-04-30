@@ -91,12 +91,11 @@
             <div class="flex items-center gap-2">
               <!-- 置顶/推荐只在桌面端显示完整标签，移动端简化或隐藏 -->
               <el-tag v-if="row.isTop === 1 && !isMobile" type="danger" size="small">置顶</el-tag>
-              <el-tag v-if="row.isRecommend === 1 && !isMobile" type="warning" size="small">推荐</el-tag>
+
               
               <!-- 移动端用小圆点表示状态 -->
-              <div v-if="isMobile && (row.isTop === 1 || row.isRecommend === 1)" class="flex gap-1">
+              <div v-if="isMobile && row.isTop === 1" class="flex gap-1">
                 <div v-if="row.isTop === 1" class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
-                <div v-if="row.isRecommend === 1" class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div>
               </div>
 
               <!-- 标题文本 -->
@@ -190,9 +189,7 @@
                       <el-dropdown-item @click="handleToggleTop(row)">
                         {{ row.isTop === 1 ? '取消置顶' : '置顶' }}
                       </el-dropdown-item>
-                      <el-dropdown-item @click="handleToggleRecommend(row)">
-                        {{ row.isRecommend === 1 ? '取消推荐' : '推荐' }}
-                      </el-dropdown-item>
+
                       <el-dropdown-item divided class="text-red-500" @click="handleDelete(row)">
                         删除
                       </el-dropdown-item>
@@ -213,17 +210,7 @@
                     @click="handleToggleTop(row)"
                   />
                 </el-tooltip>
-                
-                <!-- 推荐按钮 -->
-                <el-tooltip :content="row.isRecommend === 1 ? '取消推荐' : '推荐'">
-                  <el-button
-                    :type="row.isRecommend === 1 ? 'warning' : 'default'"
-                    :icon="row.isRecommend === 1 ? StarFilled : Star"
-                    size="small"
-                    circle
-                    @click="handleToggleRecommend(row)"
-                  />
-                </el-tooltip>
+
                 
                 <!-- 编辑按钮 -->
                 <el-tooltip content="编辑">
@@ -492,20 +479,6 @@ const handleToggleTop = async (article: Article) => {
   }
 }
 
-/**
- * 切换推荐状态
- * @requirements 5.8
- */
-const handleToggleRecommend = async (article: Article) => {
-  try {
-    await articleApi.toggleRecommend(article.id)
-    const newStatus = article.isRecommend === 1 ? '取消推荐' : '推荐'
-    ElMessage.success(`${newStatus}成功`)
-    loadArticleList()
-  } catch (error) {
-    console.error('切换推荐状态失败:', error)
-  }
-}
 
 /**
  * 更新文章状态

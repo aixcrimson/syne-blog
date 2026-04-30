@@ -44,8 +44,7 @@ public class ArticleListVO implements Serializable {
     @Schema(description = "是否置顶")
     private Integer isTop;
 
-    @Schema(description = "是否推荐")
-    private Integer isRecommend;
+
 
     @Schema(description = "文章状态")
     private Integer status;

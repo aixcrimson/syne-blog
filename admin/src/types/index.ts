@@ -146,8 +146,7 @@ export interface Article {
   status: ArticleStatus
   /** 是否置顶 (0-否, 1-是) */
   isTop: number
-  /** 是否推荐 (0-否, 1-是) */
-  isRecommend: number
+
   /** 发布时间 */
   publishedTime: string
   /** 创建时间 */
@@ -178,8 +177,7 @@ export interface ArticleForm {
   status: ArticleStatus
   /** 是否置顶 */
   isTop: number
-  /** 是否推荐 */
-  isRecommend: number
+
 }
 
 

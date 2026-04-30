@@ -144,16 +144,7 @@
               />
             </el-form-item>
 
-            <!-- 推荐设置 -->
-            <el-form-item label="推荐文章">
-              <el-switch
-                v-model="formData.isRecommend"
-                :active-value="1"
-                :inactive-value="0"
-                active-text="是"
-                inactive-text="否"
-              />
-            </el-form-item>
+
           </el-form>
         </div>
       </div>
@@ -269,8 +260,7 @@ const formData = reactive<ArticleForm>({
   tagIds: [],
   coverImage: '',
   status: ArticleStatus.DRAFT,
-  isTop: 0,
-  isRecommend: 0
+  isTop: 0
 })
 
 /** 初始表单数据（用于检查修改） */
@@ -351,7 +341,7 @@ const loadArticle = async () => {
     formData.coverImage = article.coverImage || ''
     formData.status = article.status
     formData.isTop = article.isTop
-    formData.isRecommend = article.isRecommend
+
     // 保存初始状态
     initialFormData.value = JSON.stringify(formData)
   } catch (error) {

@@ -103,7 +103,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         articleDetailVO.setCommentsCount(article.getCommentsCount());
         articleDetailVO.setStatus(article.getStatus());
         articleDetailVO.setIsTop(article.getIsTop());
-        articleDetailVO.setIsRecommend(article.getIsRecommend());
         articleDetailVO.setPublishedTime(article.getPublishedTime());
         articleDetailVO.setCreateTime(article.getCreateTime());
         articleDetailVO.setUpdateTime(article.getUpdateTime());
@@ -124,7 +123,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         article.setCoverImage(articleDTO.getCoverImage());
         article.setStatus(articleDTO.getStatus());
         article.setIsTop(articleDTO.getIsTop() != null ? articleDTO.getIsTop() : 0); // 默认不置顶
-        article.setIsRecommend(articleDTO.getIsRecommend() != null ? articleDTO.getIsRecommend() : 0); // 默认不推荐
 
         // 2.设置默认值
         article.setDeleted(0);
@@ -169,7 +167,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         article.setCoverImage(articleDTO.getCoverImage());
         article.setStatus(articleDTO.getStatus());
         article.setIsTop(articleDTO.getIsTop() != null ? articleDTO.getIsTop() : 0); // 默认不置顶
-        article.setIsRecommend(articleDTO.getIsRecommend() != null ? articleDTO.getIsRecommend() : 0); // 默认不推荐
 
         // 如果状态从未发布改为发布，设置发布时间
         if(article.getStatus() != null && article.getStatus() == 1
@@ -253,24 +250,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return Result.success(message);
     }
 
-    @Override
-    public Result<String> toggleArticleRecommend(Long id) {
-        // 检查文章是否存在
-        Article article = this.getById(id);
-        if(article == null || article.getDeleted() == 1) {
-            throw new BusinessException("文章不存在");
-        }
 
-        // 切换推荐状态
-        int newRecommendStatus = article.getIsRecommend() == 0 ? 1 : 0;
-        article.setIsRecommend(newRecommendStatus);
-        this.updateById(article);
-
-        String message = newRecommendStatus == 1 ? "文章已推荐" : "文章已取消推荐";
-        log.info("切换文章推荐状态成功：id={}, title={}, newRecommendStatus={}", id, article.getTitle(), newRecommendStatus);
-
-        return Result.success(message);
-    }
 
     @Override
     public Result<String> updateStatus(Long id, Integer status) {
@@ -467,7 +447,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         articleDetailVO.setCommentsCount(article.getCommentsCount());
         articleDetailVO.setStatus(article.getStatus());
         articleDetailVO.setIsTop(article.getIsTop());
-        articleDetailVO.setIsRecommend(article.getIsRecommend());
         articleDetailVO.setPublishedTime(article.getPublishedTime());
         articleDetailVO.setCreateTime(article.getCreateTime());
         articleDetailVO.setUpdateTime(article.getUpdateTime());
@@ -497,24 +476,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return articleDetailVO;
     }
 
-    @Override
-    public List<ArticleListVO> getRecommendedArticleList(Integer limit){
-        // 查询推荐文章列表（不传筛选条件）
-        List<ArticleListVO> list = articleMapper.selectUserArticleList(
-                0,
-                limit,
-                null,
-                null,
-                null
-        );
 
-        // 处理标签字段
-        list.forEach(article -> {
-            article.setTags(tagService.getTagsByArticleId(article.getId()));
-        });
-
-        return list;
-    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)

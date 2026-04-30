@@ -63,13 +63,7 @@ export const articleApi = {
     return put(`/admin/articles/${id}/toggle-top`)
   },
 
-  /**
-   * 切换文章推荐状态
-   * @param id 文章ID
-   */
-  toggleRecommend(id: number): Promise<void> {
-    return put(`/admin/articles/${id}/toggle-recommend`)
-  },
+
 
   /**
    * 更新文章发布状态

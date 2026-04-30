@@ -66,9 +66,7 @@ public class Article extends BaseEntity {
     @TableField("is_top")
     private Integer isTop;
 
-    @Schema(description = "是否推荐: 0-否, 1-是")
-    @TableField("is_recommend")
-    private Integer isRecommend;
+
 
     @Schema(description = "发布时间")
     @TableField("published_time")

@@ -17,7 +17,7 @@ export interface Article {
   commentsCount?: number
   status?: number
   isTop?: number
-  isRecommend?: number
+
   isLiked?: boolean
   isFavorited?: boolean
 }

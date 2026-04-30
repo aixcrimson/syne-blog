@@ -155,21 +155,7 @@ public class ArticleController {
         return articleService.toggleArticleTop(id);
     }
 
-    /**
-     * 切换文章推荐状态
-     *
-     * @param id 文章ID
-     * @return 切换结果
-     */
-    @Operation(summary = "切换文章推荐状态", description = "管理员切换文章推荐状态")
-    @PutMapping("/{id}/toggle-recommend")
-    public Result<String> toggleArticleRecommend(
-            @Parameter(description = "文章ID", example = "1", required = true)
-            @PathVariable Long id
-    ) {
-        log.info("管理员切换文章推荐状态：id={}", id);
-        return articleService.toggleArticleRecommend(id);
-    }
+
 
     /**
      * 更新文章状态

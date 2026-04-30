@@ -104,22 +104,7 @@ public class ArticleController {
     }
 
 
-    /**
-     * 获取推荐文章列表
-     *
-     * @param limit 限制查询数量
-     * @return 推荐文章列表
-     */
-    @Operation(summary = "获取推荐文章", description = "获取推荐文章列表")
-    @GetMapping("/recommended")
-    public Result<List<ArticleListVO>> getRecommended(
-            @Parameter(description = "数量限制", example = "5")
-            @RequestParam(defaultValue = "5") Integer limit
-    ){
-        log.info("用户端获取推荐文章列表：limit={}", limit);
-        List<ArticleListVO> list = articleService.getRecommendedArticleList(limit);
-        return Result.success(list);
-    }
+
 
     /**
      * 获取用户点赞的文章列表
