@@ -181,19 +181,10 @@
 
     <!-- Spring AI 需要 Milestone 仓库 -->
     <repositories>
-<!--        <repository>-->
-<!--            <id>spring-milestones</id>-->
-<!--            <name>Spring Milestones</name>-->
-<!--            <url>https://repo.spring.io/milestone</url>-->
-<!--            <snapshots>-->
-<!--                <enabled>false</enabled>-->
-<!--            </snapshots>-->
-<!--        </repository>-->
         <repository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
-            <!-- 替换为阿里云镜像，解决官方仓库无法访问问题 -->
-            <url>https://maven.aliyun.com/repository/spring-milestones/</url>
+            <url>https://repo.spring.io/milestone</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -204,7 +195,7 @@
         <pluginRepository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
-            <url>https://maven.aliyun.com/repository/spring-milestones/</url>
+            <url>https://repo.spring.io/milestone</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
