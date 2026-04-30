@@ -249,7 +249,8 @@
             :key="item.id"
             :timestamp="item.year"
             placement="top"
-            :color="item.color || '#e5e7eb'"
+            :type="['primary', 'success', 'warning', 'danger', 'info'].includes(item.color || '') ? item.color : ''"
+            :color="!['primary', 'success', 'warning', 'danger', 'info'].includes(item.color || '') ? (item.color || '#e5e7eb') : ''"
             :icon="item.icon ? (item.icon.includes('fa') ? '' : item.icon) : ''"
           >
             <div class="group">

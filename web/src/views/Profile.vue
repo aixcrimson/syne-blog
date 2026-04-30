@@ -220,8 +220,10 @@ import { userApi } from "@/api/user";
 import { articleApi } from "@/api/article";
 import { fileApi } from "@/api/file";
 import ArticleCard from "@/components/ArticleCard.vue";
+import { useSiteStore } from "@/stores/site";
 
 const userStore = useUserStore();
+const siteStore = useSiteStore();
 const activeTab = ref("profile");
 const saving = ref(false);
 
@@ -341,10 +343,12 @@ const handleSave = async () => {
     await userApi.updateProfile(userStore.currentUser.id, formData);
     ElMessage.success("保存成功");
     // 更新本地 store
-    // userStore.updateUser(result) // 如果有更新 userStore 的方法
+    await userStore.fetchCurrentUser();
+    await siteStore.fetchAuthorInfo();
   } catch (error) {
     ElMessage.error("保存失败");
-  saving.value = false;
+  } finally {
+    saving.value = false;
   }
 };
 
