@@ -23,6 +23,11 @@ public class AiChatRequestDTO {
     private List<ChatMessage> history;
 
     /**
+     * 当前正在浏览的文章 ID（可选，用于上下文增强）
+     */
+    private Long articleId;
+
+    /**
      * 聊天消息
      */
     @Data
