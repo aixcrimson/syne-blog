@@ -173,22 +173,42 @@
         >
           <div class="toc-sidebar-shell" :style="tocSidebarStyle">
             <div class="toc-card paper-card">
-              <div class="toc-title">目录</div>
-              <nav class="toc-list">
-                <button
-                  v-for="item in tocItems"
-                  :key="item.id"
-                  type="button"
-                  class="toc-item"
-                  :class="[
-                    tocIndentClass(item.level),
-                    activeHeadingId === item.id ? 'is-active' : ''
-                  ]"
-                  @click="scrollToHeading(item.id)"
-                >
-                  {{ item.title }}
-                </button>
-              </nav>
+              <div class="toc-title cursor-pointer flex items-center justify-between" @click="isTocExpanded = !isTocExpanded">
+                <span>目录</span>
+                <el-icon>
+                  <ArrowDown v-if="isTocExpanded" />
+                  <ArrowRight v-else />
+                </el-icon>
+              </div>
+              <el-collapse-transition>
+                <nav v-show="isTocExpanded" class="toc-list">
+                  <div
+                    v-for="item in visibleTocItems"
+                    :key="item.id"
+                    class="toc-item flex items-center cursor-pointer"
+                    :class="[
+                      tocIndentClass(item.level),
+                      activeHeadingId === item.id ? 'is-active' : ''
+                    ]"
+                    @click="handleTocItemClick(item)"
+                  >
+                    <!-- 折叠/展开图标 -->
+                    <el-icon
+                      v-if="hasChildrenMap.get(item.id)"
+                      class="mr-1 flex-shrink-0 hover:text-primary"
+                      @click.stop="toggleHeadingCollapse(item.id)"
+                    >
+                      <ArrowRight v-if="collapsedHeadingIds.has(item.id)" />
+                      <ArrowDown v-else />
+                    </el-icon>
+                    <span v-else class="w-[14px] mr-1 inline-block flex-shrink-0"></span>
+                    
+                    <span class="flex-1 truncate" :title="item.title">
+                      {{ item.title }}
+                    </span>
+                  </div>
+                </nav>
+              </el-collapse-transition>
             </div>
           </div>
         </aside>
@@ -207,6 +227,8 @@ import {
   Star,
   Share,
   Pointer,
+  ArrowDown,
+  ArrowRight,
 } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import CommentSection from "@/components/CommentSection.vue";
@@ -232,6 +254,10 @@ const readingProgress = ref(0);
 const activeHeadingId = ref("");
 const headingPositions = ref<{ id: string; top: number }[]>([]);
 const tocSidebarMetrics = ref<{ left: number; width: number } | null>(null);
+const isTocExpanded = ref(true);
+const collapsedHeadingIds = ref<Set<string>>(new Set());
+
+
 
 type ArticleNavItem = {
   type: "prev" | "next";
@@ -252,6 +278,72 @@ const renderedContent = computed(() => markdownResult.value.html);
 const tocItems = computed(() =>
   markdownResult.value.toc.filter((item) => item.level >= 2 && item.level <= 4)
 );
+
+// 是否有子标题
+const hasChildrenMap = computed(() => {
+  const map = new Map<string, boolean>();
+  for (let i = 0; i < tocItems.value.length; i++) {
+    const item = tocItems.value[i];
+    const hasChild = i < tocItems.value.length - 1 && tocItems.value[i + 1].level > item.level;
+    map.set(item.id, hasChild);
+  }
+  return map;
+});
+
+// 计算可见的目录项
+const visibleTocItems = computed(() => {
+  const visible = [];
+  let currentCollapsedLevel = -1;
+  for (const item of tocItems.value) {
+    if (currentCollapsedLevel !== -1) {
+      if (item.level > currentCollapsedLevel) {
+        // 在被折叠的区域内，跳过
+        continue;
+      } else {
+        // 出了被折叠的区域
+        currentCollapsedLevel = -1;
+      }
+    }
+    
+    visible.push(item);
+    
+    // 如果这个标题被折叠，记录它的层级
+    if (collapsedHeadingIds.value.has(item.id)) {
+      currentCollapsedLevel = item.level;
+    }
+  }
+  return visible;
+});
+
+// 切换某个标题的折叠状态
+const toggleHeadingCollapse = (id: string) => {
+  const newSet = new Set(collapsedHeadingIds.value);
+  if (newSet.has(id)) {
+    newSet.delete(id);
+  } else {
+    newSet.add(id);
+  }
+  collapsedHeadingIds.value = newSet;
+};
+
+// 处理目录项点击事件
+const handleTocItemClick = (item: any) => {
+  scrollToHeading(item.id);
+  if (hasChildrenMap.value.get(item.id)) {
+    toggleHeadingCollapse(item.id);
+  }
+};
+
+// 监听 tocItems 变化，默认折叠所有有子标题的项
+watch(tocItems, (items) => {
+  const newCollapsed = new Set<string>();
+  for (let i = 0; i < items.length; i++) {
+    if (i < items.length - 1 && items[i + 1].level > items[i].level) {
+      newCollapsed.add(items[i].id);
+    }
+  }
+  collapsedHeadingIds.value = newCollapsed;
+}, { immediate: true });
 
 const adjacentArticles = computed<ArticleNavItem[]>(() => {
   const items: ArticleNavItem[] = [];
@@ -574,7 +666,11 @@ onUnmounted(() => {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+  user-select: none;
+}
+.toc-title:hover {
+  color: var(--color-primary);
 }
 
 .toc-list {
