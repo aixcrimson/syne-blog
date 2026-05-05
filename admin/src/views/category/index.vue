@@ -8,8 +8,22 @@
 
     <!-- 操作区域 -->
     <div class="glass-card p-4 mb-6 rounded-lg">
-      <div class="flex items-center justify-between">
-        <span class="text-gray-600">共 {{ categoryList.length }} 个分类</span>
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-4 flex-1">
+          <el-input
+            v-model="queryParams.keyword"
+            placeholder="搜索分类名称"
+            clearable
+            class="w-64"
+            :prefix-icon="Search"
+            @keyup.enter="handleSearch"
+            @clear="handleSearch"
+          />
+          <el-button type="primary" :icon="Search" @click="handleSearch">
+            搜索
+          </el-button>
+          <span class="text-gray-500 text-sm ml-2">共 {{ total }} 个分类</span>
+        </div>
         <el-button type="primary" :icon="Plus" @click="handleCreate">
           新建分类
         </el-button>
@@ -69,6 +83,19 @@
           </template>
         </el-table-column>
       </el-table>
+      
+      <!-- 分页区域 -->
+      <div class="p-4 flex justify-end">
+        <el-pagination
+          v-model:current-page="queryParams.page"
+          v-model:page-size="queryParams.pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </div>
 
     <!-- 新建/编辑对话框 -->
@@ -112,7 +139,7 @@
  */
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Plus, Edit, Delete } from '@element-plus/icons-vue'
+import { Plus, Edit, Delete, Search } from '@element-plus/icons-vue'
 import { categoryApi } from '@/api/category'
 import type { Category, CategoryForm } from '@/types'
 import { isCategoryNameUnique, isCategorySlugUnique, canDeleteCategory } from '@/utils/validate'
@@ -123,8 +150,13 @@ import { useResponsive } from '@/utils/useResponsive'
 const { isMobile } = useResponsive()
 
 const loading = ref(false)
-
 const categoryList = ref<Category[]>([])
+const total = ref(0)
+const queryParams = reactive({
+  page: 1,
+  pageSize: 10,
+  keyword: ''
+})
 const dialogVisible = ref(false)
 const dialogTitle = computed(() => isEdit.value ? '编辑分类' : '新建分类')
 const isEdit = ref(false)
@@ -176,12 +208,34 @@ const formatDate = (date: string) => date ? dayjs(date).format('YYYY-MM-DD HH:mm
 const loadCategoryList = async () => {
   loading.value = true
   try {
-    categoryList.value = await categoryApi.getList()
+    const params = {
+      ...queryParams,
+      keyword: queryParams.keyword || undefined
+    }
+    const res = await categoryApi.getList(params)
+    categoryList.value = res.list
+    total.value = res.total
   } catch (error) {
     console.error('加载分类列表失败:', error)
   } finally {
     loading.value = false
   }
+}
+
+const handleSearch = () => {
+  queryParams.page = 1
+  loadCategoryList()
+}
+
+const handleSizeChange = (val: number) => {
+  queryParams.pageSize = val
+  queryParams.page = 1
+  loadCategoryList()
+}
+
+const handleCurrentChange = (val: number) => {
+  queryParams.page = val
+  loadCategoryList()
 }
 
 const resetForm = () => {
@@ -239,6 +293,12 @@ const handleDelete = async (category: Category) => {
     await ElMessageBox.confirm(`确定要删除分类「${category.name}」吗？`, '删除确认', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' })
     await categoryApi.delete(category.id)
     ElMessage.success('删除成功')
+    
+    // 如果当前页只有一条数据，且不是第一页，删除后跳转到前一页
+    if (categoryList.value.length === 1 && queryParams.page > 1) {
+      queryParams.page--
+    }
+    
     loadCategoryList()
   } catch (error: unknown) {
     if (error !== 'cancel') console.error('删除分类失败:', error)

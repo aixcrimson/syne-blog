@@ -304,8 +304,8 @@ const formRules: FormRules = {
  */
 const loadCategories = async () => {
   try {
-    const result = await categoryApi.getList()
-    categoryList.value = result
+    const result = await categoryApi.getList({ page: 1, pageSize: 100 })
+    categoryList.value = result.list
   } catch (error) {
     console.error('加载分类列表失败:', error)
   }
@@ -316,8 +316,8 @@ const loadCategories = async () => {
  */
 const loadTags = async () => {
   try {
-    const result = await tagApi.getList()
-    tagList.value = result
+    const result = await tagApi.getList({ page: 1, pageSize: 100 })
+    tagList.value = result.list
   } catch (error) {
     console.error('加载标签列表失败:', error)
   }
@@ -525,12 +525,12 @@ const handlePublish = async () => {
 // ==================== 生命周期 ====================
 
 onMounted(async () => {
-  // 并行加载分类和标签
-  await Promise.all([loadCategories(), loadTags()])
-  // 编辑模式下加载文章详情
-  if (isEdit.value) {
-    await loadArticle()
-  }
+  // 所有请求并行发出，减少等待时间
+  await Promise.all([
+    loadCategories(),
+    loadTags(),
+    isEdit.value ? loadArticle() : Promise.resolve()
+  ])
 })
 </script>
 

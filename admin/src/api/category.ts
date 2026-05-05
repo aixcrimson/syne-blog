@@ -4,6 +4,7 @@
  */
 import { get, post, put, del } from './request'
 import type { Category, CategoryForm } from '@/types'
+import type { PageResult, PaginationParams } from '@/types/api'
 
 /**
  * 分类 API 接口
@@ -11,10 +12,11 @@ import type { Category, CategoryForm } from '@/types'
 export const categoryApi = {
   /**
    * 获取分类列表
-   * @returns 分类列表
+   * @param params 分页参数
+   * @returns 分类列表分页结果
    */
-  getList(): Promise<Category[]> {
-    return get<{ list: Category[] }>('/admin/categories').then(res => res.list)
+  getList(params?: PaginationParams): Promise<PageResult<Category>> {
+    return get<PageResult<Category>>('/admin/categories', params)
   },
 
   /**

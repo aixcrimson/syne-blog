@@ -4,6 +4,7 @@
  */
 import { get, post, put, del } from './request'
 import type { Tag, TagForm } from '@/types'
+import type { PageResult, PaginationParams } from '@/types/api'
 
 /**
  * 标签 API 接口
@@ -11,10 +12,11 @@ import type { Tag, TagForm } from '@/types'
 export const tagApi = {
   /**
    * 获取标签列表
-   * @returns 标签列表
+   * @param params 分页参数
+   * @returns 标签列表分页结果
    */
-  getList(): Promise<Tag[]> {
-    return get<{ list: Tag[] }>('/admin/tags').then(res => res.list)
+  getList(params?: PaginationParams): Promise<PageResult<Tag>> {
+    return get<PageResult<Tag>>('/admin/tags', params)
   },
 
   /**

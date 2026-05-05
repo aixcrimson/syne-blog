@@ -355,8 +355,8 @@ const formatDate = (date: string) => {
  */
 const loadCategoryList = async () => {
   try {
-    const result = await categoryApi.getList()
-    categoryList.value = result
+    const result = await categoryApi.getList({ page: 1, pageSize: 100 })
+    categoryList.value = result.list
   } catch (error) {
     console.error('加载分类列表失败:', error)
   } 
@@ -456,6 +456,11 @@ const handleDelete = async (article: Article) => {
     
     await articleApi.delete(article.id)
     ElMessage.success('删除成功')
+    
+    if (articleList.value.length === 1 && pagination.page > 1) {
+      pagination.page--
+    }
+    
     loadArticleList()
   } catch (error: any) {
     if (error !== 'cancel') {
