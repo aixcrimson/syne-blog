@@ -1,5 +1,6 @@
 package com.syne.server.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.syne.server.common.PageQuery;
@@ -60,14 +61,50 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
+    @Transactional
     public Category createCategory(CategoryDTO categoryDTO){
+        // 检查name是否被未删除的分类使用
+        LambdaQueryWrapper<Category> nameQuery = new LambdaQueryWrapper<>();
+        nameQuery.eq(Category::getName, categoryDTO.getName())
+                .eq(Category::getDeleted, 0);
+        if (this.count(nameQuery) > 0) {
+            throw new BusinessException("分类名称已存在");
+        }
+
+        // 检查slug是否被未删除的分类使用
+        LambdaQueryWrapper<Category> slugQuery = new LambdaQueryWrapper<>();
+        slugQuery.eq(Category::getSlug, categoryDTO.getSlug())
+                .eq(Category::getDeleted, 0);
+        if (this.count(slugQuery) > 0) {
+            throw new BusinessException("分类别名已存在");
+        }
+
+        // 检查是否存在已逻辑删除的同slug或同name记录（使用自定义SQL绕过@TableLogic）
+        Category deletedCategory = categoryMapper.selectDeletedBySlug(categoryDTO.getSlug());
+        if (deletedCategory == null) {
+            deletedCategory = categoryMapper.selectDeletedByName(categoryDTO.getName());
+        }
+
+        if (deletedCategory != null) {
+            // 恢复已删除的记录（使用自定义SQL绕过@TableLogic）
+            categoryMapper.restoreDeletedCategory(
+                    deletedCategory.getId(),
+                    categoryDTO.getName(),
+                    categoryDTO.getSlug(),
+                    categoryDTO.getDescription(),
+                    categoryDTO.getSortOrder()
+            );
+            Category restoredCategory = this.getById(deletedCategory.getId());
+            log.info("恢复并更新已删除分类：{}", restoredCategory);
+            return restoredCategory;
+        }
+
+        // 全新创建
         Category category = new Category();
         category.setName(categoryDTO.getName());
         category.setSlug(categoryDTO.getSlug());
         category.setDescription(categoryDTO.getDescription());
         category.setSortOrder(categoryDTO.getSortOrder());
-
-        // 保存
         this.save(category);
 
         log.info("创建分类：{}", category);
