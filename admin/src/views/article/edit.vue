@@ -66,6 +66,7 @@
               style="height: 600px"
               class="md-editor-custom"
               @onSelect="handleSelect"
+              @onUploadImg="handleUploadImg"
             />
           </el-form-item>
         </el-form>
@@ -167,6 +168,7 @@ import 'md-editor-v3/lib/style.css'
 import AiWritingPanel from '@/components/AiWritingPanel.vue'
 import ImageUpload from '@/components/ImageUpload.vue'
 import { articleApi } from '@/api/article'
+import { fileApi } from '@/api/file'
 import { categoryApi } from '@/api/category'
 import { tagApi } from '@/api/tag'
 import type { ArticleForm, Category, Tag } from '@/types'
@@ -194,6 +196,23 @@ const selectedText = ref('')
 const handleSelect = (selection: any) => {
   // md-editor-v3 的 onSelect 事件返回选中的文本对象
   selectedText.value = typeof selection === 'string' ? selection : selection?.text || ''
+}
+
+/**
+ * 处理 Markdown 编辑器图片上传
+ * @param files 用户选择的文件列表
+ * @param callback 回调函数，传入图片 URL 数组插入编辑器
+ */
+const handleUploadImg = async (files: File[], callback: (urls: string[]) => void) => {
+  try {
+    const uploadPromises = files.map(file => fileApi.uploadImage(file))
+    const results = await Promise.all(uploadPromises)
+    const urls = results.map(res => res.url)
+    callback(urls)
+  } catch (error) {
+    console.error('上传图片失败:', error)
+    ElMessage.error('图片上传失败，请重试')
+  }
 }
 
 /**
