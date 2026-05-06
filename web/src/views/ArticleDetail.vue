@@ -276,7 +276,7 @@ const markdownResult = computed(() => {
 const renderedContent = computed(() => markdownResult.value.html);
 
 const tocItems = computed(() =>
-  markdownResult.value.toc.filter((item) => item.level >= 2 && item.level <= 4)
+  markdownResult.value.toc.filter((item) => item.level >= 1 && item.level <= 4)
 );
 
 // 是否有子标题
