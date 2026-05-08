@@ -9,6 +9,7 @@ export const useAppStore = defineStore('app', () => {
   const themeColor = ref<ThemeColor>('blue')
   const themeMode = ref<'light' | 'dark'>('light')
   const backgroundMode = ref<'paper' | 'image'>('paper')
+  const articleListLayout = ref<'grid' | 'list'>('grid')
   const loading = ref(false)
 
   // 计算属性
@@ -39,6 +40,12 @@ export const useAppStore = defineStore('app', () => {
       backgroundMode.value = savedBackgroundMode
     }
 
+    // 文章列表布局
+    const savedLayout = localStorage.getItem('articleListLayout') as 'grid' | 'list' | null
+    if (savedLayout) {
+      articleListLayout.value = savedLayout
+    }
+
     // 应用主题
     applyTheme()
   }
@@ -61,6 +68,11 @@ export const useAppStore = defineStore('app', () => {
     backgroundMode.value = backgroundMode.value === 'paper' ? 'image' : 'paper'
     localStorage.setItem('backgroundMode', backgroundMode.value)
     applyTheme()
+  }
+
+  const toggleArticleListLayout = () => {
+    articleListLayout.value = articleListLayout.value === 'grid' ? 'list' : 'grid'
+    localStorage.setItem('articleListLayout', articleListLayout.value)
   }
 
   // 设置主题模式
@@ -115,6 +127,7 @@ export const useAppStore = defineStore('app', () => {
     themeColor,
     themeMode,
     backgroundMode,
+    articleListLayout,
     isDarkMode,
     loading,
     init,
@@ -122,6 +135,7 @@ export const useAppStore = defineStore('app', () => {
     toggleThemeMode,
     setThemeMode,
     toggleBackgroundMode,
+    toggleArticleListLayout,
     setLoading
   }
 })

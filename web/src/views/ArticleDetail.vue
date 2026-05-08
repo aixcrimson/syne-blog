@@ -27,13 +27,16 @@
           >
             <!-- 文章头部 -->
             <div class="p-8 border-b article-header">
-              <div class="mb-4">
-                <router-link
-                  to="/articles"
-                  class="text-sm text-primary-600 hover:text-primary-700"
+              <div class="mb-6">
+                <button
+                  @click="$router.push('/articles')"
+                  class="group inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 bg-slate-100/80 rounded-full transition-all hover:bg-slate-200 hover:text-slate-900 dark:text-slate-300 dark:bg-slate-800/80 dark:hover:bg-slate-700 dark:hover:text-slate-50 cursor-pointer"
                 >
-                  ← 返回列表
-                </router-link>
+                  <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  返回列表
+                </button>
               </div>
 
               <h1 class="mb-4 text-4xl font-semibold text-slate-900 dark:text-slate-50">

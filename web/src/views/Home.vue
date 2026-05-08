@@ -66,7 +66,7 @@
             <div class="space-y-6">
               <!-- 骨架屏 -->
               <template v-if="loading">
-                <ArticleCardSkeleton v-for="i in 3" :key="i" />
+                <ArticleCardSkeleton v-for="i in 3" :key="i" layout="list" />
               </template>
 
               <!-- 文章列表 -->
@@ -75,6 +75,7 @@
                 v-else
                 :key="article.id"
                 :article="article"
+                layout="list"
               />
             </div>
           </div>

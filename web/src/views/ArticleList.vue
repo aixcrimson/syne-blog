@@ -33,42 +33,32 @@
         <!-- 主内容区 -->
         <div class="min-w-0 xl:w-full xl:max-w-[900px]">
 
-          <!-- 页面标题 -->
-          <div class="mb-6">
-            <div class="flex items-center gap-4">
-              <h1
-                class="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100"
-              >
-                文章列表
-              </h1>
-
-              <span class="flex-1 h-px bg-slate-200/70 dark:bg-slate-700/60" />
+          <!-- 顶部打字机公告及布局切换 -->
+          <div class="mb-8 p-6 flex flex-col justify-center relative min-h-[120px] rounded-2xl bg-gradient-to-br from-primary-50/80 to-primary-100/30 dark:from-slate-800/80 dark:to-slate-800/40 border border-primary-100/50 dark:border-slate-700/50 shadow-sm backdrop-blur-sm">
+            <div class="text-xl text-slate-700 dark:text-slate-300 font-medium text-center tracking-wide" style="font-family: 'Georgia', 'Times New Roman', serif;">
+              <Typewriter
+                v-if="notices.length > 0"
+                :texts="noticeTexts"
+                :type-speed="150"
+                :delete-speed="80"
+                :pause-time="2000"
+              />
+              <span v-else class="animate-pulse">正在获取宇宙信号...</span>
             </div>
-            <p class="mt-2 text-slate-600 dark:text-slate-300">
-              共 {{ totalArticles }} 篇文章
-            </p>
           </div>
 
-          <!-- 搜索区 -->
-          <div class="paper-card p-6 mb-6">
-            <el-input
-              v-model="searchKeyword"
-              placeholder="搜索文章标题或摘要..."
-              clearable
-              size="large"
-              @input="handleSearch"
-            >
-              <template #prefix>
-                <el-icon><Search /></el-icon>
-              </template>
-            </el-input>
-          </div>
-
-          <!-- 文章列表 -->
-          <div class="space-y-6 mb-8">
+          <!-- 文章列表 (动态布局) -->
+          <div 
+            class="grid gap-6 mb-8 transition-all duration-300"
+            :class="appStore.articleListLayout === 'grid' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'"
+          >
             <!-- 骨架屏 -->
             <template v-if="loading">
-              <ArticleCardSkeleton v-for="i in pageSize" :key="i" />
+              <ArticleCardSkeleton 
+                v-for="i in pageSize" 
+                :key="i"
+                :layout="appStore.articleListLayout"
+              />
             </template>
 
             <!-- 文章卡片 -->
@@ -77,6 +67,7 @@
               v-else
               :key="article.id"
               :article="article"
+              :layout="appStore.articleListLayout"
             />
           </div>
 
@@ -114,16 +105,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
-import { Search, Filter } from "@element-plus/icons-vue";
+import { Filter } from "@element-plus/icons-vue";
+import { useAppStore } from "@/stores/app";
 import ArticleCard from "@/components/ArticleCard.vue";
 import ArticleCardSkeleton from "@/components/ArticleCardSkeleton.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import Typewriter from "@/components/Typewriter.vue";
 import { articleApi } from "@/api/article";
-import type { Article } from "@/types";
+import { siteApi } from "@/api/site";
+import type { Article, Notice } from "@/types";
 
 const route = useRoute();
+const appStore = useAppStore();
 
 const drawerVisible = ref(false);
 
@@ -136,6 +131,18 @@ const loading = ref(false);
 
 const articles = ref<Article[]>([]);
 const totalArticles = ref(0);
+
+// 公告 (打字机数据)
+const notices = ref<Notice[]>([]);
+const noticeTexts = computed(() => notices.value.map((n) => n.content));
+
+const getNotices = async () => {
+  try {
+    notices.value = await siteApi.getNotices();
+  } catch (error) {
+    console.error("获取公告失败:", error);
+  }
+};
 
 // 获取文章列表
 const loadArticles = async () => {
@@ -165,11 +172,6 @@ const totalPages = ref(0);
 watch(totalArticles, () => {
   totalPages.value = Math.ceil(totalArticles.value / pageSize.value);
 });
-
-const handleSearch = () => {
-  currentPage.value = 1;
-  loadArticles();
-};
 
 const handleCategorySelect = (id: number) => {
   selectedCategory.value = id;
@@ -220,5 +222,6 @@ onMounted(() => {
     selectedTagIds.value = tags;
   }
   loadArticles();
+  getNotices();
 });
 </script>
