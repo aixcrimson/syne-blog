@@ -360,8 +360,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onUnmounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, nextTick, onUnmounted, computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { aiChatStream } from '@/api/ai'
 import { useChatHistoryStore } from '@/stores/chatHistory'
 import { useUserStore } from '@/stores/user'
@@ -393,6 +394,20 @@ const md = new MarkdownIt({
 const chatHistoryStore = useChatHistoryStore()
 const userStore = useUserStore()
 const route = useRoute()
+const router = useRouter()
+
+/** 是否已登录 */
+const isLoggedIn = computed(() => userStore.isLoggedIn)
+
+/**
+ * 未登录拦截：弹提示并跳转登录页，返回 false 代表已拦截。
+ */
+function requireLogin(): boolean {
+  if (isLoggedIn.value) return true
+  ElMessage.warning('请先登录后再使用 AI 助手')
+  router.push({ path: '/login', query: { redirect: route.fullPath } })
+  return false
+}
 
 // 头像
 const aiAvatar = aiIconImg
@@ -424,15 +439,33 @@ const quickQuestions = [
   '怎么联系博主？'
 ]
 
-// 初始化
-onMounted(() => {
-  chatHistoryStore.init()
+// 登录态变化：仅处理「登出」——关闭面板、终止请求、复位 loading；
+// 登录后不主动拉数据，等用户点击 AI 图标时再拉，避免页面刷新即发请求。
+watch(isLoggedIn, (val) => {
+  if (!val) {
+    isOpen.value = false
+    showHistory.value = false
+    if (abortController) {
+      abortController.abort()
+      abortController = null
+    }
+    loading.value = false
+  }
 })
 
 /**
  * 打开聊天窗口
+ * - 未登录：拦截并跳转登录页
+ * - 已登录：首次打开时按需拉取服务器会话；若 token 已失效，store 会自动登出，
+ *   此时再次校验登录态并跳转登录
  */
-function openChat() {
+async function openChat() {
+  if (!requireLogin()) return
+  if (!chatHistoryStore.initialized) {
+    await chatHistoryStore.init()
+    // init 过程中可能因 401/403 自动登出，需要二次校验
+    if (!requireLogin()) return
+  }
   isOpen.value = true
   nextTick(() => {
     scrollToBottom()
@@ -548,6 +581,7 @@ function renderMarkdown(text: string): string {
 function sendMessage(text?: string) {
   const message = text || inputText.value.trim()
   if (!message || loading.value) return
+  if (!requireLogin()) return
 
   // 添加用户消息
   chatHistoryStore.addMessage({ role: 'user', content: message })

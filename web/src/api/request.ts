@@ -6,6 +6,17 @@ import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse,
 import { ElMessage } from 'element-plus'
 
 /**
+ * 扩展 AxiosRequestConfig，允许在调用方关闭统一错误弹窗，
+ * 由调用方自行决定提示文案与跳转。
+ */
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    /** 关闭响应拦截器中的默认错误 ElMessage 弹窗 */
+    skipErrorMessage?: boolean
+  }
+}
+
+/**
  * 创建 axios 实例
  */
 const request: AxiosInstance = axios.create({
@@ -73,7 +84,12 @@ request.interceptors.response.use(
   },
   (error: AxiosError) => {
     console.error('❌ 响应错误:', error)
-    
+
+    // 调用方显式关闭默认弹窗时，跳过统一提示，由调用方自行处理
+    if ((error.config as AxiosRequestConfig | undefined)?.skipErrorMessage) {
+      return Promise.reject(error)
+    }
+
     // 处理不同的 HTTP 状态码
     if (error.response) {
       const { status, data } = error.response
