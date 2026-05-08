@@ -45,6 +45,11 @@ public class MinioProperties {
     private String bucketName;
 
     /**
+     * 随机封面图存储桶名称（独立于默认桶，用于存放随机封面图库）
+     */
+    private String coverBucket;
+
+    /**
      * 允许上传的文件类型（逗号分隔）
      */
     private String allowedTypes;

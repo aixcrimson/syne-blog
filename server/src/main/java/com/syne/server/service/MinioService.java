@@ -5,6 +5,7 @@ import com.syne.server.exception.BusinessException;
 import com.syne.server.model.vo.FileUploadVO;
 import io.minio.*;
 import io.minio.http.Method;
+import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * MinIO 文件服务
@@ -155,11 +159,18 @@ public class MinioService {
     }
 
     /**
-     * 构建文件访问 URL
+     * 构建默认桶下的文件访问 URL
+     */
+    private String buildFileUrl(String fileName) {
+        return buildFileUrl(minioProperties.getBucketName(), fileName);
+    }
+
+    /**
+     * 构建指定桶下的文件访问 URL
      * 优先使用 minio.public-url（站点 HTTPS 域名），避免 HTTPS 页面加载 HTTP 资源时被浏览器以 Mixed Content 拦截；
      * 未配置时回退到 minio.endpoint（仅适用于纯 HTTP 场景或开发环境）。
      */
-    private String buildFileUrl(String fileName) {
+    private String buildFileUrl(String bucket, String fileName) {
         String base = minioProperties.getPublicUrl();
         if (base == null || base.isBlank()) {
             base = minioProperties.getEndpoint();
@@ -168,6 +179,48 @@ public class MinioService {
         if (base.endsWith("/")) {
             base = base.substring(0, base.length() - 1);
         }
-        return String.format("%s/%s/%s", base, minioProperties.getBucketName(), fileName);
+        return String.format("%s/%s/%s", base, bucket, fileName);
+    }
+
+    /**
+     * 从随机封面图库中挑选一张图片，返回其公网访问 URL
+     * 模仿 https://www.loliapi.com/acg/ 的随机图能力，由调用方以 302 重定向给客户端
+     */
+    public String pickRandomCoverUrl() {
+        String bucket = minioProperties.getCoverBucket();
+        if (bucket == null || bucket.isBlank()) {
+            throw new BusinessException("未配置随机封面图库存储桶");
+        }
+
+        List<String> objectKeys = new ArrayList<>();
+        try {
+            Iterable<io.minio.Result<Item>> results = minioClient.listObjects(
+                    ListObjectsArgs.builder()
+                            .bucket(bucket)
+                            .recursive(true)
+                            .build()
+            );
+            for (io.minio.Result<Item> result : results) {
+                Item item = result.get();
+                if (item == null || item.isDir()) {
+                    continue;
+                }
+                String name = item.objectName();
+                if (name == null || name.isBlank() || name.endsWith("/")) {
+                    continue;
+                }
+                objectKeys.add(name);
+            }
+        } catch (Exception e) {
+            log.error("枚举随机封面图库失败: {}", e.getMessage(), e);
+            throw new BusinessException("获取随机封面失败: " + e.getMessage());
+        }
+
+        if (objectKeys.isEmpty()) {
+            throw new BusinessException("封面图库为空，请先在 MinIO 控制台向桶 '" + bucket + "' 上传图片");
+        }
+
+        String pick = objectKeys.get(ThreadLocalRandom.current().nextInt(objectKeys.size()));
+        return buildFileUrl(bucket, pick);
     }
 }

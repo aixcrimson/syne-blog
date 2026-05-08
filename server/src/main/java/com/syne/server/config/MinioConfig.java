@@ -29,18 +29,21 @@ public class MinioConfig {
                 .credentials(minioProperties.getAccessKey(), minioProperties.getSecretKey())
                 .build();
 
-        // 初始化时检查并创建 bucket
-        initBucket(client);
+        // 初始化时检查并创建默认桶与封面图库桶
+        initBucket(client, minioProperties.getBucketName());
+        String coverBucket = minioProperties.getCoverBucket();
+        if (coverBucket != null && !coverBucket.isBlank()) {
+            initBucket(client, coverBucket);
+        }
 
         return client;
     }
 
     /**
-     * 初始化存储桶（如果不存在则创建）
+     * 初始化存储桶（如果不存在则创建并设为公开读）
      */
-    private void initBucket(MinioClient client) {
+    private void initBucket(MinioClient client, String bucketName) {
         try {
-            String bucketName = minioProperties.getBucketName();
             boolean exists = client.bucketExists(
                     BucketExistsArgs.builder().bucket(bucketName).build()
             );
@@ -63,8 +66,8 @@ public class MinioConfig {
                 log.info("MinIO bucket '{}' 已存在", bucketName);
             }
         } catch (Exception e) {
-            log.error("MinIO bucket 初始化失败: {}", e.getMessage());
-            throw new RuntimeException("MinIO 初始化失败", e);
+            log.error("MinIO bucket '{}' 初始化失败: {}", bucketName, e.getMessage());
+            throw new RuntimeException("MinIO 初始化失败: " + bucketName, e);
         }
     }
 
