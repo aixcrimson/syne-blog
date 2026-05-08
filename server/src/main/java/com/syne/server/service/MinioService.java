@@ -156,13 +156,18 @@ public class MinioService {
 
     /**
      * 构建文件访问 URL
+     * 优先使用 minio.public-url（站点 HTTPS 域名），避免 HTTPS 页面加载 HTTP 资源时被浏览器以 Mixed Content 拦截；
+     * 未配置时回退到 minio.endpoint（仅适用于纯 HTTP 场景或开发环境）。
      */
     private String buildFileUrl(String fileName) {
-        String endpoint = minioProperties.getEndpoint();
-        // 移除末尾的斜杠
-        if (endpoint.endsWith("/")) {
-            endpoint = endpoint.substring(0, endpoint.length() - 1);
+        String base = minioProperties.getPublicUrl();
+        if (base == null || base.isBlank()) {
+            base = minioProperties.getEndpoint();
         }
-        return String.format("%s/%s/%s", endpoint, minioProperties.getBucketName(), fileName);
+        // 移除末尾的斜杠
+        if (base.endsWith("/")) {
+            base = base.substring(0, base.length() - 1);
+        }
+        return String.format("%s/%s/%s", base, minioProperties.getBucketName(), fileName);
     }
 }

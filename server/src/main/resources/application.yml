@@ -82,6 +82,8 @@ navigation:
 # MinIO 对象存储配置
 minio:
   endpoint: ${MINIO_ENDPOINT:http://107.173.199.221:9000}
+  # 避免 HTTPS 页面加载 HTTP 图片时被浏览器以 Mixed Content 拦截。留空回退到 endpoint。
+  public-url: ${MINIO_PUBLIC_URL:}
   access-key: ${MINIO_ACCESS_KEY:minio}
   secret-key: ${MINIO_SECRET_KEY:minio123456}
   bucket-name: ${MINIO_BUCKET:syne-blog}

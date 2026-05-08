@@ -16,9 +16,18 @@ import java.util.List;
 public class MinioProperties {
 
     /**
-     * MinIO 服务端点地址
+     * MinIO 服务端点地址（用于 SDK 上传/删除等内部调用）
      */
     private String endpoint;
+
+    /**
+     * 对外公开访问 URL 前缀（用于生成入库的资源 URL）
+     * 推荐配置为站点 HTTPS 域名，例如 https://cyneblog.top
+     * 配合 nginx 的 location ^~ /{bucket}/ 反代到 MinIO，避免 HTTPS 页面加载 HTTP 资源时
+     * 触发浏览器 Mixed Content 拦截。
+     * 留空时回退到 endpoint。
+     */
+    private String publicUrl;
 
     /**
      * 访问密钥
