@@ -39,4 +39,16 @@ public class FileController {
         minioService.deleteFile(fileName);
         return Result.success();
     }
+
+    /**
+     * 上传图库图片 (PC/Mobile)
+     */
+    @Operation(summary = "上传图库图片")
+    @PostMapping("/cover/upload")
+    public Result<FileUploadVO> uploadCover(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "type", defaultValue = "pc") String type) {
+        FileUploadVO result = minioService.uploadCover(file, type);
+        return Result.success(result);
+    }
 }

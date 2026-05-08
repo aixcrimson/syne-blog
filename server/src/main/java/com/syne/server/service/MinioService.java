@@ -183,20 +183,23 @@ public class MinioService {
     }
 
     /**
-     * 从随机封面图库中挑选一张图片，返回其公网访问 URL
+     * 从图库中挑选一张图片，返回其公网访问 URL
      * 模仿 https://www.loliapi.com/acg/ 的随机图能力，由调用方以 302 重定向给客户端
      */
-    public String pickRandomCoverUrl() {
+    public String pickRandomCoverUrl(String type) {
         String bucket = minioProperties.getCoverBucket();
         if (bucket == null || bucket.isBlank()) {
-            throw new BusinessException("未配置随机封面图库存储桶");
+            throw new BusinessException("未配置图库存储桶");
         }
+
+        String prefix = (type != null && !type.isBlank()) ? type + "/" : "";
 
         List<String> objectKeys = new ArrayList<>();
         try {
             Iterable<io.minio.Result<Item>> results = minioClient.listObjects(
                     ListObjectsArgs.builder()
                             .bucket(bucket)
+                            .prefix(prefix)
                             .recursive(true)
                             .build()
             );
@@ -212,15 +215,63 @@ public class MinioService {
                 objectKeys.add(name);
             }
         } catch (Exception e) {
-            log.error("枚举随机封面图库失败: {}", e.getMessage(), e);
-            throw new BusinessException("获取随机封面失败: " + e.getMessage());
+            log.error("枚举图库失败: {}", e.getMessage(), e);
+            throw new BusinessException("获取图库失败: " + e.getMessage());
         }
 
         if (objectKeys.isEmpty()) {
-            throw new BusinessException("封面图库为空，请先在 MinIO 控制台向桶 '" + bucket + "' 上传图片");
+            throw new BusinessException("图库为空，请先上传图片 (" + type + ")");
         }
 
         String pick = objectKeys.get(ThreadLocalRandom.current().nextInt(objectKeys.size()));
         return buildFileUrl(bucket, pick);
+    }
+
+    /**
+     * 上传图片到图库（syne-cover）
+     *
+     * @param file 图片文件（预期为前端已处理好的 webp）
+     * @param type 类型（pc 或 mobile）
+     * @return 上传结果
+     */
+    public FileUploadVO uploadCover(MultipartFile file, String type) {
+        String bucket = minioProperties.getCoverBucket();
+        if (bucket == null || bucket.isBlank()) {
+            throw new BusinessException("未配置图库存储桶");
+        }
+        if (file == null || file.isEmpty()) {
+            throw new BusinessException("请选择要上传的文件");
+        }
+
+        String ext = ".webp";
+        // 随机生成 5 位数，如 img12345.webp
+        String uuid = "img" + ThreadLocalRandom.current().nextInt(10000, 99999);
+        String fileName = type + "/" + uuid + ext;
+
+        try (InputStream inputStream = file.getInputStream()) {
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(fileName)
+                            .stream(inputStream, file.getSize(), -1)
+                            .contentType("image/webp")
+                            .build()
+            );
+
+            String url = buildFileUrl(bucket, fileName);
+            log.info("图库文件上传成功: {} -> {}", fileName, url);
+
+            return FileUploadVO.builder()
+                    .url(url)
+                    .fileName(fileName)
+                    .originalName(file.getOriginalFilename())
+                    .size(file.getSize())
+                    .contentType("image/webp")
+                    .build();
+
+        } catch (Exception e) {
+            log.error("图库文件上传失败: {}", e.getMessage(), e);
+            throw new BusinessException("图库文件上传失败: " + e.getMessage());
+        }
     }
 }
