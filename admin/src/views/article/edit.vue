@@ -260,7 +260,7 @@ const loading = ref(false)
 const saving = ref(false)
 
 /** 随机封面 API（未上传时请求一次并保存本次真实图片地址） */
-const DEFAULT_ARTICLE_COVER_API = 'https://www.loliapi.com/acg/'
+const DEFAULT_ARTICLE_COVER_API = '/api/file/cover/random'
 
 
 /** 分类列表 */
@@ -440,8 +440,9 @@ const resolveRandomCoverImage = async (): Promise<string> => {
   }
 
   const finalUrl = response.url
-  const finalUrlInfo = new URL(finalUrl)
-  const apiUrlInfo = new URL(DEFAULT_ARTICLE_COVER_API)
+  // 使用 window.location.origin 作为相对路径的基准，兼容 DEFAULT_ARTICLE_COVER_API 为相对路径或绝对路径两种写法
+  const finalUrlInfo = new URL(finalUrl, window.location.origin)
+  const apiUrlInfo = new URL(DEFAULT_ARTICLE_COVER_API, window.location.origin)
   const isStillApiUrl = finalUrlInfo.origin === apiUrlInfo.origin && finalUrlInfo.pathname === apiUrlInfo.pathname
 
   if (isStillApiUrl) {
