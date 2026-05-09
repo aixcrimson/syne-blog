@@ -123,8 +123,8 @@ const fetchComments = async () => {
     comments.value = res.list || [];
     total.value = res.total || 0;
   } catch (e) {
+    // 错误提示已由 axios 拦截器统一处理
     console.error("获取评论列表失败:", e);
-    ElMessage.error("获取评论失败");
   } finally {
     loading.value = false;
   }
@@ -152,8 +152,8 @@ const submitComment = async () => {
       currentPage.value = 1;
       await fetchComments();
     } catch (e) {
+      // 错误提示已由 axios 拦截器统一处理
       console.error("发表评论失败:", e);
-      ElMessage.error("发表评论失败");
     } finally {
       submitting.value = false;
     }

@@ -162,8 +162,8 @@ const submitReply = async () => {
     cancelReply();
     emit("reply-success");
   } catch (e) {
+    // 错误提示已由 axios 拦截器统一处理
     console.error("回复失败:", e);
-    ElMessage.error("回复失败");
   } finally {
     submitting.value = false;
   }

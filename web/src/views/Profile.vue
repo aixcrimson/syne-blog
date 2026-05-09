@@ -257,7 +257,8 @@ const handleFileChange = async (event: Event) => {
     formData.avatar = res.url;
     ElMessage.success("头像上传成功");
   } catch (error) {
-    ElMessage.error("头像上传失败");
+    // 错误提示已由 axios 拦截器统一处理
+    console.error("头像上传失败:", error);
   } finally {
     avatarLoading.value = false;
     if (fileInputRef.value) {
@@ -311,7 +312,8 @@ const loadArticles = async (type: "liked" | "favorite") => {
     articles.value = res.list;
     total.value = res.total;
   } catch (error) {
-    ElMessage.error("获取文章列表失败");
+    // 错误提示已由 axios 拦截器统一处理
+    console.error("获取文章列表失败:", error);
   } finally {
     loading.value = false;
   }
@@ -346,7 +348,8 @@ const handleSave = async () => {
     await userStore.fetchCurrentUser();
     await siteStore.fetchAuthorInfo();
   } catch (error) {
-    ElMessage.error("保存失败");
+    // 错误提示已由 axios 拦截器统一处理
+    console.error("保存失败:", error);
   } finally {
     saving.value = false;
   }

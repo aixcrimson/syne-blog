@@ -391,8 +391,8 @@ const fetchArticle = async () => {
     article.value = await articleApi.getById(articleId.value);
   } catch (e) {
     article.value = null;
+    // 错误提示已由 axios 拦截器统一处理
     console.error("获取文章详情失败:", e);
-    ElMessage.error("获取文章失败");
   } finally {
     loading.value = false;
   }
@@ -433,8 +433,8 @@ const handleLike = async () => {
       ElMessage.success(res.liked ? "点赞成功" : "已取消点赞");
     }
   } catch (e) {
+    // 错误提示已由 axios 拦截器统一处理
     console.error("点赞失败:", e);
-    ElMessage.error("点赞失败");
   }
 };
 
@@ -460,8 +460,8 @@ const handleFavorite = async () => {
       ElMessage.success(res.favorited ? "收藏成功" : "已取消收藏");
     }
   } catch (e) {
+    // 错误提示已由 axios 拦截器统一处理
     console.error("收藏失败:", e);
-    ElMessage.error("收藏失败");
   }
 };
 

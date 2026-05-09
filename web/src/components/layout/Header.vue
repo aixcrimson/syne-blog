@@ -515,8 +515,8 @@ const ensureSearchArticlesLoaded = async () => {
     }));
     hasLoadedSearchArticles.value = true;
   } catch (error) {
+    // 错误提示已由 axios 拦截器统一处理
     console.error("加载搜索文章失败:", error);
-    ElMessage.error("加载搜索数据失败");
   } finally {
     searchLoading.value = false;
   }

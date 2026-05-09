@@ -93,37 +93,42 @@ request.interceptors.response.use(
     // 处理不同的 HTTP 状态码
     if (error.response) {
       const { status, data } = error.response
-      
+      // 优先使用后端返回的友好提示（如"用户名或密码错误"、"文章不存在"等）
+      const backendMsg = (data as any)?.message
+
       switch (status) {
         case 400:
-          ElMessage.error('请求参数错误')
+          ElMessage.error(backendMsg || '请求参数有误，请检查后重试')
           break
         case 401:
-          ElMessage.error('未授权，请先登录')
-          // 可以跳转到登录页
-          // router.push('/login')
+          ElMessage.error(backendMsg || '登录已过期，请重新登录')
           localStorage.removeItem('token')
           break
         case 403:
-          ElMessage.error('拒绝访问')
+          ElMessage.error(backendMsg || '没有权限执行此操作')
           break
         case 404:
-          ElMessage.error('请求的资源不存在')
+          ElMessage.error(backendMsg || '请求的资源不存在')
           break
         case 500:
-          ElMessage.error('服务器内部错误')
+          ElMessage.error(backendMsg || '服务器内部错误，请稍后重试')
           break
         case 502:
-          ElMessage.error('网关错误')
+          ElMessage.error(backendMsg || '网关错误')
           break
         case 503:
-          ElMessage.error('服务暂时不可用')
+          ElMessage.error(backendMsg || '服务暂时不可用')
           break
         case 504:
-          ElMessage.error('网关超时')
+          ElMessage.error(backendMsg || '网关超时')
           break
         default:
-          ElMessage.error((data as any)?.message || `请求失败 (${status})`)
+          ElMessage.error(backendMsg || `请求失败 (${status})`)
+      }
+
+      // 用后端文案替换 axios 默认的英文 message，便于业务层复用
+      if (backendMsg) {
+        error.message = backendMsg
       }
     } else if (error.request) {
       // 请求已发出但没有收到响应
