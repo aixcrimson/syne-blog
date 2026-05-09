@@ -106,7 +106,7 @@
       v-for="task in tasks"
       :key="task.id"
       v-model="task.dialogVisible"
-      width="650px"
+      :width="isMobile ? '90%' : '650px'"
       append-to-body
       :close-on-click-modal="false"
       @close="handleClose(task)"
@@ -207,6 +207,9 @@ import {
 } from '@element-plus/icons-vue'
 import { aiWritingStream, type AiWritingRequest } from '@/api/ai'
 import dayjs from 'dayjs'
+import { useResponsive } from '@/utils/useResponsive'
+
+const { isMobile } = useResponsive()
 
 const props = defineProps<{
   /** 当前编辑器内容 */

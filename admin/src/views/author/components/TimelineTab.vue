@@ -79,14 +79,19 @@
     <!-- 弹窗 -->
     <el-dialog
       v-model="dialogVisible"
-      :title="isEdit ? '编辑时间节点' : '新建时间节点'"
-      width="500px"
+      :title="isEdit ? '编辑时间线' : '新建时间线'"
+      :width="isMobile ? '90%' : '500px'"
       :close-on-click-modal="false"
       destroy-on-close
       append-to-body
       @closed="resetForm"
     >
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
+      <el-form
+        ref="formRef"
+        :model="form"
+        :rules="rules"
+        :label-width="isMobile ? 'auto' : '80px'"
+      >
         <el-form-item label="时间" prop="year">
           <el-date-picker
             v-model="form.year"
@@ -160,7 +165,10 @@ import {
 import dayjs from "dayjs";
 import { timelineApi } from "@/api/siteContent";
 import type { Timeline, TimelineForm } from "@/types";
+import { useResponsive } from '@/utils/useResponsive';
+
 // ==================== 状态 ====================
+const { isMobile } = useResponsive();
 const loading = ref(false);
 const list = ref<Timeline[]>([]);
 const dialogVisible = ref(false);

@@ -1,13 +1,13 @@
 <template>
-  <div class="navigation-management p-6">
+  <div class="navigation-management p-0 md:p-6">
     <!-- 页面标题 -->
-    <div class="mb-6">
+    <div class="mb-4 md:mb-6 hidden md:block">
       <h1 class="text-2xl font-bold text-gray-800">导航管理</h1>
       <p class="text-gray-500 mt-1">管理导航站点和分类</p>
     </div>
 
     <!-- 操作区域 -->
-    <div class="glass-card p-4 mb-6 rounded-lg">
+    <div class="glass-card p-4 mb-4 md:mb-6 rounded-lg">
       <div class="flex items-center justify-between">
         <span class="text-gray-600">共 {{ categoryList.length }} 个分类，{{ totalSites }} 个站点</span>
         <div class="flex gap-2">
@@ -119,12 +119,12 @@
     <el-dialog 
       v-model="categoryDialogVisible" 
       :title="isCategoryEdit ? '编辑分类' : '新建分类'" 
-      width="500px" 
+      :width="isMobile ? '90%' : '500px'" 
       :close-on-click-modal="false"
       append-to-body
       @closed="handleCategoryDialogClose"
     >
-      <el-form ref="categoryFormRef" :model="categoryForm" :rules="categoryFormRules" label-width="80px">
+      <el-form ref="categoryFormRef" :model="categoryForm" :rules="categoryFormRules" :label-width="isMobile ? 'auto' : '80px'">
         <el-form-item label="名称" prop="name">
           <el-input v-model="categoryForm.name" placeholder="请输入分类名称" maxlength="50" show-word-limit />
         </el-form-item>
@@ -146,12 +146,12 @@
     <el-dialog 
       v-model="siteDialogVisible" 
       :title="isSiteEdit ? '编辑站点' : '新建站点'" 
-      width="550px" 
+      :width="isMobile ? '90%' : '550px'" 
       :close-on-click-modal="false"
       append-to-body
       @closed="handleSiteDialogClose"
     >
-      <el-form ref="siteFormRef" :model="siteForm" :rules="siteFormRules" label-width="80px">
+      <el-form ref="siteFormRef" :model="siteForm" :rules="siteFormRules" :label-width="isMobile ? 'auto' : '80px'">
         <el-form-item label="名称" prop="name">
           <el-input v-model="siteForm.name" placeholder="请输入站点名称" maxlength="100" show-word-limit />
         </el-form-item>
@@ -198,6 +198,10 @@ import { navigationApi, type NavigationCategoryForm, type NavigationSiteForm } f
 import type { NavigationCategory, NavigationSite, SortOrderItem } from '@/types'
 import { isValidUrl } from '@/utils/validate'
 import BookmarkImport from './components/BookmarkImport.vue'
+import { useResponsive } from '@/utils/useResponsive'
+
+const { isMobile } = useResponsive()
+
 /** vuedraggable change 事件类型 */
 interface DragChangeEvent {
   added?: { element: NavigationSite; newIndex: number }

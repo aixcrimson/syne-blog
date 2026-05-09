@@ -74,13 +74,13 @@
     <el-dialog
       v-model="dialogVisible"
       :title="isEdit ? '编辑公告' : '新建公告'"
-      width="500px"
+      :width="isMobile ? '90%' : '500px'"
       :close-on-click-modal="false"
       destroy-on-close
       append-to-body
       @closed="resetForm"
     >
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="formRef" :model="form" :rules="rules" :label-width="isMobile ? 'auto' : '80px'">
         <el-form-item label="内容" prop="content">
           <el-input
             v-model="form.content"
@@ -130,8 +130,10 @@ import {
 import dayjs from "dayjs";
 import { noticeApi } from "@/api/siteContent";
 import type { Notice, NoticeForm } from "@/types";
+import { useResponsive } from '@/utils/useResponsive';
 
 // ==================== 状态 ====================
+const { isMobile } = useResponsive();
 const loading = ref(false);
 const list = ref<(Notice & { updating?: boolean })[]>([]);
 const dialogVisible = ref(false);
@@ -262,6 +264,7 @@ onMounted(() => {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   overflow: hidden;
 }
 

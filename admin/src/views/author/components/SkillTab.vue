@@ -82,13 +82,13 @@
     <el-dialog
       v-model="dialogVisible"
       :title="isEdit ? '编辑技能' : '新建技能'"
-      width="500px"
+      :width="isMobile ? '90%' : '500px'"
       :close-on-click-modal="false"
       destroy-on-close
       append-to-body
       @closed="resetForm"
     >
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="formRef" :model="form" :rules="rules" :label-width="isMobile ? 'auto' : '80px'">
         <el-form-item label="名称" prop="name">
           <el-input
             v-model="form.name"
@@ -145,7 +145,10 @@ import {
 import dayjs from "dayjs";
 import { skillApi } from "@/api/siteContent";
 import type { Skill, SkillForm } from "@/types";
+import { useResponsive } from '@/utils/useResponsive';
+
 // ==================== 状态 ====================
+const { isMobile } = useResponsive();
 const loading = ref(false);
 const list = ref<Skill[]>([]);
 const dialogVisible = ref(false);

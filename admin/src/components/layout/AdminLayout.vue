@@ -31,14 +31,12 @@
       />
       
       <!-- 页面内容区 -->
-      <main class="p-4 md:p-6 mt-16">
-        <div class="glass-card p-4 md:p-6 min-h-[calc(100vh-8rem)]">
-          <router-view v-slot="{ Component }">
-            <transition name="fade" mode="out-in">
-              <component :is="Component" />
-            </transition>
-          </router-view>
-        </div>
+      <main class="p-4 md:p-6 mt-16 min-h-[calc(100vh-4rem)]">
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </main>
     </div>
   </div>
@@ -133,19 +131,17 @@ provide('isMobile', isMobile)
 <style scoped>
 /* 主布局容器 */
 .admin-layout {
-  display: flex;
   min-height: 100vh;
+  position: relative;
 }
 
 /* 主内容区容器 */
 .main-container {
-  flex: 1;
   min-height: 100vh;
   /* 防止内容溢出产生横向滚动条 */
   overflow-x: hidden;
-  /* 确保宽度正确计算 */
-  width: 100%;
-  max-width: 100%;
+  /* 修复在某些情况下宽度计算不正确的问题 */
+  width: auto;
 }
 
 /* 移动端遮罩层 */

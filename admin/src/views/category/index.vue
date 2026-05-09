@@ -1,13 +1,13 @@
 <template>
-  <div class="category-management p-6">
+  <div class="category-management p-0 md:p-6">
     <!-- 页面标题 -->
-    <div class="mb-6">
+    <div class="mb-6 hidden md:block">
       <h1 class="text-2xl font-bold text-gray-800">分类管理</h1>
-      <p class="text-gray-500 mt-1">管理博客文章分类</p>
+      <p class="text-gray-500 mt-1">管理博客的文章分类</p>
     </div>
 
-    <!-- 操作区域 -->
-    <div class="glass-card p-4 mb-6 rounded-lg">
+    <!-- 搜索和操作区域 -->
+    <div class="glass-card p-4 mb-4 md:mb-6 rounded-lg">
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-4 flex-1">
           <el-input

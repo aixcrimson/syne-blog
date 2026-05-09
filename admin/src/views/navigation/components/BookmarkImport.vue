@@ -2,7 +2,7 @@
   <el-dialog
     v-model="visible"
     title="导入Chrome书签"
-    width="800px"
+    :width="isMobile ? '90%' : '800px'"
     :close-on-click-modal="false"
     append-to-body
     @closed="handleClose"
@@ -238,12 +238,15 @@ import {
   CircleCheckFilled,
   CircleCloseFilled,
 } from "@element-plus/icons-vue";
-import { navigationApi } from "@/api/navigation";
+import { navigationApi } from '@/api/navigation'
 import type {
   BookmarkPreviewDTO,
   FolderMapping,
   NavigationCategory,
-} from "@/types";
+} from '@/types'
+import { useResponsive } from '@/utils/useResponsive'
+
+const { isMobile } = useResponsive()
 
 interface FolderMappingItem {
   folder: string;

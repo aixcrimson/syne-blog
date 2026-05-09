@@ -1,14 +1,14 @@
 <template>
-  <div class="settings-page p-6">
+  <div class="settings-page p-4 md:p-6">
     <!-- 页面标题 -->
-    <div class="mb-6">
+    <div class="mb-6 hidden md:block">
       <h1 class="text-2xl font-bold text-gray-800">个人设置</h1>
       <p class="text-gray-500 mt-1">管理您的个人信息和账号安全</p>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
       <!-- 个人信息卡片 -->
-      <div class="glass-card p-6 rounded-lg">
+      <div class="glass-card p-4 md:p-6 rounded-lg">
         <h2 class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
           <el-icon><User /></el-icon>
           个人信息
@@ -148,7 +148,7 @@
       </div>
 
       <!-- 修改密码卡片 -->
-      <div class="glass-card p-6 rounded-lg">
+      <div class="glass-card p-4 md:p-6 rounded-lg">
         <h2 class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
           <el-icon><Lock /></el-icon>
           修改密码

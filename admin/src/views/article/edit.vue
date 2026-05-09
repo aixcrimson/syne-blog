@@ -1,12 +1,12 @@
 <template>
-  <div class="article-edit p-6" v-loading="loading">
+  <div class="article-edit p-4 md:p-6" v-loading="loading">
     <!-- 页面头部 -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
       <div class="flex items-center gap-4">
         <el-button :icon="ArrowLeft" @click="handleBack">返回</el-button>
-        <h1 class="text-2xl font-bold text-gray-800">{{ pageTitle }}</h1>
+        <h1 class="text-xl md:text-2xl font-bold text-gray-800">{{ pageTitle }}</h1>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
         <!-- AI 写作助手 -->
         <AiWritingPanel
           v-if="!loading"
@@ -14,17 +14,17 @@
           :selected-text="selectedText"
           @apply="handleAiApply"
         />
-        <el-button @click="handleSaveDraft" :loading="saving">
+        <el-button @click="handleSaveDraft" :loading="saving" size="default" class="!ml-0">
           保存草稿
         </el-button>
-        <el-button type="primary" @click="handlePublish" :loading="saving">
+        <el-button type="primary" @click="handlePublish" :loading="saving" size="default" class="!ml-0">
           发布文章
         </el-button>
       </div>
     </div>
 
     <!-- 编辑表单 -->
-    <div class="flex gap-6">
+    <div class="flex flex-col lg:flex-row gap-6">
       <!-- 左侧：编辑器区域 -->
       <div class="flex-1 min-w-0">
         <el-form
@@ -61,7 +61,7 @@
           <el-form-item label="文章内容" prop="content">
             <MdEditor
               v-model="formData.content"
-              :preview="true"
+              :preview="!isMobile"
               :toolbars-exclude="['github']"
               style="height: 600px"
               class="md-editor-custom"
@@ -73,8 +73,8 @@
       </div>
 
       <!-- 右侧：设置面板 -->
-      <div class="w-80 flex-shrink-0">
-        <div class="glass-card p-4 rounded-lg sticky top-6">
+      <div class="w-full lg:w-80 flex-shrink-0">
+        <div class="glass-card p-4 rounded-lg lg:sticky lg:top-6">
           <h3 class="text-lg font-semibold text-gray-800 mb-4">文章设置</h3>
           
           <el-form
@@ -173,6 +173,10 @@ import { categoryApi } from '@/api/category'
 import { tagApi } from '@/api/tag'
 import type { ArticleForm, Category, Tag } from '@/types'
 import { ArticleStatus } from '@/types'
+import { useResponsive } from '@/utils/useResponsive'
+
+// 响应式状态
+const { isMobile } = useResponsive()
 
 // ==================== 路由 ====================
 const route = useRoute()
