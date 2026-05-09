@@ -5,7 +5,7 @@
         <el-icon><Picture /></el-icon>
         随机图库管理
       </h2>
-      <p class="text-sm text-gray-500">上传的图片将被自动居中裁剪，并转换为高压缩率的 WebP 格式保存至独立图库，用作文章或页面的随机封面。</p>
+      <p class="text-sm text-gray-500">上传的图片将被自动居中裁剪并多步降采样为高清 WebP，保存至独立图库，用作文章或页面的随机封面。</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -13,7 +13,7 @@
       <div class="border border-gray-100 rounded-lg p-6 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
         <div>
           <h3 class="font-medium text-gray-800 text-base mb-1">PC端图库</h3>
-          <p class="text-sm text-gray-500">将裁剪为 1200×630 比例</p>
+          <p class="text-sm text-gray-500">将裁剪为 1920×1080（16:9）</p>
         </div>
         <div class="mt-auto pt-4">
           <el-button 
@@ -33,7 +33,7 @@
       <div class="border border-gray-100 rounded-lg p-6 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
         <div>
           <h3 class="font-medium text-gray-800 text-base mb-1">移动端图库</h3>
-          <p class="text-sm text-gray-500">将裁剪为 600×800 比例</p>
+          <p class="text-sm text-gray-500">将裁剪为 1080×1440（3:4）</p>
         </div>
         <div class="mt-auto pt-4">
           <el-button 
