@@ -176,9 +176,9 @@
         </el-table-column>
         
         <!-- 操作列 -->
-        <el-table-column label="操作" :width="isMobile ? 120 : 220" fixed="right">
+        <el-table-column label="操作" :width="isMobile ? 120 : 220" fixed="right" align="center">
           <template #default="{ row }">
-            <div class="flex items-center gap-1 justify-end">
+            <div class="flex items-center gap-1 justify-center">
               <!-- 移动端只显示编辑和更多 -->
               <template v-if="isMobile">
                 <el-button type="primary" :icon="Edit" size="small" circle @click="handleEdit(row)" />
@@ -514,9 +514,9 @@ onMounted(() => {
   color: var(--color-primary-500);
 }
 
-/* 表格行悬停效果 */
-:deep(.el-table__row:hover) {
-  background-color: rgba(var(--color-primary-50), 0.5);
+/* 表格行悬停效果（使用 EP 内置变量，自动同步固定列且无残留） */
+:deep(.el-table) {
+  --el-table-row-hover-bg-color: var(--color-primary-100);
 }
 
 /* 标签样式优化 */

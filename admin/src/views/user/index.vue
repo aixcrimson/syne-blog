@@ -85,7 +85,7 @@
         </el-table-column>
         
         <!-- 操作 -->
-        <el-table-column label="操作" :width="isMobile ? 80 : 120" fixed="right">
+        <el-table-column label="操作" :width="isMobile ? 80 : 120" fixed="right" align="center">
           <template #default="{ row }">
             <div class="flex items-center gap-2 justify-center">
               <!-- 启用/禁用按钮 -->
@@ -290,8 +290,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
-:deep(.el-table__row:hover) {
-  background-color: rgba(var(--color-primary-50), 0.5);
+:deep(.el-table) {
+  --el-table-row-hover-bg-color: var(--color-primary-100);
 }
 
 :deep(.el-tag) {

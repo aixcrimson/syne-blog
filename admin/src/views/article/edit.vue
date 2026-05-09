@@ -368,8 +368,8 @@ const loadArticle = async () => {
     // 保存初始状态
     initialFormData.value = JSON.stringify(formData)
   } catch (error) {
+    // 错误提示已由 axios 拦截器统一处理
     console.error('加载文章详情失败:', error)
-    ElMessage.error('加载文章失败')
     router.push('/article/list')
   } finally {
     loading.value = false
@@ -482,16 +482,20 @@ const buildArticlePayload = async (status: ArticleStatus): Promise<ArticleForm> 
  */
 const handleSaveDraft = async () => {
 
-  // 草稿模式下只验证标题
+  // 草稿模式下只验证标题（与后端最低要求保持一致）
   if (!formData.title.trim()) {
     ElMessage.warning('请输入文章标题')
     return
   }
-  
+  if (!formData.categoryId) {
+    ElMessage.warning('请选择文章分类后再保存')
+    return
+  }
+
   saving.value = true
   try {
     const data = await buildArticlePayload(ArticleStatus.DRAFT)
-    
+
     if (isEdit.value) {
       await articleApi.update(articleId.value, data)
       ElMessage.success('草稿保存成功')
@@ -501,12 +505,12 @@ const handleSaveDraft = async () => {
       // 跳转到编辑页面
       router.replace(`/article/edit/${result.id}`)
     }
+    // 保存成功后将当前内容标记为初始状态，避免返回时误判为有未保存修改
+    initialFormData.value = JSON.stringify(formData)
   } catch (error) {
-
+    // 错误提示已由 axios 拦截器统一处理，这里只做日志
     console.error('保存草稿失败:', error)
-    ElMessage.error(error instanceof Error ? error.message : '保存草稿失败')
   } finally {
-
     saving.value = false
   }
 }
@@ -525,7 +529,7 @@ const handlePublish = async () => {
   saving.value = true
   try {
     const data = await buildArticlePayload(ArticleStatus.PUBLISHED)
-    
+
     if (isEdit.value) {
       await articleApi.update(articleId.value, data)
       ElMessage.success('文章发布成功')
@@ -533,15 +537,14 @@ const handlePublish = async () => {
       await articleApi.create(data)
       ElMessage.success('文章发布成功')
     }
-    
-    // 返回列表页
+
+    // 发布成功，重置初始状态后返回列表页
+    initialFormData.value = JSON.stringify(formData)
     router.push('/article/list')
   } catch (error) {
-
+    // 错误提示已由 axios 拦截器统一处理，这里只做日志
     console.error('发布文章失败:', error)
-    ElMessage.error(error instanceof Error ? error.message : '发布文章失败')
   } finally {
-
     saving.value = false
   }
 }

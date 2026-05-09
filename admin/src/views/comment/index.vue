@@ -117,9 +117,9 @@
         </el-table-column>
         
         <!-- 操作 -->
-        <el-table-column label="操作" :width="isMobile ? 120 : 150" fixed="right">
+        <el-table-column label="操作" :width="isMobile ? 120 : 150" fixed="right" align="center">
           <template #default="{ row }">
-            <div class="flex items-center gap-2 justify-end">
+            <div class="flex items-center gap-2 justify-center">
               <!-- 审核通过按钮（仅待审核状态显示） -->
               <el-tooltip v-if="row.status === CommentStatus.PENDING" content="审核通过">
                 <el-button 
@@ -419,8 +419,8 @@ onMounted(() => {
   overflow: hidden;
 }
 
-:deep(.el-table__row:hover) {
-  background-color: rgba(var(--color-primary-50), 0.5);
+:deep(.el-table) {
+  --el-table-row-hover-bg-color: var(--color-primary-100);
 }
 
 :deep(.el-tag) {
