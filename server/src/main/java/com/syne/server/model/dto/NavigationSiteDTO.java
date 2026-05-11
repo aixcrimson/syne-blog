@@ -34,8 +34,6 @@ public class NavigationSiteDTO {
     @Size(max = 500, message = "站点URL长度不能超过500个字符")
     private String url;
 
-    @Schema(description = "站点图标URL")
-    private String icon;
 
     @Schema(description = "排序权重")
     private Integer sortOrder;

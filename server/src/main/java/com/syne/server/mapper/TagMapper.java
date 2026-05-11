@@ -5,6 +5,8 @@ import com.syne.server.model.entity.Tags;
 import com.syne.server.model.vo.TagListVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -54,4 +56,22 @@ public interface TagMapper extends BaseMapper<Tags> {
      * @return 标签列表
      */
     List<TagListVO> selectAllTagList();
+
+    /**
+     * 查询已逻辑删除的同slug标签（绕过@TableLogic自动过滤）
+     */
+    @Select("SELECT * FROM tags WHERE slug = #{slug} AND deleted = 1 LIMIT 1")
+    Tags selectDeletedBySlug(@Param("slug") String slug);
+
+    /**
+     * 查询已逻辑删除的同name标签（绕过@TableLogic自动过滤）
+     */
+    @Select("SELECT * FROM tags WHERE name = #{name} AND deleted = 1 LIMIT 1")
+    Tags selectDeletedByName(@Param("name") String name);
+
+    /**
+     * 恢复已逻辑删除的标签（绕过@TableLogic自动过滤）
+     */
+    @Update("UPDATE tags SET name = #{name}, slug = #{slug}, color = #{color}, usage_count = #{usageCount}, deleted = 0, update_time = NOW() WHERE id = #{id}")
+    int restoreDeletedTag(@Param("id") Long id, @Param("name") String name, @Param("slug") String slug, @Param("color") String color, @Param("usageCount") Integer usageCount);
 }

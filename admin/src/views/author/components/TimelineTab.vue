@@ -45,16 +45,6 @@
                 颜色:
                 <el-tag :type="row.color" size="small">{{ row.color }}</el-tag>
               </div>
-              <div class="text-xs text-gray-400">
-                图标:
-                <el-icon
-                  v-if="row.icon && isElementIcon(row.icon)"
-                  class="align-text-top"
-                >
-                  <component :is="row.icon" />
-                </el-icon>
-                <span v-else>{{ row.icon || "-" }}</span>
-              </div>
             </div>
           </template>
         </el-table-column>
@@ -89,14 +79,19 @@
     <!-- 弹窗 -->
     <el-dialog
       v-model="dialogVisible"
-      :title="isEdit ? '编辑时间节点' : '新建时间节点'"
-      width="500px"
+      :title="isEdit ? '编辑时间线' : '新建时间线'"
+      :width="isMobile ? '90%' : '500px'"
       :close-on-click-modal="false"
       destroy-on-close
       append-to-body
       @closed="resetForm"
     >
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
+      <el-form
+        ref="formRef"
+        :model="form"
+        :rules="rules"
+        :label-width="isMobile ? 'auto' : '80px'"
+      >
         <el-form-item label="时间" prop="year">
           <el-date-picker
             v-model="form.year"
@@ -146,13 +141,6 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="图标" prop="icon">
-          <IconSelector
-            v-model="form.icon"
-            placeholder="请选择图标"
-            :clearable="true"
-          />
-        </el-form-item>
 
       </el-form>
       <template #footer>
@@ -177,10 +165,10 @@ import {
 import dayjs from "dayjs";
 import { timelineApi } from "@/api/siteContent";
 import type { Timeline, TimelineForm } from "@/types";
-import IconSelector from "@/components/IconSelector.vue";
-import * as ElementPlusIconsVue from "@element-plus/icons-vue";
+import { useResponsive } from '@/utils/useResponsive';
 
 // ==================== 状态 ====================
+const { isMobile } = useResponsive();
 const loading = ref(false);
 const list = ref<Timeline[]>([]);
 const dialogVisible = ref(false);
@@ -193,7 +181,6 @@ const form = reactive<TimelineForm>({
   year: "",
   title: "",
   description: "",
-  icon: "",
   color: "primary",
   sortOrder: 0,
 });
@@ -223,16 +210,6 @@ const formatDate = (date: string) => {
   return date ? dayjs(date).format("YYYY-MM-DD HH:mm") : "-";
 };
 
-/** 检测是否为 Element Plus 图标 */
-const isElementIcon = (icon: string): boolean => {
-  return !!(
-    icon &&
-    typeof icon === "string" &&
-    !/\p{Extended_Pictographic}/u.test(icon) &&
-    /^[A-Z]/.test(icon) &&
-    icon in ElementPlusIconsVue
-  );
-};
 
 const loadData = async () => {
   loading.value = true;
@@ -258,7 +235,6 @@ const handleEdit = (row: Timeline) => {
   form.year = row.year;
   form.title = row.title;
   form.description = row.description;
-  form.icon = row.icon;
   form.color = row.color;
 
   dialogVisible.value = true;
@@ -290,7 +266,6 @@ const resetForm = () => {
   form.year = "";
   form.title = "";
   form.description = "";
-  form.icon = "";
   form.color = "primary";
   form.sortOrder = 0;
   formRef.value?.clearValidate();
@@ -328,7 +303,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-:deep(.el-table__row:hover) {
-  background-color: rgba(var(--color-primary-50), 0.5);
+:deep(.el-table) {
+  --el-table-row-hover-bg-color: var(--color-primary-100);
 }
 </style>

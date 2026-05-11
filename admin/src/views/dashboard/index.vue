@@ -1,9 +1,9 @@
 <template>
-  <div class="dashboard p-6">
+  <div class="dashboard p-4 md:p-6">
     <!-- 页面标题 -->
-    <div class="mb-6">
+    <div class="mb-4 md:mb-6 hidden md:block">
       <h1 class="text-2xl font-bold text-gray-800">仪表盘</h1>
-      <p class="text-gray-500 mt-1">欢迎使用博客管理系统</p>
+      <p class="text-gray-500 mt-1">欢迎回来，查看您的博客数据概览</p>
     </div>
 
     <!-- 统计卡片区域 -->

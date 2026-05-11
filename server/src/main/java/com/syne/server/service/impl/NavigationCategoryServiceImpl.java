@@ -62,9 +62,30 @@ public class NavigationCategoryServiceImpl extends ServiceImpl<NavigationCategor
     @Override
     @Transactional
     public NavigationCategory createNavigationCategory(NavigationCategoryDTO dto) {
+        // 检查名称是否被未删除的分类使用
+        LambdaQueryWrapper<NavigationCategory> nameQuery = new LambdaQueryWrapper<>();
+        nameQuery.eq(NavigationCategory::getName, dto.getName())
+                .eq(NavigationCategory::getDeleted, 0);
+        if (this.count(nameQuery) > 0) {
+            throw new BusinessException("导航分类名称已存在");
+        }
+
+        // 检查是否存在已逻辑删除的同名记录（使用自定义SQL绕过@TableLogic）
+        NavigationCategory deletedCategory = navigationCategoryMapper.selectDeletedByName(dto.getName());
+
+        if (deletedCategory != null) {
+            // 恢复已删除的记录（使用自定义SQL绕过@TableLogic）
+            navigationCategoryMapper.restoreDeletedCategory(
+                    deletedCategory.getId(),
+                    dto.getName(),
+                    dto.getSortOrder() != null ? dto.getSortOrder() : 0
+            );
+            navigationCacheManager.invalidateAll();
+            return navigationCategoryMapper.selectById(deletedCategory.getId());
+        }
+
         NavigationCategory category = new NavigationCategory();
         category.setName(dto.getName());
-        category.setIcon(dto.getIcon());
         category.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : 0);
 
         navigationCategoryMapper.insert(category);
@@ -81,7 +102,6 @@ public class NavigationCategoryServiceImpl extends ServiceImpl<NavigationCategor
         }
 
         category.setName(dto.getName());
-        category.setIcon(dto.getIcon());
         category.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : 0);
 
         navigationCategoryMapper.updateById(category);

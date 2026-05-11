@@ -4,8 +4,8 @@ import { useUserStore } from './user'
 import { chatHistoryApi } from '@/api/chat'
 import type { ChatSession, ChatMessage } from '@/types'
 
-const STORAGE_KEY = 'syne_chat_history'
-const MAX_SESSIONS = 50 // localStorage 限制
+/** 同步到服务器的去抖延迟（毫秒） */
+const SYNC_DEBOUNCE_MS = 600
 
 /**
  * 生成唯一 ID
@@ -66,50 +66,31 @@ export const useChatHistoryStore = defineStore('chatHistory', () => {
     return [...filteredSessions.value].sort((a, b) => b.updatedAt - a.updatedAt)
   })
 
-  // ==================== localStorage 操作 ====================
+  // ==================== 服务器同步 ====================
 
-  /** 从 localStorage 加载数据 */
-  function loadFromLocal() {
-    try {
-      const data = localStorage.getItem(STORAGE_KEY)
-      if (data) {
-        const parsed = JSON.parse(data)
-        sessions.value = parsed.sessions || []
-        currentSessionId.value = parsed.currentSessionId || null
-
-        // 验证当前会话是否存在
-        if (currentSessionId.value && !sessions.value.find(s => s.id === currentSessionId.value)) {
-          currentSessionId.value = sessions.value[0]?.id || null
-        }
-      }
-    } catch (error) {
-      console.error('加载聊天历史失败:', error)
-      sessions.value = []
-      currentSessionId.value = null
+  /** 重置内存状态（不触碰服务器） */
+  function resetState() {
+    sessions.value = []
+    currentSessionId.value = null
+    searchKeyword.value = ''
+    initialized.value = false
+    if (syncTimer !== null) {
+      clearTimeout(syncTimer)
+      syncTimer = null
     }
   }
 
-  /** 保存到 localStorage */
-  function saveToLocal() {
-    try {
-      // 限制会话数量
-      const limitedSessions = sessions.value.slice(0, MAX_SESSIONS)
-      const data = JSON.stringify({
-        sessions: limitedSessions,
-        currentSessionId: currentSessionId.value
-      })
-      localStorage.setItem(STORAGE_KEY, data)
-    } catch (error) {
-      console.error('保存聊天历史失败:', error)
-      // 如果存储满了，删除最旧的会话
-      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
-        sessions.value = sessions.value.slice(0, Math.floor(sessions.value.length / 2))
-        saveToLocal()
-      }
-    }
+  /** 判断错误是否为登录失效（401/403） */
+  function isAuthError(error: any): boolean {
+    const status = error?.response?.status
+    return status === 401 || status === 403
   }
 
-  // ==================== 后端 API 操作（预留） ====================
+  /** 登录失效时清掉无效 token 并复位 store */
+  function handleAuthError() {
+    userStore.logout()
+    resetState()
+  }
 
   /** 从服务器加载数据 */
   async function loadFromServer() {
@@ -121,59 +102,78 @@ export const useChatHistoryStore = defineStore('chatHistory', () => {
         if (!currentSessionId.value || !sessions.value.find(s => s.id === currentSessionId.value)) {
           currentSessionId.value = sessions.value[0]?.id || null
         }
-        saveToLocal()
       }
     } catch (error) {
       console.error('从服务器加载失败:', error)
+      if (isAuthError(error)) {
+        handleAuthError()
+      }
     }
   }
 
-  /** 同步到服务器 */
+  /** 立即同步到服务器（仅登录用户） */
   async function syncToServer() {
     if (!userStore.isLoggedIn) return
     try {
       await chatHistoryApi.syncSessions(sessions.value)
     } catch (error) {
       console.error('同步到服务器失败:', error)
+      if (isAuthError(error)) {
+        handleAuthError()
+      }
     }
+  }
+
+  /** 去抖持久化：未登录直接 noop，不写本地缓存 */
+  let syncTimer: ReturnType<typeof setTimeout> | null = null
+  function persist() {
+    if (!userStore.isLoggedIn) return
+    if (syncTimer !== null) {
+      clearTimeout(syncTimer)
+    }
+    syncTimer = setTimeout(() => {
+      syncTimer = null
+      syncToServer()
+    }, SYNC_DEBOUNCE_MS)
   }
 
   // ==================== 会话管理 ====================
 
-  /** 初始化 */
-  function init() {
+  /**
+   * 初始化
+   * 仅在登录用户首次打开聊天面板时调用；未登录时不发任何请求、不读写本地缓存。
+   */
+  async function init() {
     if (initialized.value) return
+    if (!userStore.isLoggedIn) return
 
-    loadFromLocal()
+    await loadFromServer()
 
-    // 如果没有会话，创建一个默认会话
+    // 如果服务器没有任何会话，创建一个默认会话（仅内存中，等用户发消息后再持久化）
     if (sessions.value.length === 0) {
-      createSession()
+      createSessionInMemory()
     } else if (!currentSessionId.value) {
       currentSessionId.value = sessions.value[0]?.id || null
     }
 
     initialized.value = true
-
-    watch(
-      () => userStore.isLoggedIn,
-      async (isLoggedIn) => {
-        if (isLoggedIn) {
-          await syncToServer()
-          await loadFromServer()
-        } else {
-          loadFromLocal()
-          if (sessions.value.length > 0 && !currentSessionId.value) {
-            currentSessionId.value = sessions.value[0]?.id || null
-          }
-        }
-      },
-      { immediate: true }
-    )
   }
 
-  /** 创建新会话 */
-  function createSession(title?: string): ChatSession {
+  /**
+   * 监听登录态变化：登出时清空内存（杜绝跨账号串数据）；登录时不主动拉，等
+   * ChatBot 调 init() 拉取，避免未打开聊天窗口时也发请求。
+   */
+  watch(
+    () => userStore.isLoggedIn,
+    (isLoggedIn) => {
+      if (!isLoggedIn) {
+        resetState()
+      }
+    }
+  )
+
+  /** 创建一个仅存在于内存的新会话（不立即同步） */
+  function createSessionInMemory(title?: string): ChatSession {
     const now = Date.now()
     const session: ChatSession = {
       id: generateId(),
@@ -182,20 +182,23 @@ export const useChatHistoryStore = defineStore('chatHistory', () => {
       createdAt: now,
       updatedAt: now
     }
-
     sessions.value.unshift(session)
     currentSessionId.value = session.id
-    saveToLocal()
-
     return session
   }
 
-  /** 切换会话 */
+  /** 创建新会话 */
+  function createSession(title?: string): ChatSession {
+    const session = createSessionInMemory(title)
+    persist()
+    return session
+  }
+
+  /** 切换会话（仅前端状态，无需同步） */
   function switchSession(id: string) {
     const session = sessions.value.find(s => s.id === id)
     if (session) {
       currentSessionId.value = id
-      saveToLocal()
     }
   }
 
@@ -205,7 +208,7 @@ export const useChatHistoryStore = defineStore('chatHistory', () => {
     if (session) {
       session.title = title.trim() || '新对话'
       session.updatedAt = Date.now()
-      saveToLocal()
+      persist()
     }
   }
 
@@ -222,12 +225,12 @@ export const useChatHistoryStore = defineStore('chatHistory', () => {
         // 切换到相邻会话
         currentSessionId.value = sessions.value[Math.min(index, sessions.value.length - 1)]?.id || null
       } else {
-        // 没有会话了，创建一个新的
-        createSession()
+        // 没有会话了，创建一个新的（仅内存）
+        createSessionInMemory()
       }
     }
 
-    saveToLocal()
+    persist()
   }
 
   /** 清空当前会话的消息 */
@@ -235,7 +238,7 @@ export const useChatHistoryStore = defineStore('chatHistory', () => {
     if (!currentSession.value) return
     currentSession.value.messages = []
     currentSession.value.updatedAt = Date.now()
-    saveToLocal()
+    persist()
   }
 
   // ==================== 消息管理 ====================
@@ -243,7 +246,7 @@ export const useChatHistoryStore = defineStore('chatHistory', () => {
   /** 添加消息到当前会话 */
   function addMessage(message: Omit<ChatMessage, 'timestamp'>) {
     if (!currentSession.value) {
-      createSession()
+      createSessionInMemory()
     }
 
     const newMessage: ChatMessage = {
@@ -259,7 +262,10 @@ export const useChatHistoryStore = defineStore('chatHistory', () => {
       currentSession.value!.title = generateTitle(message.content)
     }
 
-    saveToLocal()
+    // 用户消息立即触发去抖同步；assistant 占位消息（content 为空）不触发
+    if (message.content) {
+      persist()
+    }
   }
 
   /** 更新最后一条消息（用于流式响应） */
@@ -288,7 +294,7 @@ export const useChatHistoryStore = defineStore('chatHistory', () => {
   function saveAfterStream() {
     if (currentSession.value) {
       currentSession.value.updatedAt = Date.now()
-      saveToLocal()
+      persist()
     }
   }
 
@@ -307,6 +313,7 @@ export const useChatHistoryStore = defineStore('chatHistory', () => {
 
     // 方法
     init,
+    resetState,
     createSession,
     switchSession,
     updateSessionTitle,
@@ -316,8 +323,6 @@ export const useChatHistoryStore = defineStore('chatHistory', () => {
     updateLastMessage,
     appendToLastMessage,
     saveAfterStream,
-    loadFromLocal,
-    saveToLocal,
     loadFromServer,
     syncToServer
   }

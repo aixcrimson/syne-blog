@@ -38,7 +38,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tags> implements TagS
         // 查询标签列表
         List<TagListVO> list = tagMapper.selectTagList(
                 keyword,
-                StringUtils.hasText(sortBy) ? sortBy : "usage_count",
+                StringUtils.hasText(sortBy) ? sortBy : "article_count",
                 StringUtils.hasText(sortOrder) ? sortOrder : "desc",
                 pageQuery.getOffset(),
                 pageQuery.getPageSize()
@@ -69,30 +69,44 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tags> implements TagS
     @Override
     @Transactional
     public Tags createTag(TagDTO tagDTO) {
-        // 检查标签名称是否已存在
-        LambdaQueryWrapper<Tags> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Tags::getName, tagDTO.getName())
+        // 检查标签名称是否被未删除的标签使用
+        LambdaQueryWrapper<Tags> nameQuery = new LambdaQueryWrapper<>();
+        nameQuery.eq(Tags::getName, tagDTO.getName())
                 .eq(Tags::getDeleted, 0);
-        if (this.count(queryWrapper) > 0) {
+        if (this.count(nameQuery) > 0) {
             throw new BusinessException("标签名称已存在");
         }
 
-        // 检查slug是否已存在
-        queryWrapper.clear();
-        queryWrapper.eq(Tags::getSlug, tagDTO.getSlug())
+        // 检查slug是否被未删除的标签使用
+        LambdaQueryWrapper<Tags> slugQuery = new LambdaQueryWrapper<>();
+        slugQuery.eq(Tags::getSlug, tagDTO.getSlug())
                 .eq(Tags::getDeleted, 0);
-        if (this.count(queryWrapper) > 0) {
+        if (this.count(slugQuery) > 0) {
             throw new BusinessException("标签别名已存在");
         }
 
+        // 检查是否存在已逻辑删除的同slug或同name记录（使用自定义SQL绕过@TableLogic）
+        Tags deletedTag = tagMapper.selectDeletedBySlug(tagDTO.getSlug());
+        if (deletedTag == null) {
+            deletedTag = tagMapper.selectDeletedByName(tagDTO.getName());
+        }
+
+        if (deletedTag != null) {
+            // 恢复已删除的记录，并更新为新的数据（使用自定义SQL绕过@TableLogic）
+            String color = StringUtils.hasText(tagDTO.getColor()) ? tagDTO.getColor() : "#409EFF";
+            tagMapper.restoreDeletedTag(deletedTag.getId(), tagDTO.getName(), tagDTO.getSlug(), color, 0);
+            Tags restoredTag = this.getById(deletedTag.getId());
+            log.info("恢复并更新已删除标签：{}", restoredTag);
+            return restoredTag;
+        }
+
+        // 全新创建
         Tags tags = new Tags();
         BeanUtils.copyProperties(tagDTO, tags);
         if (!StringUtils.hasText(tags.getColor())) {
             tags.setColor("#409EFF");
         }
         tags.setUsageCount(0);
-
-        // 保存
         this.save(tags);
 
         log.info("创建标签：{}", tags);
@@ -192,9 +206,9 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tags> implements TagS
         }
 
         // 检查标签是否被文章使用
-        Integer usageCount = tagMapper.countArticleTagsByTagId(id);
-        if (usageCount > 0) {
-            throw new BusinessException("标签'" + tags.getName() + "'正在被" + usageCount + "篇文章使用，无法删除");
+        Integer articleCount = tagMapper.countArticleTagsByTagId(id);
+        if (articleCount > 0) {
+            throw new BusinessException("标签'" + tags.getName() + "'正在被" + articleCount + "篇文章使用，无法删除");
         }
 
         // 逻辑删除
@@ -224,20 +238,6 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tags> implements TagS
 
     @Override
     public List<TagListVO> getAllTagList(){
-        // 查询所有未删除的标签
-        List<Tags> tags = this.list(); // ServiceImpl 的 list() 方法默认会处理逻辑删除
-
-        if (tags == null || tags.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<TagListVO> list = new ArrayList<>();
-        for (Tags tag : tags) {
-            TagListVO vo = new TagListVO();
-            BeanUtils.copyProperties(tag, vo);
-            list.add(vo);
-        }
-
-        return list;
+        return tagMapper.selectAllTagList();
     }
 }

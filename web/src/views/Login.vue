@@ -253,8 +253,9 @@ const handleLogin = async () => {
         userStore.setUser(res);
 
         router.push("/");
-      } catch (error: any) {
-        ElMessage.error(error.message || "登录失败");
+      } catch (error) {
+        // 错误提示已由 axios 拦截器统一处理
+        console.error("登录失败:", error);
       } finally {
         loading.value = false;
       }
@@ -325,8 +326,9 @@ const sendCode = async () => {
         clearInterval(timer);
       }
     }, 1000);
-  } catch (error: any) {
-    ElMessage.error("验证码发送失败");
+  } catch (error) {
+    // 错误提示已由 axios 拦截器统一处理
+    console.error("验证码发送失败:", error);
   } finally {
     loading.value = false;
   }
@@ -342,8 +344,9 @@ const handleRegister = async () => {
         await authApi.register(registerForm);
         ElMessage.success("注册成功，请登录");
         toggleMode(); // 切换到登录模式
-      } catch (error: any) {
-        ElMessage.error(error.message || "注册失败");
+      } catch (error) {
+        // 错误提示已由 axios 拦截器统一处理
+        console.error("注册失败:", error);
       } finally {
         loading.value = false;
       }

@@ -1,15 +1,18 @@
 <template>
   <div
-    class="group relative overflow-hidden rounded-2xl cursor-pointer article-card h-80 border border-slate-200/70 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 dark:border-slate-700/70"
+    class="group relative overflow-hidden rounded-2xl cursor-pointer article-card border border-slate-200/70 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 dark:border-slate-700/70 will-change-transform transform-gpu"
+    :class="layout === 'list' ? 'h-72 sm:h-80 md:h-[22rem]' : 'h-64'"
     @click="handleClick"
   >
     <!-- 封面图作为背景 -->
-    <div class="absolute inset-0">
+    <div class="absolute inset-0 transform-gpu">
       <img
         v-if="article.coverImage"
         :src="article.coverImage"
         :alt="article.title"
-        class="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110 motion-reduce:transform-none"
+        loading="lazy"
+        decoding="async"
+        class="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110 motion-reduce:transform-none transform-gpu"
       />
       <!-- 无封面时的占位背景 -->
       <div
@@ -85,9 +88,12 @@ import { formatDate } from "@/utils/format";
 
 interface Props {
   article: Article;
+  layout?: 'grid' | 'list';
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  layout: 'grid'
+});
 const router = useRouter();
 
 const handleClick = () => {

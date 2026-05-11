@@ -28,8 +28,6 @@ public class CategoryDTO implements Serializable {
     @Schema(description = "分类别名", required = true, example = "Vue 3 框架")
     private String slug;
 
-    @Schema(description = "分类图标")
-    private String icon;
 
     @Schema(description = "分类描述", example = "Vue 3 是一个用于构建用户界面的渐进式框架")
     private String description;

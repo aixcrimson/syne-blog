@@ -40,13 +40,12 @@
       class="pt-16 pb-8 bg-transparent"
       :style="{ minHeight: mainContentMinHeight }"
     >
-      <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-5">
-          <!-- 侧边栏 -->
-          <Sidebar class="hidden xl:block xl:col-span-1" />
+      <div class="px-4 mx-auto max-w-[1480px] sm:px-6 lg:px-8">
+        <div class="flex flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,900px)_260px] xl:justify-center">
 
           <!-- 最新文章 -->
-          <div class="xl:col-span-4">
+          <div class="min-w-0 xl:w-full xl:max-w-[900px]">
+
             <div class="flex items-center gap-4 mb-6">
               <h2
                 class="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100"
@@ -67,7 +66,7 @@
             <div class="space-y-6">
               <!-- 骨架屏 -->
               <template v-if="loading">
-                <ArticleCardSkeleton v-for="i in 3" :key="i" />
+                <ArticleCardSkeleton v-for="i in 3" :key="i" layout="list" />
               </template>
 
               <!-- 文章列表 -->
@@ -76,11 +75,16 @@
                 v-else
                 :key="article.id"
                 :article="article"
+                layout="list"
               />
             </div>
           </div>
+
+          <!-- 侧边栏 -->
+          <Sidebar class="hidden xl:block xl:w-[260px] xl:flex-none" />
         </div>
       </div>
+
     </section>
   </div>
 </template>
@@ -126,7 +130,7 @@ const getLatestArticles = async () => {
   try {
     const res = await articleApi.getList({
       page: 1,
-      pageSize: 6,
+      pageSize: 3,
     });
     latestArticles.value = res.list;
   } catch (error) {

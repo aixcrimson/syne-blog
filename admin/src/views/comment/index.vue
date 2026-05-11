@@ -1,13 +1,13 @@
 <template>
-  <div class="comment-management p-6">
+  <div class="comment-management p-0 md:p-6">
     <!-- 页面标题 -->
-    <div class="mb-6">
+    <div class="mb-6 hidden md:block">
       <h1 class="text-2xl font-bold text-gray-800">评论管理</h1>
       <p class="text-gray-500 mt-1">审核和管理用户评论</p>
     </div>
 
     <!-- 筛选和操作区域 -->
-    <div class="glass-card p-4 mb-6 rounded-lg">
+    <div class="glass-card p-4 mb-4 md:mb-6 rounded-lg">
       <div class="flex flex-wrap items-center justify-between gap-4" :class="isMobile ? 'flex-col items-stretch' : ''">
         <!-- 状态筛选 -->
         <div class="flex items-center gap-4" :class="isMobile ? 'justify-between' : ''">
@@ -117,9 +117,9 @@
         </el-table-column>
         
         <!-- 操作 -->
-        <el-table-column label="操作" :width="isMobile ? 120 : 150" fixed="right">
+        <el-table-column label="操作" :width="isMobile ? 120 : 150" fixed="right" align="center">
           <template #default="{ row }">
-            <div class="flex items-center gap-2 justify-end">
+            <div class="flex items-center gap-2 justify-center">
               <!-- 审核通过按钮（仅待审核状态显示） -->
               <el-tooltip v-if="row.status === CommentStatus.PENDING" content="审核通过">
                 <el-button 
@@ -419,8 +419,8 @@ onMounted(() => {
   overflow: hidden;
 }
 
-:deep(.el-table__row:hover) {
-  background-color: rgba(var(--color-primary-50), 0.5);
+:deep(.el-table) {
+  --el-table-row-hover-bg-color: var(--color-primary-100);
 }
 
 :deep(.el-tag) {

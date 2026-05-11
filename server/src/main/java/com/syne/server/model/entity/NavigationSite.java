@@ -36,9 +36,6 @@ public class NavigationSite extends BaseEntity {
     @TableField("url")
     private String url;
 
-    @Schema(description = "站点图标URL")
-    @TableField("icon")
-    private String icon;
 
     @Schema(description = "排序权重")
     @TableField("sort_order")

@@ -43,6 +43,7 @@ services:
       MINIO_ENDPOINT: ${MINIO_ENDPOINT:-http://minio:9000}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minio}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minio123456}
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-}
       # AI 配置
       OPENAI_API_KEY: ${OPENAI_API_KEY:-sk-xxx}
       OPENAI_BASE_URL: ${OPENAI_BASE_URL:-http://127.0.0.1:8045}
@@ -90,6 +91,7 @@ services:
     restart: always
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
@@ -107,6 +109,8 @@ services:
     image: redis:7-alpine
     container_name: syne-blog-redis
     restart: always
+    ports:
+      - "6379:6379"
     networks:
       - syne-blog-network
     volumes:

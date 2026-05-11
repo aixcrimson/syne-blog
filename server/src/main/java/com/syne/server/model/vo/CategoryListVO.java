@@ -27,8 +27,6 @@ public class CategoryListVO implements Serializable {
     @Schema(description = "分类描述")
     private String description;
 
-    @Schema(description = "分类图标")
-    private String icon;
 
     @Schema(description = "排序权重")
     private Integer sortOrder;

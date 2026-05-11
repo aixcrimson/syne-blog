@@ -27,10 +27,6 @@ public class Skill extends BaseEntity {
      */
     private String name;
 
-    /**
-     * 技能图标
-     */
-    private String icon;
 
     /**
      * 熟练度百分比

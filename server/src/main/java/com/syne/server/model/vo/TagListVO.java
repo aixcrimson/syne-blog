@@ -27,10 +27,7 @@ public class TagListVO implements Serializable {
     @Schema(description = "标签颜色")
     private String color;
 
-    @Schema(description = "使用次数")
-    private Integer usageCount;
-
-    @Schema(description = "绑定文章数")
+    @Schema(description = "有效文章数")
     private Integer articleCount;
 
     @Schema(description = "创建时间")

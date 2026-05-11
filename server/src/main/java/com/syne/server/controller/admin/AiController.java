@@ -41,8 +41,8 @@ public class AiController {
     @PostMapping(value = "/writing/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> writingStream(@Valid @RequestBody AiWritingRequestDTO request) {
         return aiWritingService.generateStream(request.getAction(), request.getContent())
-                .map(content -> "data: " + content.replace("\n", "\\n") + "\n\n")
-                .concatWithValues("data: [DONE]\n\n");
+                .map(content -> content.replace("\n", "\\n"))
+                .concatWithValues("[DONE]");
     }
 
     /**

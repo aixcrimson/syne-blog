@@ -1,7 +1,8 @@
 <template>
   <div class="article-list py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
+    <div class="max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,900px)_260px] xl:justify-center">
+
         <!-- 移动端筛选按钮 -->
         <div class="mb-4 xl:hidden">
           <el-button
@@ -14,75 +15,50 @@
           </el-button>
         </div>
 
-        <!-- 侧边栏 (桌面端) -->
-        <Sidebar
-          class="hidden xl:block xl:col-span-1"
-          @category-click="handleCategorySelect"
-        />
-
         <!-- 侧边栏抽屉 (移动端) -->
+
         <el-drawer
           v-model="drawerVisible"
           title="筛选与分类"
           direction="ltr"
           size="80%"
         >
-          <Sidebar @category-click="handleCategorySelect" />
+          <Sidebar
+            :selected-tag-ids="selectedTagIds"
+            @category-click="handleCategorySelect"
+            @tag-click="handleTagSelect"
+          />
         </el-drawer>
 
         <!-- 主内容区 -->
-        <div class="xl:col-span-4">
-          <!-- 页面标题 -->
-          <div class="mb-6">
-            <div class="flex items-center gap-4">
-              <h1
-                class="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100"
-              >
-                文章列表
-              </h1>
+        <div class="min-w-0 xl:w-full xl:max-w-[900px]">
 
-              <span class="flex-1 h-px bg-slate-200/70 dark:bg-slate-700/60" />
-            </div>
-            <p class="mt-2 text-slate-600 dark:text-slate-300">
-              共 {{ totalArticles }} 篇文章
-            </p>
-          </div>
-
-          <!-- 搜索和筛选 -->
-          <div class="paper-card p-6 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <el-input
-                v-model="searchKeyword"
-                placeholder="搜索文章..."
-                clearable
-                @input="handleSearch"
-              >
-                <template #prefix>
-                  <el-icon><Search /></el-icon>
-                </template>
-              </el-input>
-
-              <el-select
-                v-model="selectedTag"
-                placeholder="选择标签"
-                clearable
-                @change="handleFilter"
-              >
-                <el-option
-                  v-for="tag in tags"
-                  :key="tag.id"
-                  :label="tag.name"
-                  :value="tag.id"
-                />
-              </el-select>
+          <!-- 顶部打字机公告及布局切换 -->
+          <div class="mb-8 p-6 flex flex-col justify-center relative min-h-[120px] rounded-2xl bg-gradient-to-br from-primary-50/80 to-primary-100/30 dark:from-slate-800/80 dark:to-slate-800/40 border border-primary-100/50 dark:border-slate-700/50 shadow-sm backdrop-blur-sm">
+            <div class="text-xl text-slate-700 dark:text-slate-300 font-medium text-center tracking-wide" style="font-family: 'Georgia', 'Times New Roman', serif;">
+              <Typewriter
+                v-if="notices.length > 0"
+                :texts="noticeTexts"
+                :type-speed="150"
+                :delete-speed="80"
+                :pause-time="2000"
+              />
+              <span v-else class="animate-pulse">正在获取宇宙信号...</span>
             </div>
           </div>
 
-          <!-- 文章列表 -->
-          <div class="space-y-6 mb-8">
+          <!-- 文章列表 (动态布局) -->
+          <div 
+            class="grid gap-6 mb-8 transition-all duration-300"
+            :class="appStore.articleListLayout === 'grid' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'"
+          >
             <!-- 骨架屏 -->
             <template v-if="loading">
-              <ArticleCardSkeleton v-for="i in pageSize" :key="i" />
+              <ArticleCardSkeleton 
+                v-for="i in pageSize" 
+                :key="i"
+                :layout="appStore.articleListLayout"
+              />
             </template>
 
             <!-- 文章卡片 -->
@@ -91,6 +67,7 @@
               v-else
               :key="article.id"
               :article="article"
+              :layout="appStore.articleListLayout"
             />
           </div>
 
@@ -113,23 +90,35 @@
             />
           </div>
         </div>
+
+        <!-- 侧边栏 (桌面端) -->
+        <Sidebar
+          class="hidden xl:block xl:w-[260px]"
+          :selected-tag-ids="selectedTagIds"
+          @category-click="handleCategorySelect"
+          @tag-click="handleTagSelect"
+        />
       </div>
+
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
-import { Search, Filter } from "@element-plus/icons-vue";
+import { Filter } from "@element-plus/icons-vue";
+import { useAppStore } from "@/stores/app";
 import ArticleCard from "@/components/ArticleCard.vue";
 import ArticleCardSkeleton from "@/components/ArticleCardSkeleton.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import Typewriter from "@/components/Typewriter.vue";
 import { articleApi } from "@/api/article";
-import type { Article } from "@/types";
-import type { TagInfo } from "@/types";
+import { siteApi } from "@/api/site";
+import type { Article, Notice } from "@/types";
 
 const route = useRoute();
+const appStore = useAppStore();
 
 const drawerVisible = ref(false);
 
@@ -137,12 +126,23 @@ const currentPage = ref(1);
 const pageSize = ref(6);
 const searchKeyword = ref("");
 const selectedCategory = ref<number | string>("");
-const selectedTag = ref<number | string>("");
+const selectedTagIds = ref<number[]>([]);
 const loading = ref(false);
 
 const articles = ref<Article[]>([]);
 const totalArticles = ref(0);
-const tags = ref<TagInfo[]>([]);
+
+// 公告 (打字机数据)
+const notices = ref<Notice[]>([]);
+const noticeTexts = computed(() => notices.value.map((n) => n.content));
+
+const getNotices = async () => {
+  try {
+    notices.value = await siteApi.getNotices();
+  } catch (error) {
+    console.error("获取公告失败:", error);
+  }
+};
 
 // 获取文章列表
 const loadArticles = async () => {
@@ -154,7 +154,7 @@ const loadArticles = async () => {
       pageSize: pageSize.value,
       keyword: searchKeyword.value || undefined,
       categoryId: selectedCategory.value || undefined,
-      tagIds: selectedTag.value || undefined,
+      tagIds: selectedTagIds.value.length > 0 ? selectedTagIds.value.join(',') : undefined,
     };
 
     const res = await articleApi.getList(params);
@@ -167,34 +167,28 @@ const loadArticles = async () => {
   }
 };
 
-// 获取标签列表
-const loadTags = async () => {
-  try {
-    tags.value = await articleApi.getTags();
-  } catch (error) {
-    console.error("获取标签失败:", error);
-  }
-};
-
 // 计算总页数
 const totalPages = ref(0);
 watch(totalArticles, () => {
   totalPages.value = Math.ceil(totalArticles.value / pageSize.value);
 });
 
-const handleSearch = () => {
-  currentPage.value = 1;
-  loadArticles();
-};
-
-const handleFilter = () => {
-  currentPage.value = 1;
-  loadArticles();
-};
-
 const handleCategorySelect = (id: number) => {
   selectedCategory.value = id;
+  selectedTagIds.value = []; // 切换分类时重置标签
   drawerVisible.value = false;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+const handleTagSelect = (id: number) => {
+  const index = selectedTagIds.value.indexOf(id);
+  if (index > -1) {
+    selectedTagIds.value.splice(index, 1);
+  } else {
+    selectedTagIds.value.push(id);
+  }
+  selectedCategory.value = ""; // 切换标签时重置分类
+  // drawerVisible.value = false; // 多选模式下不自动关闭抽屉，方便用户连续选择
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
@@ -211,10 +205,10 @@ const handleSizeChange = (size: number) => {
 };
 
 // 监听过滤条件变化
-watch([searchKeyword, selectedCategory, selectedTag], () => {
+watch([searchKeyword, selectedCategory, selectedTagIds], () => {
   currentPage.value = 1;
   loadArticles();
-});
+}, { deep: true });
 
 onMounted(() => {
   if (route.query.category) {
@@ -223,7 +217,11 @@ onMounted(() => {
   if (route.query.keyword) {
     searchKeyword.value = route.query.keyword as string;
   }
+  if (route.query.tag) {
+    const tags = String(route.query.tag).split(',').map(Number).filter(n => !isNaN(n));
+    selectedTagIds.value = tags;
+  }
   loadArticles();
-  loadTags();
+  getNotices();
 });
 </script>

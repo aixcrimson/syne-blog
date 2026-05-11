@@ -220,8 +220,10 @@ import { userApi } from "@/api/user";
 import { articleApi } from "@/api/article";
 import { fileApi } from "@/api/file";
 import ArticleCard from "@/components/ArticleCard.vue";
+import { useSiteStore } from "@/stores/site";
 
 const userStore = useUserStore();
+const siteStore = useSiteStore();
 const activeTab = ref("profile");
 const saving = ref(false);
 
@@ -255,7 +257,8 @@ const handleFileChange = async (event: Event) => {
     formData.avatar = res.url;
     ElMessage.success("头像上传成功");
   } catch (error) {
-    ElMessage.error("头像上传失败");
+    // 错误提示已由 axios 拦截器统一处理
+    console.error("头像上传失败:", error);
   } finally {
     avatarLoading.value = false;
     if (fileInputRef.value) {
@@ -309,7 +312,8 @@ const loadArticles = async (type: "liked" | "favorite") => {
     articles.value = res.list;
     total.value = res.total;
   } catch (error) {
-    ElMessage.error("获取文章列表失败");
+    // 错误提示已由 axios 拦截器统一处理
+    console.error("获取文章列表失败:", error);
   } finally {
     loading.value = false;
   }
@@ -341,10 +345,13 @@ const handleSave = async () => {
     await userApi.updateProfile(userStore.currentUser.id, formData);
     ElMessage.success("保存成功");
     // 更新本地 store
-    // userStore.updateUser(result) // 如果有更新 userStore 的方法
+    await userStore.fetchCurrentUser();
+    await siteStore.fetchAuthorInfo();
   } catch (error) {
-    ElMessage.error("保存失败");
-  saving.value = false;
+    // 错误提示已由 axios 拦截器统一处理
+    console.error("保存失败:", error);
+  } finally {
+    saving.value = false;
   }
 };
 

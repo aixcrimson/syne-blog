@@ -48,6 +48,7 @@ export function aiWritingStream(
       if (!response.ok) throw new Error('请求失败')
       const reader = response.body?.getReader()
       const decoder = new TextDecoder()
+      let buffer = ''
 
       function read() {
         reader?.read().then(({ done, value }) => {
@@ -55,29 +56,36 @@ export function aiWritingStream(
             onDone?.()
             return
           }
-          const text = decoder.decode(value)
-          // 解析 SSE 数据
-          const lines = text.split('\n')
-          lines.forEach(line => {
-            // 兼容 "data: xxx" 和 "data:data: xxx" 两种格式
+          buffer += decoder.decode(value, { stream: true })
+          
+          // 按换行符分割处理完整的行
+          let newlineIndex
+          while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+            const line = buffer.slice(0, newlineIndex).trim()
+            buffer = buffer.slice(newlineIndex + 1)
+            
+            if (!line) continue
+            
+            // 兼容可能出现的前缀
             let content = ''
             if (line.startsWith('data:data: ')) {
               content = line.slice(11).replace(/\\n/g, '\n')
             } else if (line.startsWith('data: ')) {
               content = line.slice(6).replace(/\\n/g, '\n')
+            } else if (line.startsWith('data:')) {
+              content = line.slice(5).replace(/\\n/g, '\n')
             } else {
-              return
+              continue
             }
-            // 检测流结束标记
+            
             if (content === '[DONE]') {
               onDone?.()
               return
             }
             onMessage(content)
-          })
+          }
           read()
         }).catch(err => {
-          // 读取过程中出错也要结束 loading
           if (err.name !== 'AbortError') {
             onError?.(err)
           }

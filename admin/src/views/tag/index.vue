@@ -1,22 +1,35 @@
 <template>
-  <div class="tag-management p-6">
+  <div class="tag-management p-0 md:p-6">
     <!-- 页面标题 -->
-    <div class="mb-6">
+    <div class="mb-6 hidden md:block">
       <h1 class="text-2xl font-bold text-gray-800">标签管理</h1>
-      <p class="text-gray-500 mt-1">管理博客文章标签</p>
+      <p class="text-gray-500 mt-1">管理博客的文章标签</p>
     </div>
 
-    <!-- 操作区域 -->
-    <div class="glass-card p-4 mb-6 rounded-lg">
-      <div class="flex items-center justify-between">
-        <span class="text-gray-600">共 {{ tagList.length }} 个标签</span>
+    <!-- 搜索和操作区域 -->
+    <div class="glass-card p-4 mb-4 md:mb-6 rounded-lg">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-4 flex-1">
+          <el-input
+            v-model="queryParams.keyword"
+            placeholder="搜索标签名称"
+            clearable
+            class="w-64"
+            :prefix-icon="Search"
+            @keyup.enter="handleSearch"
+            @clear="handleSearch"
+          />
+          <el-button type="primary" :icon="Search" @click="handleSearch">
+            搜索
+          </el-button>
+          <span class="text-gray-500 text-sm ml-2">共 {{ total }} 个标签</span>
+        </div>
         <el-button type="primary" :icon="Plus" @click="handleCreate">
           新建标签
         </el-button>
       </div>
     </div>
 
-    <!-- 标签列表表格 -->
     <div class="glass-card rounded-lg overflow-hidden">
       <el-table v-loading="loading" :data="tagList" stripe style="width: 100%">
         <el-table-column label="名称" min-width="150">
@@ -46,10 +59,10 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="使用次数" width="100" align="center">
+        <el-table-column label="有效文章数" width="100" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.usageCount > 0 ? 'success' : 'info'" size="small">
-              {{ row.usageCount }}
+            <el-tag :type="row.articleCount > 0 ? 'success' : 'info'" size="small">
+              {{ row.articleCount }}
             </el-tag>
           </template>
         </el-table-column>
@@ -86,6 +99,19 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <!-- 分页区域 -->
+      <div class="p-4 flex justify-end">
+        <el-pagination
+          v-model:current-page="queryParams.page"
+          v-model:page-size="queryParams.pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </div>
 
     <!-- 新建/编辑对话框 -->
@@ -158,7 +184,7 @@
  */
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Plus, Edit, Delete } from '@element-plus/icons-vue'
+import { Plus, Edit, Delete, Search } from '@element-plus/icons-vue'
 import { tagApi } from '@/api/tag'
 import type { Tag, TagForm } from '@/types'
 import { isTagNameUnique, isTagSlugUnique } from '@/utils/validate'
@@ -174,6 +200,16 @@ const loading = ref(false)
 
 /** 标签列表 */
 const tagList = ref<Tag[]>([])
+
+/** 总数 */
+const total = ref(0)
+
+/** 查询参数 */
+const queryParams = reactive({
+  page: 1,
+  pageSize: 10,
+  keyword: ''
+})
 
 /** 对话框可见性 */
 const dialogVisible = ref(false)
@@ -278,12 +314,42 @@ const formatDate = (date: string) => {
 const loadTagList = async () => {
   loading.value = true
   try {
-    tagList.value = await tagApi.getList()
+    const params = {
+      ...queryParams,
+      keyword: queryParams.keyword || undefined
+    }
+    const res = await tagApi.getList(params)
+    tagList.value = res.list
+    total.value = res.total
   } catch (error) {
     console.error('加载标签列表失败:', error)
   } finally {
     loading.value = false
   }
+}
+
+/**
+ * 处理搜索
+ */
+const handleSearch = () => {
+  queryParams.page = 1
+  loadTagList()
+}
+
+/**
+ * 分页大小变化
+ */
+const handleSizeChange = (val: number) => {
+  queryParams.pageSize = val
+  queryParams.page = 1
+  loadTagList()
+}
+/**
+ * 当前页变化
+ */
+const handleCurrentChange = (val: number) => {
+  queryParams.page = val
+  loadTagList()
 }
 
 /**
@@ -368,6 +434,12 @@ const handleDelete = async (tag: Tag) => {
     )
     await tagApi.delete(tag.id)
     ElMessage.success('删除成功')
+    
+    // 如果当前页只有一条数据，且不是第一页，删除后跳转到前一页
+    if (tagList.value.length === 1 && queryParams.page > 1) {
+      queryParams.page--
+    }
+    
     loadTagList()
   } catch (error: unknown) {
     if (error !== 'cancel') {
@@ -390,8 +462,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
-:deep(.el-table__row:hover) {
-  background-color: rgba(var(--color-primary-50), 0.5);
+:deep(.el-table) {
+  --el-table-row-hover-bg-color: var(--color-primary-100);
 }
 
 :deep(.el-tag) {

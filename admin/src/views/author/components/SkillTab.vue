@@ -33,17 +33,6 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="图标" prop="icon" width="100" align="center">
-          <template #default="{ row }">
-             <div class="flex items-center justify-center">
-              <el-icon v-if="row.icon && isElementIcon(row.icon)" class="text-xl">
-                <component :is="row.icon" />
-              </el-icon>
-              <span v-else-if="row.icon" class="text-xl">{{ row.icon }}</span>
-              <span v-else class="text-gray-400">-</span>
-            </div>
-          </template>
-        </el-table-column>
 
         <el-table-column label="颜色" width="100" align="center">
           <template #default="{ row }">
@@ -93,13 +82,13 @@
     <el-dialog
       v-model="dialogVisible"
       :title="isEdit ? '编辑技能' : '新建技能'"
-      width="500px"
+      :width="isMobile ? '90%' : '500px'"
       :close-on-click-modal="false"
       destroy-on-close
       append-to-body
       @closed="resetForm"
     >
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="formRef" :model="form" :rules="rules" :label-width="isMobile ? 'auto' : '80px'">
         <el-form-item label="名称" prop="name">
           <el-input
             v-model="form.name"
@@ -123,13 +112,6 @@
               placeholder="rgb(59, 130, 246)"
             />
           </div>
-        </el-form-item>
-        <el-form-item label="图标" prop="icon">
-          <IconSelector
-            v-model="form.icon"
-            placeholder="请选择图标"
-            :clearable="true"
-          />
         </el-form-item>
         <el-form-item label="排序" prop="sortOrder">
           <el-input-number
@@ -163,10 +145,10 @@ import {
 import dayjs from "dayjs";
 import { skillApi } from "@/api/siteContent";
 import type { Skill, SkillForm } from "@/types";
-import IconSelector from "@/components/IconSelector.vue";
-import * as ElementPlusIconsVue from "@element-plus/icons-vue";
+import { useResponsive } from '@/utils/useResponsive';
 
 // ==================== 状态 ====================
+const { isMobile } = useResponsive();
 const loading = ref(false);
 const list = ref<Skill[]>([]);
 const dialogVisible = ref(false);
@@ -177,7 +159,6 @@ const editId = ref<number | null>(null);
 const formRef = ref<FormInstance>();
 const form = reactive<SkillForm>({
   name: "",
-  icon: "",
   percentage: 50,
   color: "rgb(59, 130, 246)",
   sortOrder: 0,
@@ -211,16 +192,6 @@ const formatDate = (date: string) => {
   return date ? dayjs(date).format("YYYY-MM-DD HH:mm") : "-";
 };
 
-/** 检测是否为 Element Plus 图标 */
-const isElementIcon = (icon: string): boolean => {
-  return !!(
-    icon &&
-    typeof icon === "string" &&
-    !/\p{Extended_Pictographic}/u.test(icon) &&
-    /^[A-Z]/.test(icon) &&
-    icon in ElementPlusIconsVue
-  );
-};
 
 const loadData = async () => {
   loading.value = true;
@@ -244,7 +215,6 @@ const handleEdit = (row: Skill) => {
   isEdit.value = true;
   editId.value = row.id;
   form.name = row.name;
-  form.icon = row.icon;
   form.percentage = row.percentage;
   form.color = row.color;
   form.sortOrder = row.sortOrder;
@@ -275,7 +245,6 @@ const handleDelete = async (row: Skill) => {
 
 const resetForm = () => {
   form.name = "";
-  form.icon = "";
   form.percentage = 50;
   form.color = "rgb(59, 130, 246)";
   form.sortOrder = 0;
@@ -314,8 +283,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
-:deep(.el-table__row:hover) {
-  background-color: rgba(var(--color-primary-50), 0.5);
+:deep(.el-table) {
+  --el-table-row-hover-bg-color: var(--color-primary-100);
 }
 :deep(.el-color-picker__trigger) {
   width: 36px;

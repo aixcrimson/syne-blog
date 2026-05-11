@@ -2,7 +2,8 @@
   <el-skeleton animated>
     <template #template>
       <div
-        class="group relative overflow-hidden rounded-2xl h-80 border border-slate-200/70 dark:border-slate-700/70"
+        class="group relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/70 transform-gpu"
+        :class="layout === 'list' ? 'h-72 sm:h-80 md:h-[22rem]' : 'h-64'"
       >
         <!-- 模拟封面图作为背景 -->
         <div
@@ -97,4 +98,11 @@
 </template>
 
 <script setup lang="ts">
+interface Props {
+  layout?: 'grid' | 'list';
+}
+
+withDefaults(defineProps<Props>(), {
+  layout: 'grid'
+});
 </script>

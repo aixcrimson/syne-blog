@@ -10,6 +10,8 @@ export interface AiChatRequest {
   message: string
   /** 对话历史 */
   history?: { role: 'user' | 'assistant'; content: string }[]
+  /** 当前浏览的文章 ID（可选） */
+  articleId?: number | null
 }
 
 /**

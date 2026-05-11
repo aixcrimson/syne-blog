@@ -56,8 +56,7 @@ public class ArticleDetailVO implements Serializable {
     @Schema(description = "是否置顶: 0-否, 1-是")
     private Integer isTop;
 
-    @Schema(description = "是否推荐: 0-否, 1-是")
-    private Integer isRecommend;
+
 
     @Schema(description = "发布时间")
     private LocalDateTime publishedTime;

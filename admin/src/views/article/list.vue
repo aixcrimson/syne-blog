@@ -1,13 +1,13 @@
 <template>
-  <div class="article-list p-6">
+  <div class="article-list p-0 md:p-6">
     <!-- 页面标题 -->
-    <div class="mb-6">
+    <div class="mb-6 hidden md:block">
       <h1 class="text-2xl font-bold text-gray-800">文章管理</h1>
       <p class="text-gray-500 mt-1">管理博客文章内容</p>
     </div>
 
     <!-- 搜索和筛选区域 -->
-    <div class="glass-card p-4 mb-6 rounded-lg">
+    <div class="glass-card p-4 mb-4 md:mb-6 rounded-lg">
       <div class="flex flex-wrap items-center gap-4" :class="isMobile ? 'flex-col items-stretch' : ''">
         <!-- 关键词搜索 -->
         <el-input
@@ -91,12 +91,11 @@
             <div class="flex items-center gap-2">
               <!-- 置顶/推荐只在桌面端显示完整标签，移动端简化或隐藏 -->
               <el-tag v-if="row.isTop === 1 && !isMobile" type="danger" size="small">置顶</el-tag>
-              <el-tag v-if="row.isRecommend === 1 && !isMobile" type="warning" size="small">推荐</el-tag>
+
               
               <!-- 移动端用小圆点表示状态 -->
-              <div v-if="isMobile && (row.isTop === 1 || row.isRecommend === 1)" class="flex gap-1">
+              <div v-if="isMobile && row.isTop === 1" class="flex gap-1">
                 <div v-if="row.isTop === 1" class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
-                <div v-if="row.isRecommend === 1" class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div>
               </div>
 
               <!-- 标题文本 -->
@@ -177,9 +176,9 @@
         </el-table-column>
         
         <!-- 操作列 -->
-        <el-table-column label="操作" :width="isMobile ? 120 : 220" fixed="right">
+        <el-table-column label="操作" :width="isMobile ? 120 : 220" fixed="right" align="center">
           <template #default="{ row }">
-            <div class="flex items-center gap-1 justify-end">
+            <div class="flex items-center gap-1 justify-center">
               <!-- 移动端只显示编辑和更多 -->
               <template v-if="isMobile">
                 <el-button type="primary" :icon="Edit" size="small" circle @click="handleEdit(row)" />
@@ -190,9 +189,7 @@
                       <el-dropdown-item @click="handleToggleTop(row)">
                         {{ row.isTop === 1 ? '取消置顶' : '置顶' }}
                       </el-dropdown-item>
-                      <el-dropdown-item @click="handleToggleRecommend(row)">
-                        {{ row.isRecommend === 1 ? '取消推荐' : '推荐' }}
-                      </el-dropdown-item>
+
                       <el-dropdown-item divided class="text-red-500" @click="handleDelete(row)">
                         删除
                       </el-dropdown-item>
@@ -213,17 +210,7 @@
                     @click="handleToggleTop(row)"
                   />
                 </el-tooltip>
-                
-                <!-- 推荐按钮 -->
-                <el-tooltip :content="row.isRecommend === 1 ? '取消推荐' : '推荐'">
-                  <el-button
-                    :type="row.isRecommend === 1 ? 'warning' : 'default'"
-                    :icon="row.isRecommend === 1 ? StarFilled : Star"
-                    size="small"
-                    circle
-                    @click="handleToggleRecommend(row)"
-                  />
-                </el-tooltip>
+
                 
                 <!-- 编辑按钮 -->
                 <el-tooltip content="编辑">
@@ -368,8 +355,8 @@ const formatDate = (date: string) => {
  */
 const loadCategoryList = async () => {
   try {
-    const result = await categoryApi.getList()
-    categoryList.value = result
+    const result = await categoryApi.getList({ page: 1, pageSize: 100 })
+    categoryList.value = result.list
   } catch (error) {
     console.error('加载分类列表失败:', error)
   } 
@@ -469,6 +456,11 @@ const handleDelete = async (article: Article) => {
     
     await articleApi.delete(article.id)
     ElMessage.success('删除成功')
+    
+    if (articleList.value.length === 1 && pagination.page > 1) {
+      pagination.page--
+    }
+    
     loadArticleList()
   } catch (error: any) {
     if (error !== 'cancel') {
@@ -492,20 +484,6 @@ const handleToggleTop = async (article: Article) => {
   }
 }
 
-/**
- * 切换推荐状态
- * @requirements 5.8
- */
-const handleToggleRecommend = async (article: Article) => {
-  try {
-    await articleApi.toggleRecommend(article.id)
-    const newStatus = article.isRecommend === 1 ? '取消推荐' : '推荐'
-    ElMessage.success(`${newStatus}成功`)
-    loadArticleList()
-  } catch (error) {
-    console.error('切换推荐状态失败:', error)
-  }
-}
 
 /**
  * 更新文章状态
@@ -536,9 +514,9 @@ onMounted(() => {
   color: var(--color-primary-500);
 }
 
-/* 表格行悬停效果 */
-:deep(.el-table__row:hover) {
-  background-color: rgba(var(--color-primary-50), 0.5);
+/* 表格行悬停效果（使用 EP 内置变量，自动同步固定列且无残留） */
+:deep(.el-table) {
+  --el-table-row-hover-bg-color: var(--color-primary-100);
 }
 
 /* 标签样式优化 */

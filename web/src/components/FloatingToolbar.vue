@@ -81,6 +81,25 @@
 
             <div class="w-full h-px bg-slate-200 dark:bg-slate-700" />
 
+            <!-- 布局模式切换 -->
+            <el-tooltip :content="appStore.articleListLayout === 'grid' ? '切换到列表视图' : '切换到网格视图'" placement="left" :show-after="300">
+              <button
+                class="flex items-center justify-center w-10 h-10 rounded-xl text-slate-600 transition-all duration-200 cursor-pointer hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700/50"
+                @click="appStore.toggleArticleListLayout"
+              >
+                <!-- 列表视图图标 -->
+                <el-icon v-if="appStore.articleListLayout === 'grid'" class="text-lg">
+                  <Menu />
+                </el-icon>
+                <!-- 网格视图图标 -->
+                <el-icon v-else class="text-lg">
+                  <Grid />
+                </el-icon>
+              </button>
+            </el-tooltip>
+
+            <div class="w-full h-px bg-slate-200 dark:bg-slate-700" />
+
             <!-- 主题颜色选择 -->
             <div class="relative">
               <el-tooltip content="切换主题颜色" placement="left" :show-after="300" :disabled="showColorPicker">
@@ -213,7 +232,7 @@
 import { ref, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useTocStore } from '@/stores/toc'
-import { Sunny, Moon, Check } from '@element-plus/icons-vue'
+import { Sunny, Moon, Check, Menu, Grid } from '@element-plus/icons-vue'
 import type { ThemeColor } from '@/types'
 
 const appStore = useAppStore()

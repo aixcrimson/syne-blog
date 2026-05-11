@@ -63,8 +63,7 @@ export interface Tag {
   slug: string
   /** 标签颜色 */
   color: string
-  /** 使用次数 */
-  usageCount: number
+  /** 有效文章数 */
   articleCount: number
   /** 创建时间 */
   createTime: string
@@ -95,8 +94,6 @@ export interface Category {
   slug: string
   /** 分类描述 */
   description: string
-  /** 分类图标 */
-  icon: string
   /** 排序顺序 */
   sortOrder: number
   /** 文章数量 */
@@ -115,8 +112,6 @@ export interface CategoryForm {
   slug: string
   /** 分类描述 */
   description?: string
-  /** 分类图标 */
-  icon?: string
   /** 排序顺序 */
   sortOrder: number
 }
@@ -151,8 +146,7 @@ export interface Article {
   status: ArticleStatus
   /** 是否置顶 (0-否, 1-是) */
   isTop: number
-  /** 是否推荐 (0-否, 1-是) */
-  isRecommend: number
+
   /** 发布时间 */
   publishedTime: string
   /** 创建时间 */
@@ -183,8 +177,7 @@ export interface ArticleForm {
   status: ArticleStatus
   /** 是否置顶 */
   isTop: number
-  /** 是否推荐 */
-  isRecommend: number
+
 }
 
 
@@ -339,8 +332,6 @@ export interface NavigationSite {
   description: string
   /** 站点URL */
   url: string
-  /** 站点图标 */
-  icon: string
   /** 排序顺序 */
   sortOrder: number
 }
@@ -353,8 +344,6 @@ export interface NavigationCategory {
   id: number
   /** 分类名称 */
   name: string
-  /** 分类图标 */
-  icon: string
   /** 排序顺序 */
   sortOrder: number
   /** 站点列表 */
@@ -531,8 +520,6 @@ export interface FolderMapping {
   createNew?: boolean
   /** 新分类名称 */
   newCategoryName?: string
-  /** 新分类图标 */
-  newCategoryIcon?: string
 }
 
 /**
@@ -583,8 +570,6 @@ export interface Skill {
   id: number
   /** 技能名称 */
   name: string
-  /** 技能图标 */
-  icon: string
   /** 熟练度百分比 (0-100) */
   percentage: number
   /** 进度条颜色 */
@@ -601,8 +586,6 @@ export interface Skill {
 export interface SkillForm {
   /** 技能名称 */
   name: string
-  /** 技能图标 */
-  icon?: string
   /** 熟练度百分比 */
   percentage: number
   /** 进度条颜色 */
@@ -671,8 +654,6 @@ export interface Timeline {
   title: string
   /** 描述 */
   description: string
-  /** 图标名称 */
-  icon: string
   /** 节点颜色类型 */
   color: string
   /** 排序权重 */
@@ -691,8 +672,6 @@ export interface TimelineForm {
   title: string
   /** 描述 */
   description?: string
-  /** 图标名称 */
-  icon?: string
   /** 节点颜色类型 */
   color: string
   /** 排序权重 */

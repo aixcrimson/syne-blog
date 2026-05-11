@@ -1,15 +1,29 @@
 <template>
-  <div class="category-management p-6">
+  <div class="category-management p-0 md:p-6">
     <!-- 页面标题 -->
-    <div class="mb-6">
+    <div class="mb-6 hidden md:block">
       <h1 class="text-2xl font-bold text-gray-800">分类管理</h1>
-      <p class="text-gray-500 mt-1">管理博客文章分类</p>
+      <p class="text-gray-500 mt-1">管理博客的文章分类</p>
     </div>
 
-    <!-- 操作区域 -->
-    <div class="glass-card p-4 mb-6 rounded-lg">
-      <div class="flex items-center justify-between">
-        <span class="text-gray-600">共 {{ categoryList.length }} 个分类</span>
+    <!-- 搜索和操作区域 -->
+    <div class="glass-card p-4 mb-4 md:mb-6 rounded-lg">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-4 flex-1">
+          <el-input
+            v-model="queryParams.keyword"
+            placeholder="搜索分类名称"
+            clearable
+            class="w-64"
+            :prefix-icon="Search"
+            @keyup.enter="handleSearch"
+            @clear="handleSearch"
+          />
+          <el-button type="primary" :icon="Search" @click="handleSearch">
+            搜索
+          </el-button>
+          <span class="text-gray-500 text-sm ml-2">共 {{ total }} 个分类</span>
+        </div>
         <el-button type="primary" :icon="Plus" @click="handleCreate">
           新建分类
         </el-button>
@@ -22,8 +36,6 @@
         <el-table-column label="名称" min-width="150">
           <template #default="{ row }">
             <div class="flex items-center gap-2">
-              <el-icon v-if="row.icon && isElementIcon(row.icon)" class="text-lg"><component :is="row.icon" /></el-icon>
-              <span v-else-if="row.icon" class="text-lg">{{ row.icon }}</span>
               <span class="text-gray-800 font-medium">{{ row.name }}</span>
             </div>
           </template>
@@ -71,6 +83,19 @@
           </template>
         </el-table-column>
       </el-table>
+      
+      <!-- 分页区域 -->
+      <div class="p-4 flex justify-end">
+        <el-pagination
+          v-model:current-page="queryParams.page"
+          v-model:page-size="queryParams.pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </div>
 
     <!-- 新建/编辑对话框 -->
@@ -88,13 +113,6 @@
         </el-form-item>
         <el-form-item label="别名" prop="slug">
           <el-input v-model="formData.slug" placeholder="请输入分类别名（URL友好）" maxlength="50" show-word-limit />
-        </el-form-item>
-        <el-form-item label="图标" prop="icon">
-          <IconSelector
-            v-model="formData.icon"
-            placeholder="请选择图标"
-            :clearable="true"
-          />
         </el-form-item>
         <el-form-item label="描述" prop="description">
           <el-input v-model="formData.description" type="textarea" :rows="3" placeholder="请输入分类描述" maxlength="200" show-word-limit />
@@ -121,36 +139,31 @@
  */
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Plus, Edit, Delete } from '@element-plus/icons-vue'
-import IconSelector from '@/components/IconSelector.vue'
+import { Plus, Edit, Delete, Search } from '@element-plus/icons-vue'
 import { categoryApi } from '@/api/category'
 import type { Category, CategoryForm } from '@/types'
 import { isCategoryNameUnique, isCategorySlugUnique, canDeleteCategory } from '@/utils/validate'
 import dayjs from 'dayjs'
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import { useResponsive } from '@/utils/useResponsive'
 
 // 响应式状态
 const { isMobile } = useResponsive()
 
 const loading = ref(false)
-
 const categoryList = ref<Category[]>([])
+const total = ref(0)
+const queryParams = reactive({
+  page: 1,
+  pageSize: 10,
+  keyword: ''
+})
 const dialogVisible = ref(false)
 const dialogTitle = computed(() => isEdit.value ? '编辑分类' : '新建分类')
 const isEdit = ref(false)
 const editingId = ref<number | null>(null)
 const formRef = ref<FormInstance>()
 const submitting = ref(false)
-const formData = reactive<CategoryForm>({ name: '', slug: '', description: '', icon: '', sortOrder: 0 })
-
-/** 检测是否为 Element Plus 图标 */
-const isElementIcon = (icon: string): boolean => {
-  return !!(icon && typeof icon === 'string' &&
-         !/\p{Extended_Pictographic}/u.test(icon) &&
-         /^[A-Z]/.test(icon) &&
-         icon in ElementPlusIconsVue)
-}
+const formData = reactive<CategoryForm>({ name: '', slug: '', description: '', sortOrder: 0 })
 
 /** 验证分类名称唯一性 @requirements 7.3 */
 const validateNameUnique = (_rule: unknown, value: string, callback: (error?: Error) => void) => {
@@ -195,7 +208,13 @@ const formatDate = (date: string) => date ? dayjs(date).format('YYYY-MM-DD HH:mm
 const loadCategoryList = async () => {
   loading.value = true
   try {
-    categoryList.value = await categoryApi.getList()
+    const params = {
+      ...queryParams,
+      keyword: queryParams.keyword || undefined
+    }
+    const res = await categoryApi.getList(params)
+    categoryList.value = res.list
+    total.value = res.total
   } catch (error) {
     console.error('加载分类列表失败:', error)
   } finally {
@@ -203,11 +222,26 @@ const loadCategoryList = async () => {
   }
 }
 
+const handleSearch = () => {
+  queryParams.page = 1
+  loadCategoryList()
+}
+
+const handleSizeChange = (val: number) => {
+  queryParams.pageSize = val
+  queryParams.page = 1
+  loadCategoryList()
+}
+
+const handleCurrentChange = (val: number) => {
+  queryParams.page = val
+  loadCategoryList()
+}
+
 const resetForm = () => {
   formData.name = ''
   formData.slug = ''
   formData.description = ''
-  formData.icon = ''
   formData.sortOrder = 0
   formRef.value?.clearValidate()
 }
@@ -225,7 +259,6 @@ const handleEdit = (category: Category) => {
   formData.name = category.name
   formData.slug = category.slug
   formData.description = category.description || ''
-  formData.icon = category.icon || ''
   formData.sortOrder = category.sortOrder
   dialogVisible.value = true
 }
@@ -260,6 +293,12 @@ const handleDelete = async (category: Category) => {
     await ElMessageBox.confirm(`确定要删除分类「${category.name}」吗？`, '删除确认', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' })
     await categoryApi.delete(category.id)
     ElMessage.success('删除成功')
+    
+    // 如果当前页只有一条数据，且不是第一页，删除后跳转到前一页
+    if (categoryList.value.length === 1 && queryParams.page > 1) {
+      queryParams.page--
+    }
+    
     loadCategoryList()
   } catch (error: unknown) {
     if (error !== 'cancel') console.error('删除分类失败:', error)
@@ -272,6 +311,6 @@ onMounted(() => loadCategoryList())
 </script>
 
 <style scoped>
-:deep(.el-table__row:hover) { background-color: rgba(var(--color-primary-50), 0.5); }
+:deep(.el-table) { --el-table-row-hover-bg-color: var(--color-primary-100); }
 :deep(.el-tag) { border-radius: 4px; }
 </style>

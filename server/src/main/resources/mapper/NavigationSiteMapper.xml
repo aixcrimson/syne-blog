@@ -12,7 +12,6 @@
             <result property="name" column="s_name"/>
             <result property="description" column="s_description"/>
             <result property="url" column="s_url"/>
-            <result property="icon" column="s_icon"/>
             <result property="sortOrder" column="s_sort_order"/>
             <result property="createTime" column="s_create_time"/>
             <result property="updateTime" column="s_update_time"/>
@@ -28,7 +27,6 @@
             s.name as s_name,
             s.description as s_description,
             s.url as s_url,
-            s.icon as s_icon,
             s.sort_order as s_sort_order,
             s.create_time as s_create_time,
             s.update_time as s_update_time

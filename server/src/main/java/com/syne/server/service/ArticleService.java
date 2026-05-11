@@ -9,6 +9,8 @@ import com.syne.server.model.entity.Article;
 import com.syne.server.model.dto.ArticleDTO;
 import com.syne.server.model.vo.ArticleDetailVO;
 import com.syne.server.model.vo.ArticleListVO;
+import com.syne.server.model.vo.ArticleSearchVO;
+
 
 import java.util.List;
 import java.util.Map;
@@ -20,17 +22,17 @@ public interface ArticleService extends IService<Article> {
 
 
     /**
-     * 管理端分页查询文章列表
+     * 管理端分页查询文章列�?
      * @param pageQuery 分页参数
      * @param status 文章状态（可选，null 表示查询所有状态）
      * @param categoryId 文章分类ID（可选，null 表示查询所有分类）
-     * @param keyword 搜索关键字
+     * @param keyword 搜索关键�?
      * @return 分页结果
      */
     PageResult<ArticleListVO> getAdminArticleList(PageQuery pageQuery, Integer status, Long categoryId, String keyword);
 
     /**
-     * 管理员根据ID获取管理员文章详情
+     * 管理员根据ID获取管理员文章详�?
      * @param id 文章ID
      * @return 文章详情
      */
@@ -39,7 +41,7 @@ public interface ArticleService extends IService<Article> {
     /**
      * 创建文章
      * @param articleDTO 文章数据
-     * @return 创建的文章
+     * @return 创建的文�?
      */
     Article createArticle(ArticleDTO articleDTO);
 
@@ -58,31 +60,31 @@ public interface ArticleService extends IService<Article> {
     Result<String> deleteArticles(String ids);
 
     /**
-     * 切换文章置顶状态
+     * 切换文章置顶状�?
      * @param id 文章ID
      * @return 切换结果
      */
     Result<String> toggleArticleTop(Long id);
 
     /**
-     * 切换文章推荐状态
+     * 切换文章推荐状�?
      * @param id 文章ID
      * @return 切换结果
      */
-    Result<String> toggleArticleRecommend(Long id);
+
 
     /**
-     * 更新文章状态
+     * 更新文章状�?
      * @param id 文章ID
-     * @param status 文章状态
+     * @param status 文章状�?
      * @return 更新结果
      */
     Result<String> updateStatus(Long id, Integer status);
 
     /**
-     * 用户端分页查询文章列表
+     * 用户端分页查询文章列�?
      * @param pageQuery 分页参数
-     * @param keyword 搜索关键字
+     * @param keyword 搜索关键�?
      * @param categoryId 文章分类ID
      * @param tagIds 文章标签ID列表
      * @return 分页结果
@@ -90,18 +92,25 @@ public interface ArticleService extends IService<Article> {
     PageResult<ArticleListVO> getUserArticleList(PageQuery pageQuery, String keyword, Long categoryId, List<Long> tagIds);
 
     /**
-     * 用户端获取文章详情
+     * 获取用户端搜索索�?
+     * @return 搜索索引列表
+     */
+    List<ArticleSearchVO> getSearchIndexArticles();
+
+    /**
+     * 用户端获取文章详�?
      * @param id 文章ID
      * @return 文章详情
      */
     ArticleDetailVO getUserArticleById(Long id);
+
 
     /**
      * 获取推荐文章列表
      * @param limit 限制数量
      * @return 文章列表
      */
-    List<ArticleListVO> getRecommendedArticleList(Integer limit);
+
 
     /**
      * 切换文章喜欢或不喜欢
@@ -125,14 +134,14 @@ public interface ArticleService extends IService<Article> {
     Result<Map<String, Object>> increaseViews(Long id);
 
     /**
-     * 获取用户点赞的文章列表
+     * 获取用户点赞的文章列�?
      * @param pageQuery 分页参数
      * @return 分页结果
      */
     PageResult<ArticleListVO> getLikedArticleList(PageQuery pageQuery);
 
     /**
-     * 获取用户收藏的文章列表
+     * 获取用户收藏的文章列�?
      * @param pageQuery 分页参数
      * @return 分页结果
      */

@@ -5,6 +5,8 @@ import com.syne.server.common.PageResult;
 import com.syne.server.common.Result;
 import com.syne.server.model.vo.ArticleDetailVO;
 import com.syne.server.model.vo.ArticleListVO;
+import com.syne.server.model.vo.ArticleSearchVO;
+
 import com.syne.server.service.ArticleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -75,6 +77,16 @@ public class ArticleController {
     }
 
     /**
+     * 获取顶部搜索使用的文章索引
+     */
+    @Operation(summary = "获取文章搜索索引", description = "获取顶部本地搜索使用的文章索引数据")
+    @GetMapping("/search-index")
+    public Result<List<ArticleSearchVO>> getSearchIndexArticles() {
+        List<ArticleSearchVO> result = articleService.getSearchIndexArticles();
+        return Result.success(result);
+    }
+
+    /**
      * 根据ID获取文章详情
      *
      * @param id 文章ID
@@ -91,22 +103,8 @@ public class ArticleController {
         return Result.success(article);
     }
 
-    /**
-     * 获取推荐文章列表
-     *
-     * @param limit 限制查询数量
-     * @return 推荐文章列表
-     */
-    @Operation(summary = "获取推荐文章", description = "获取推荐文章列表")
-    @GetMapping("/recommended")
-    public Result<List<ArticleListVO>> getRecommended(
-            @Parameter(description = "数量限制", example = "5")
-            @RequestParam(defaultValue = "5") Integer limit
-    ){
-        log.info("用户端获取推荐文章列表：limit={}", limit);
-        List<ArticleListVO> list = articleService.getRecommendedArticleList(limit);
-        return Result.success(list);
-    }
+
+
 
     /**
      * 获取用户点赞的文章列表

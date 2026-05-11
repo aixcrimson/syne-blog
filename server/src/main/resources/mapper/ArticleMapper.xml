@@ -13,7 +13,7 @@
         <result property="favorites" column="favorites"/>
         <result property="commentsCount" column="comments_count"/>
         <result property="isTop" column="is_top"/>
-        <result property="isRecommend" column="is_recommend"/>
+
         <result property="status" column="status"/>
         <result property="publishedTime" column="published_time"/>
         <result property="authorName" column="author_name"/>
@@ -35,7 +35,7 @@
         a.favorites,
         a.comments_count,
         a.is_top,
-        a.is_recommend,
+
         a.status,
         a.published_time,
         a.create_time,
@@ -98,7 +98,7 @@
         a.favorites,
         a.comments_count,
         a.is_top,
-        a.is_recommend,
+
         a.status,
         a.published_time,
         a.create_time,
@@ -173,7 +173,7 @@
         a.favorites,
         a.comments_count,
         a.is_top,
-        a.is_recommend,
+
         a.status,
         a.published_time,
         a.create_time,
@@ -211,7 +211,7 @@
         a.favorites,
         a.comments_count,
         a.is_top,
-        a.is_recommend,
+
         a.status,
         a.published_time,
         a.create_time,

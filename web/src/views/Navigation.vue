@@ -47,7 +47,7 @@
       <!-- 导航分类 -->
       <div v-else-if="navigationCategories.length > 0" class="space-y-12">
         <div
-          v-for="(category, index) in navigationCategories"
+          v-for="(category, _index) in navigationCategories"
           :key="category.categoryId"
           class="space-y-6"
         >

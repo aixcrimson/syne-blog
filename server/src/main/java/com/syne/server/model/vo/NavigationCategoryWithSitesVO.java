@@ -19,8 +19,6 @@ public class NavigationCategoryWithSitesVO {
     @Schema(description = "分类名称")
     private String name;
 
-    @Schema(description = "分类图标")
-    private String icon;
 
     @Schema(description = "排序权重")
     private Integer sortOrder;

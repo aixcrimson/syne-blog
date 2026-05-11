@@ -16,23 +16,27 @@
     </div>
 
     <!-- 主布局容器 -->
-    <div class="px-4 mx-auto max-w-[1400px] sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-8">
+    <div class="px-4 mx-auto max-w-[1480px] sm:px-6 lg:px-8">
+      <div class="flex flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,900px)_260px] xl:items-start xl:justify-center">
+
         <!-- 左侧：文章主体 -->
-        <div class="min-w-0">
+        <div class="min-w-0 xl:w-full xl:max-w-[900px]">
           <div
             v-if="article"
             class="paper-card overflow-hidden"
           >
             <!-- 文章头部 -->
             <div class="p-8 border-b article-header">
-              <div class="mb-4">
-                <router-link
-                  to="/articles"
-                  class="text-sm text-primary-600 hover:text-primary-700"
+              <div class="mb-6">
+                <button
+                  @click="$router.push('/articles')"
+                  class="group inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 bg-slate-100/80 rounded-full transition-all hover:bg-slate-200 hover:text-slate-900 dark:text-slate-300 dark:bg-slate-800/80 dark:hover:bg-slate-700 dark:hover:text-slate-50 cursor-pointer"
                 >
-                  ← 返回列表
-                </router-link>
+                  <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  返回列表
+                </button>
               </div>
 
               <h1 class="mb-4 text-4xl font-semibold text-slate-900 dark:text-slate-50">
@@ -127,41 +131,87 @@
             <CommentSection :article-id="articleId" />
           </div>
 
-          <!-- 相关文章 -->
-          <div v-if="relatedArticles.length > 0" class="mt-12">
-            <h2 class="mb-6 text-2xl font-semibold text-slate-900 dark:text-slate-100">
-              相关文章
-            </h2>
-            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <ArticleCard
-                v-for="relatedArticle in relatedArticles"
-                :key="relatedArticle.id"
-                :article="relatedArticle"
-              />
+          <!-- 上一篇 / 下一篇 -->
+          <div v-if="adjacentArticles.length > 0" class="mt-12">
+            <div
+              class="grid grid-cols-1 gap-6"
+              :class="adjacentArticles.length > 1 ? 'md:grid-cols-2' : 'md:grid-cols-1'"
+            >
+
+              <router-link
+                v-for="item in adjacentArticles"
+                :key="`${item.type}-${item.article.id}`"
+                :to="{ name: 'ArticleDetail', params: { id: item.article.id } }"
+                class="article-nav-card paper-card paper-card-hover"
+              >
+                <div class="article-nav-card__media">
+                  <img
+                    v-if="item.article.coverImage"
+                    :src="item.article.coverImage"
+                    :alt="item.article.title"
+                    class="article-nav-card__image"
+                  />
+                  <div v-else class="article-nav-card__fallback"></div>
+                  <div class="article-nav-card__overlay"></div>
+                </div>
+                <div class="article-nav-card__content">
+                  <div class="article-nav-card__default">
+                    <span class="article-nav-card__eyebrow">{{ item.label }}</span>
+                    <h2 class="article-nav-card__title">{{ item.article.title }}</h2>
+                  </div>
+                  <p class="article-nav-card__summary">
+                    {{ item.article.summary || item.article.title }}
+                  </p>
+                </div>
+              </router-link>
             </div>
           </div>
         </div>
 
         <!-- 右侧：目录（大屏幕显示） -->
-        <aside v-if="article && tocItems.length" class="hidden xl:block">
-          <div class="sticky top-24">
+        <aside
+          v-if="article && tocItems.length"
+          ref="tocAsideRef"
+          class="hidden xl:block xl:w-[260px]"
+        >
+          <div class="toc-sidebar-shell" :style="tocSidebarStyle">
             <div class="toc-card paper-card">
-              <div class="toc-title">目录</div>
-              <nav class="toc-list">
-                <button
-                  v-for="item in tocItems"
-                  :key="item.id"
-                  type="button"
-                  class="toc-item"
-                  :class="[
-                    tocIndentClass(item.level),
-                    activeHeadingId === item.id ? 'is-active' : ''
-                  ]"
-                  @click="scrollToHeading(item.id)"
-                >
-                  {{ item.title }}
-                </button>
-              </nav>
+              <div class="toc-title cursor-pointer flex items-center justify-between" @click="isTocExpanded = !isTocExpanded">
+                <span>目录</span>
+                <el-icon>
+                  <ArrowDown v-if="isTocExpanded" />
+                  <ArrowRight v-else />
+                </el-icon>
+              </div>
+              <el-collapse-transition>
+                <nav v-show="isTocExpanded" class="toc-list">
+                  <div
+                    v-for="item in visibleTocItems"
+                    :key="item.id"
+                    class="toc-item flex items-center cursor-pointer"
+                    :class="[
+                      tocIndentClass(item.level),
+                      activeHeadingId === item.id ? 'is-active' : ''
+                    ]"
+                    @click="handleTocItemClick(item)"
+                  >
+                    <!-- 折叠/展开图标 -->
+                    <el-icon
+                      v-if="hasChildrenMap.get(item.id)"
+                      class="mr-1 flex-shrink-0 hover:text-primary"
+                      @click.stop="toggleHeadingCollapse(item.id)"
+                    >
+                      <ArrowRight v-if="collapsedHeadingIds.has(item.id)" />
+                      <ArrowDown v-else />
+                    </el-icon>
+                    <span v-else class="w-[14px] mr-1 inline-block flex-shrink-0"></span>
+                    
+                    <span class="flex-1 truncate" :title="item.title">
+                      {{ item.title }}
+                    </span>
+                  </div>
+                </nav>
+              </el-collapse-transition>
             </div>
           </div>
         </aside>
@@ -180,9 +230,10 @@ import {
   Star,
   Share,
   Pointer,
+  ArrowDown,
+  ArrowRight,
 } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
-import ArticleCard from "@/components/ArticleCard.vue";
 import CommentSection from "@/components/CommentSection.vue";
 import { renderMarkdownWithToc } from "@/utils/markdown";
 import { formatDate } from "@/utils/format";
@@ -197,12 +248,25 @@ const route = useRoute();
 
 const articleId = computed(() => Number(route.params.id));
 const article = ref<Article | null>(null);
-const relatedArticles = ref<Article[]>([]);
+const prevArticle = ref<Article | null>(null);
+const nextArticle = ref<Article | null>(null);
 const loading = ref(false);
 const contentRef = ref<HTMLElement | null>(null);
+const tocAsideRef = ref<HTMLElement | null>(null);
 const readingProgress = ref(0);
 const activeHeadingId = ref("");
 const headingPositions = ref<{ id: string; top: number }[]>([]);
+const tocSidebarMetrics = ref<{ left: number; width: number } | null>(null);
+const isTocExpanded = ref(true);
+const collapsedHeadingIds = ref<Set<string>>(new Set());
+
+
+
+type ArticleNavItem = {
+  type: "prev" | "next";
+  label: string;
+  article: Article;
+};
 
 // 默认作者
 const defaultAuthor = "站长";
@@ -215,8 +279,110 @@ const markdownResult = computed(() => {
 const renderedContent = computed(() => markdownResult.value.html);
 
 const tocItems = computed(() =>
-  markdownResult.value.toc.filter((item) => item.level >= 2 && item.level <= 4)
+  markdownResult.value.toc.filter((item) => item.level >= 1 && item.level <= 4)
 );
+
+// 是否有子标题
+const hasChildrenMap = computed(() => {
+  const map = new Map<string, boolean>();
+  for (let i = 0; i < tocItems.value.length; i++) {
+    const item = tocItems.value[i];
+    const hasChild = i < tocItems.value.length - 1 && tocItems.value[i + 1].level > item.level;
+    map.set(item.id, hasChild);
+  }
+  return map;
+});
+
+// 计算可见的目录项
+const visibleTocItems = computed(() => {
+  const visible = [];
+  let currentCollapsedLevel = -1;
+  for (const item of tocItems.value) {
+    if (currentCollapsedLevel !== -1) {
+      if (item.level > currentCollapsedLevel) {
+        // 在被折叠的区域内，跳过
+        continue;
+      } else {
+        // 出了被折叠的区域
+        currentCollapsedLevel = -1;
+      }
+    }
+    
+    visible.push(item);
+    
+    // 如果这个标题被折叠，记录它的层级
+    if (collapsedHeadingIds.value.has(item.id)) {
+      currentCollapsedLevel = item.level;
+    }
+  }
+  return visible;
+});
+
+// 切换某个标题的折叠状态
+const toggleHeadingCollapse = (id: string) => {
+  const newSet = new Set(collapsedHeadingIds.value);
+  if (newSet.has(id)) {
+    newSet.delete(id);
+  } else {
+    newSet.add(id);
+  }
+  collapsedHeadingIds.value = newSet;
+};
+
+// 处理目录项点击事件
+const handleTocItemClick = (item: any) => {
+  scrollToHeading(item.id);
+  if (hasChildrenMap.value.get(item.id)) {
+    toggleHeadingCollapse(item.id);
+  }
+};
+
+// 监听 tocItems 变化，默认折叠所有有子标题的项
+watch(tocItems, (items) => {
+  const newCollapsed = new Set<string>();
+  for (let i = 0; i < items.length; i++) {
+    if (i < items.length - 1 && items[i + 1].level > items[i].level) {
+      newCollapsed.add(items[i].id);
+    }
+  }
+  collapsedHeadingIds.value = newCollapsed;
+}, { immediate: true });
+
+const adjacentArticles = computed<ArticleNavItem[]>(() => {
+  const items: ArticleNavItem[] = [];
+
+  if (prevArticle.value) {
+    items.push({
+      type: "prev",
+      label: "上一篇",
+      article: prevArticle.value,
+    });
+  }
+
+  if (nextArticle.value) {
+    items.push({
+      type: "next",
+      label: "下一篇",
+      article: nextArticle.value,
+    });
+  }
+
+  return items;
+});
+
+const tocSidebarStyle = computed(() => {
+  if (!tocSidebarMetrics.value) {
+    return {
+      opacity: "0",
+      pointerEvents: "none" as const,
+    };
+  }
+
+  return {
+    left: `${tocSidebarMetrics.value.left}px`,
+    width: `${tocSidebarMetrics.value.width}px`,
+  };
+});
 
 // 获取文章详情
 const fetchArticle = async () => {
@@ -224,19 +390,33 @@ const fetchArticle = async () => {
   try {
     article.value = await articleApi.getById(articleId.value);
   } catch (e) {
+    article.value = null;
+    // 错误提示已由 axios 拦截器统一处理
     console.error("获取文章详情失败:", e);
-    ElMessage.error("获取文章失败");
   } finally {
     loading.value = false;
   }
 };
 
-// 获取推荐文章
-const fetchRecommendedArticles = async () => {
+// 获取上一篇和下一篇文章
+const fetchAdjacentArticles = async () => {
   try {
-    relatedArticles.value = await articleApi.getRecommended(3);
+    const res = await articleApi.getList({ page: 1, pageSize: 1000 });
+    const articles = res.list || [];
+    const currentIndex = articles.findIndex((item) => item.id === articleId.value);
+
+    if (currentIndex === -1) {
+      prevArticle.value = null;
+      nextArticle.value = null;
+      return;
+    }
+
+    prevArticle.value = currentIndex < articles.length - 1 ? articles[currentIndex + 1] : null;
+    nextArticle.value = currentIndex > 0 ? articles[currentIndex - 1] : null;
   } catch (e) {
-    console.error("获取推荐文章失败:", e);
+    prevArticle.value = null;
+    nextArticle.value = null;
+    console.error("获取上一篇和下一篇文章失败:", e);
   }
 };
 
@@ -253,8 +433,8 @@ const handleLike = async () => {
       ElMessage.success(res.liked ? "点赞成功" : "已取消点赞");
     }
   } catch (e) {
+    // 错误提示已由 axios 拦截器统一处理
     console.error("点赞失败:", e);
-    ElMessage.error("点赞失败");
   }
 };
 
@@ -280,8 +460,8 @@ const handleFavorite = async () => {
       ElMessage.success(res.favorited ? "收藏成功" : "已取消收藏");
     }
   } catch (e) {
+    // 错误提示已由 axios 拦截器统一处理
     console.error("收藏失败:", e);
-    ElMessage.error("收藏失败");
   }
 };
 
@@ -311,6 +491,29 @@ const updateHeadingPositions = async () => {
     id: heading.id,
     top: heading.getBoundingClientRect().top + window.scrollY,
   }));
+};
+
+const updateTocSidebarMetrics = async () => {
+  await nextTick();
+
+  if (
+    !tocAsideRef.value ||
+    window.innerWidth < 1280 ||
+    !article.value ||
+    !tocItems.value.length
+  ) {
+    tocSidebarMetrics.value = null;
+    return;
+  }
+
+  const { left, width } = tocAsideRef.value.getBoundingClientRect();
+
+  if (width <= 0) {
+    tocSidebarMetrics.value = null;
+    return;
+  }
+
+  tocSidebarMetrics.value = { left, width };
 };
 
 const updateActiveHeading = () => {
@@ -351,14 +554,17 @@ const handleScroll = () => {
 };
 
 const handleResize = () => {
-  updateHeadingPositions();
+  void updateHeadingPositions();
+  void updateTocSidebarMetrics();
   handleScroll();
 };
 
 const scrollToHeading = (id: string) => {
   const target = document.getElementById(id);
   if (!target) return;
-  target.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  const top = target.getBoundingClientRect().top + window.scrollY - 96;
+  window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
 };
 
 const tocIndentClass = (level: number) => {
@@ -379,12 +585,17 @@ const handleIncreaseViews = async () => {
   }
 };
 
-onMounted(() => {
-  fetchArticle().then(() => {
+const loadArticlePage = async () => {
+  await Promise.all([fetchArticle(), fetchAdjacentArticles()]);
+
+  if (article.value) {
     // 文章加载成功后再增加浏览量，确保 article.value 存在，且体验更好
     handleIncreaseViews();
-  });
-  fetchRecommendedArticles();
+  }
+};
+
+onMounted(() => {
+  loadArticlePage();
   window.scrollTo({ top: 0, behavior: "smooth" });
   window.addEventListener("scroll", handleScroll, { passive: true });
   window.addEventListener("resize", handleResize);
@@ -392,22 +603,19 @@ onMounted(() => {
 
 // 监听路由参数变化，重新加载数据
 watch(articleId, () => {
-  fetchArticle().then(() => {
-    handleIncreaseViews();
-  });
-  // 推荐文章也刷新一下
-  fetchRecommendedArticles();
+  loadArticlePage();
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
 watch(renderedContent, async () => {
-  await updateHeadingPositions();
+  await Promise.all([updateHeadingPositions(), updateTocSidebarMetrics()]);
   handleScroll();
 });
 
 // 同步目录数据到 toc store
 watch(tocItems, (items) => {
   tocStore.setTocItems(items);
+  void updateTocSidebarMetrics();
 }, { immediate: true });
 
 // 同步当前激活标题到 toc store
@@ -449,11 +657,23 @@ onUnmounted(() => {
   overflow: hidden;
 }
 
+.toc-sidebar-shell {
+  position: fixed;
+  top: 96px;
+  z-index: 30;
+  transition: opacity 0.2s ease;
+}
+
+
 .toc-title {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+  user-select: none;
+}
+.toc-title:hover {
+  color: var(--color-primary);
 }
 
 .toc-list {
@@ -491,5 +711,129 @@ onUnmounted(() => {
 
 .toc-indent-2 {
   padding-left: 32px;
+}
+
+.article-nav-card {
+  position: relative;
+  display: block;
+  min-height: 200px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.article-nav-card__media {
+  position: absolute;
+  inset: 0;
+}
+
+.article-nav-card__image,
+.article-nav-card__fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 400ms ease;
+}
+
+.article-nav-card__fallback {
+  background:
+    linear-gradient(135deg, rgba(59, 130, 246, 0.85), rgba(168, 85, 247, 0.8)),
+    linear-gradient(45deg, rgba(15, 23, 42, 0.12), rgba(255, 255, 255, 0.08));
+}
+
+.article-nav-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.68), rgba(15, 23, 42, 0.3));
+}
+
+.article-nav-card__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  min-height: 200px;
+  padding: 24px;
+  color: #fff;
+}
+
+.article-nav-card__default,
+.article-nav-card__summary {
+  max-width: min(100%, 420px);
+  transition: opacity 260ms ease, transform 260ms ease;
+}
+
+.article-nav-card__default {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.article-nav-card__eyebrow {
+  font-size: 0.875rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.article-nav-card__title {
+  margin: 0;
+  font-size: 1.625rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: inherit;
+  text-wrap: balance;
+}
+
+.article-nav-card__summary {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  left: 24px;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  opacity: 0;
+  transform: translateY(12px);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.article-nav-card:hover .article-nav-card__image,
+.article-nav-card:hover .article-nav-card__fallback {
+  transform: scale(1.08);
+}
+
+.article-nav-card:hover .article-nav-card__default {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.article-nav-card:hover .article-nav-card__summary {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 767px) {
+  .article-nav-card,
+  .article-nav-card__content {
+    min-height: 180px;
+  }
+
+  .article-nav-card__content {
+    padding: 20px;
+  }
+
+  .article-nav-card__title {
+    font-size: 1.375rem;
+  }
+
+  .article-nav-card__summary {
+    right: 20px;
+    bottom: 20px;
+    left: 20px;
+    -webkit-line-clamp: 4;
+  }
 }
 </style>

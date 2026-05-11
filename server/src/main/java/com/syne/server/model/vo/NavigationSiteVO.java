@@ -30,8 +30,6 @@ public class NavigationSiteVO {
     @Schema(description = "站点URL")
     private String url;
 
-    @Schema(description = "站点图标URL")
-    private String icon;
 
     @Schema(description = "排序权重")
     private Integer sortOrder;

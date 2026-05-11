@@ -287,35 +287,43 @@
               v-for="(msg, index) in chatHistoryStore.currentMessages"
               :key="index"
               :class="[
-                'flex',
-                msg.role === 'user' ? 'justify-end' : 'justify-start'
+                'flex gap-2.5',
+                msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'
               ]"
             >
+              <!-- 头像 -->
+              <img
+                v-if="msg.role === 'assistant'"
+                :src="aiAvatar"
+                alt="AI"
+                class="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-0.5 ring-2 ring-primary-100 dark:ring-primary-900/30"
+              />
+              <img
+                v-else
+                :src="userAvatar"
+                alt="User"
+                class="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-0.5 ring-2 ring-slate-200 dark:ring-slate-700"
+              />
+              <!-- 消息气泡 -->
               <div
                 :class="[
-                  'max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed',
+                  'min-w-0 px-4 py-2.5 rounded-2xl text-sm leading-relaxed w-fit',
                   msg.role === 'user'
-                    ? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-br-md'
-                    : 'bg-white text-slate-700 shadow-sm border border-slate-100 rounded-bl-md dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700/50'
+                    ? 'max-w-[75%] bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-br-md'
+                    : 'max-w-[calc(100%-3rem)] bg-white text-slate-700 shadow-sm border border-slate-100 rounded-bl-md dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700/50'
                 ]"
               >
+                <div v-if="msg.role === 'assistant' && !msg.content && loading && index === chatHistoryStore.currentMessages.length - 1" class="flex items-center gap-1.5 h-6">
+                  <span class="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style="animation-delay: 0s" />
+                  <span class="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style="animation-delay: 0.15s" />
+                  <span class="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style="animation-delay: 0.3s" />
+                </div>
                 <div
-                  v-if="msg.role === 'assistant'"
-                  class="prose prose-sm prose-slate dark:prose-invert max-w-none"
+                  v-else-if="msg.role === 'assistant'"
+                  class="markdown-content text-sm [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
                   v-html="renderMarkdown(msg.content)"
                 />
                 <div v-else class="whitespace-pre-wrap">{{ msg.content }}</div>
-              </div>
-            </div>
-
-            <!-- 加载中 -->
-            <div v-if="loading" class="flex justify-start">
-              <div
-                class="flex items-center gap-1.5 px-4 py-3 bg-white rounded-2xl rounded-bl-md shadow-sm border border-slate-100 dark:bg-slate-800 dark:border-slate-700/50"
-              >
-                <span class="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style="animation-delay: 0s" />
-                <span class="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style="animation-delay: 0.15s" />
-                <span class="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style="animation-delay: 0.3s" />
               </div>
             </div>
           </div>
@@ -352,11 +360,67 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, nextTick, onUnmounted, computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { aiChatStream } from '@/api/ai'
 import { useChatHistoryStore } from '@/stores/chatHistory'
+import { useUserStore } from '@/stores/user'
+import aiIconImg from '@/assets/images/ai-icon.png'
+import defaultAvatar from '@/assets/images/avatar/defalutAvatar.jpg'
+import MarkdownIt from 'markdown-it'
+import hljs from 'highlight.js'
+
+const escapeHtml = (str: string): string => {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true,
+  highlight: function (str: string, lang: string): string {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return '<pre class="hljs"><code>' +
+               hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
+               '</code></pre>';
+      } catch (__) {}
+    }
+    return '<pre class="hljs"><code>' + escapeHtml(str) + '</code></pre>';
+  }
+})
 
 const chatHistoryStore = useChatHistoryStore()
+const userStore = useUserStore()
+const route = useRoute()
+const router = useRouter()
+
+/** 是否已登录 */
+const isLoggedIn = computed(() => userStore.isLoggedIn)
+
+/**
+ * 未登录拦截：弹提示并跳转登录页，返回 false 代表已拦截。
+ */
+function requireLogin(): boolean {
+  if (isLoggedIn.value) return true
+  ElMessage.warning('请先登录后再使用 AI 助手')
+  router.push({ path: '/login', query: { redirect: route.fullPath } })
+  return false
+}
+
+// 头像
+const aiAvatar = aiIconImg
+const userAvatar = computed(() => userStore.currentUser?.avatar || defaultAvatar)
+
+// 当前文章 ID（如果用户在文章详情页）
+const currentArticleId = computed(() => {
+  if (route.path.startsWith('/article/')) {
+    const id = Number(route.params.id)
+    return isNaN(id) ? null : id
+  }
+  return null
+})
 
 const isOpen = ref(false)
 const loading = ref(false)
@@ -375,15 +439,33 @@ const quickQuestions = [
   '怎么联系博主？'
 ]
 
-// 初始化
-onMounted(() => {
-  chatHistoryStore.init()
+// 登录态变化：仅处理「登出」——关闭面板、终止请求、复位 loading；
+// 登录后不主动拉数据，等用户点击 AI 图标时再拉，避免页面刷新即发请求。
+watch(isLoggedIn, (val) => {
+  if (!val) {
+    isOpen.value = false
+    showHistory.value = false
+    if (abortController) {
+      abortController.abort()
+      abortController = null
+    }
+    loading.value = false
+  }
 })
 
 /**
  * 打开聊天窗口
+ * - 未登录：拦截并跳转登录页
+ * - 已登录：首次打开时按需拉取服务器会话；若 token 已失效，store 会自动登出，
+ *   此时再次校验登录态并跳转登录
  */
-function openChat() {
+async function openChat() {
+  if (!requireLogin()) return
+  if (!chatHistoryStore.initialized) {
+    await chatHistoryStore.init()
+    // init 过程中可能因 401/403 自动登出，需要二次校验
+    if (!requireLogin()) return
+  }
   isOpen.value = true
   nextTick(() => {
     scrollToBottom()
@@ -486,24 +568,11 @@ function cancelEditTitle() {
 }
 
 /**
- * 简单的 Markdown 渲染
+ * Markdown 渲染
  */
 function renderMarkdown(text: string): string {
   if (!text) return ''
-
-  return text
-    // 代码块
-    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg overflow-x-auto my-2"><code>$2</code></pre>')
-    // 行内代码
-    .replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-primary-600 dark:text-primary-400 text-xs">$1</code>')
-    // 粗体
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    // 斜体
-    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-    // 链接
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="text-primary-600 dark:text-primary-400 hover:underline">$1</a>')
-    // 换行
-    .replace(/\n/g, '<br>')
+  return md.render(text)
 }
 
 /**
@@ -512,6 +581,7 @@ function renderMarkdown(text: string): string {
 function sendMessage(text?: string) {
   const message = text || inputText.value.trim()
   if (!message || loading.value) return
+  if (!requireLogin()) return
 
   // 添加用户消息
   chatHistoryStore.addMessage({ role: 'user', content: message })
@@ -532,7 +602,7 @@ function sendMessage(text?: string) {
 
   // 调用流式 API
   abortController = aiChatStream(
-    { message, history: history.slice(0, -1) },
+    { message, history: history.slice(0, -1), articleId: currentArticleId.value },
     // onMessage
     (chunk) => {
       chatHistoryStore.appendToLastMessage(chunk)

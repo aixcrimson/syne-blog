@@ -24,9 +24,6 @@ public class NavigationCategory extends BaseEntity {
     @TableField("name")
     private String name;
 
-    @Schema(description = "分类图标")
-    @TableField("icon")
-    private String icon;
 
     @Schema(description = "排序权重")
     @TableField("sort_order")

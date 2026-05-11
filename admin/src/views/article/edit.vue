@@ -1,12 +1,12 @@
 <template>
-  <div class="article-edit p-6" v-loading="loading">
+  <div class="article-edit p-4 md:p-6" v-loading="loading">
     <!-- 页面头部 -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
       <div class="flex items-center gap-4">
         <el-button :icon="ArrowLeft" @click="handleBack">返回</el-button>
-        <h1 class="text-2xl font-bold text-gray-800">{{ pageTitle }}</h1>
+        <h1 class="text-xl md:text-2xl font-bold text-gray-800">{{ pageTitle }}</h1>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
         <!-- AI 写作助手 -->
         <AiWritingPanel
           v-if="!loading"
@@ -14,17 +14,17 @@
           :selected-text="selectedText"
           @apply="handleAiApply"
         />
-        <el-button @click="handleSaveDraft" :loading="saving">
+        <el-button @click="handleSaveDraft" :loading="saving" size="default" class="!ml-0">
           保存草稿
         </el-button>
-        <el-button type="primary" @click="handlePublish" :loading="saving">
+        <el-button type="primary" @click="handlePublish" :loading="saving" size="default" class="!ml-0">
           发布文章
         </el-button>
       </div>
     </div>
 
     <!-- 编辑表单 -->
-    <div class="flex gap-6">
+    <div class="flex flex-col lg:flex-row gap-6">
       <!-- 左侧：编辑器区域 -->
       <div class="flex-1 min-w-0">
         <el-form
@@ -38,7 +38,7 @@
             <el-input
               v-model="formData.title"
               placeholder="请输入文章标题"
-              maxlength="200"
+              maxlength="50"
               show-word-limit
               size="large"
               class="title-input"
@@ -61,19 +61,20 @@
           <el-form-item label="文章内容" prop="content">
             <MdEditor
               v-model="formData.content"
-              :preview="true"
+              :preview="!isMobile"
               :toolbars-exclude="['github']"
               style="height: 600px"
               class="md-editor-custom"
               @onSelect="handleSelect"
+              @onUploadImg="handleUploadImg"
             />
           </el-form-item>
         </el-form>
       </div>
 
       <!-- 右侧：设置面板 -->
-      <div class="w-80 flex-shrink-0">
-        <div class="glass-card p-4 rounded-lg sticky top-6">
+      <div class="w-full lg:w-80 flex-shrink-0">
+        <div class="glass-card p-4 rounded-lg lg:sticky lg:top-6">
           <h3 class="text-lg font-semibold text-gray-800 mb-4">文章设置</h3>
           
           <el-form
@@ -144,16 +145,7 @@
               />
             </el-form-item>
 
-            <!-- 推荐设置 -->
-            <el-form-item label="推荐文章">
-              <el-switch
-                v-model="formData.isRecommend"
-                :active-value="1"
-                :inactive-value="0"
-                active-text="是"
-                inactive-text="否"
-              />
-            </el-form-item>
+
           </el-form>
         </div>
       </div>
@@ -176,10 +168,15 @@ import 'md-editor-v3/lib/style.css'
 import AiWritingPanel from '@/components/AiWritingPanel.vue'
 import ImageUpload from '@/components/ImageUpload.vue'
 import { articleApi } from '@/api/article'
+import { fileApi } from '@/api/file'
 import { categoryApi } from '@/api/category'
 import { tagApi } from '@/api/tag'
 import type { ArticleForm, Category, Tag } from '@/types'
 import { ArticleStatus } from '@/types'
+import { useResponsive } from '@/utils/useResponsive'
+
+// 响应式状态
+const { isMobile } = useResponsive()
 
 // ==================== 路由 ====================
 const route = useRoute()
@@ -206,15 +203,49 @@ const handleSelect = (selection: any) => {
 }
 
 /**
- * 处理 AI 内容应用
+ * 处理 Markdown 编辑器图片上传
+ * @param files 用户选择的文件列表
+ * @param callback 回调函数，传入图片 URL 数组插入编辑器
  */
-const handleAiApply = (content: string) => {
-  if (selectedText.value) {
-    // 如果有选中文本，替换它
-    formData.content = formData.content.replace(selectedText.value, content)
-  } else {
-    // 否则追加到末尾
-    formData.content += '\n\n' + content
+const handleUploadImg = async (files: File[], callback: (urls: string[]) => void) => {
+  try {
+    const uploadPromises = files.map(file => fileApi.uploadImage(file))
+    const results = await Promise.all(uploadPromises)
+    const urls = results.map(res => res.url)
+    callback(urls)
+  } catch (error) {
+    console.error('上传图片失败:', error)
+    ElMessage.error('图片上传失败，请重试')
+  }
+}
+
+/**
+ * 处理 AI 内容应用 - 按 action 类型路由到不同字段
+ */
+const handleAiApply = (payload: { action: string; content: string }) => {
+  const { action, content } = payload
+  switch (action) {
+    case 'summary':
+      // 应用到摘要字段
+      formData.summary = content
+      break
+    case 'title':
+      // 应用到标题字段
+      formData.title = content
+      break
+    case 'continue':
+      // 始终追加到文章末尾
+      formData.content += '\n\n' + content
+      break
+    case 'polish':
+      // 替换选中文本或全量覆盖
+      if (selectedText.value) {
+        formData.content = formData.content.replace(selectedText.value, content)
+      } else {
+        formData.content = content
+      }
+      break
+    // outline 不会触发 apply
   }
 }
 
@@ -233,7 +264,7 @@ const loading = ref(false)
 const saving = ref(false)
 
 /** 随机封面 API（未上传时请求一次并保存本次真实图片地址） */
-const DEFAULT_ARTICLE_COVER_API = 'https://www.loliapi.com/acg/'
+const DEFAULT_ARTICLE_COVER_API = '/api/file/cover/random'
 
 
 /** 分类列表 */
@@ -252,8 +283,7 @@ const formData = reactive<ArticleForm>({
   tagIds: [],
   coverImage: '',
   status: ArticleStatus.DRAFT,
-  isTop: 0,
-  isRecommend: 0
+  isTop: 0
 })
 
 /** 初始表单数据（用于检查修改） */
@@ -270,7 +300,7 @@ initialFormData.value = JSON.stringify(formData)
 const formRules: FormRules = {
   title: [
     { required: true, message: '请输入文章标题', trigger: 'blur' },
-    { max: 200, message: '标题不能超过200个字符', trigger: 'blur' }
+    { max: 50, message: '标题不能超过50个字符', trigger: 'blur' }
   ],
   content: [
     { required: true, message: '请输入文章内容', trigger: 'blur' }
@@ -297,8 +327,8 @@ const formRules: FormRules = {
  */
 const loadCategories = async () => {
   try {
-    const result = await categoryApi.getList()
-    categoryList.value = result
+    const result = await categoryApi.getList({ page: 1, pageSize: 100 })
+    categoryList.value = result.list
   } catch (error) {
     console.error('加载分类列表失败:', error)
   }
@@ -309,8 +339,8 @@ const loadCategories = async () => {
  */
 const loadTags = async () => {
   try {
-    const result = await tagApi.getList()
-    tagList.value = result
+    const result = await tagApi.getList({ page: 1, pageSize: 100 })
+    tagList.value = result.list
   } catch (error) {
     console.error('加载标签列表失败:', error)
   }
@@ -334,12 +364,12 @@ const loadArticle = async () => {
     formData.coverImage = article.coverImage || ''
     formData.status = article.status
     formData.isTop = article.isTop
-    formData.isRecommend = article.isRecommend
+
     // 保存初始状态
     initialFormData.value = JSON.stringify(formData)
   } catch (error) {
+    // 错误提示已由 axios 拦截器统一处理
     console.error('加载文章详情失败:', error)
-    ElMessage.error('加载文章失败')
     router.push('/article/list')
   } finally {
     loading.value = false
@@ -414,8 +444,9 @@ const resolveRandomCoverImage = async (): Promise<string> => {
   }
 
   const finalUrl = response.url
-  const finalUrlInfo = new URL(finalUrl)
-  const apiUrlInfo = new URL(DEFAULT_ARTICLE_COVER_API)
+  // 使用 window.location.origin 作为相对路径的基准，兼容 DEFAULT_ARTICLE_COVER_API 为相对路径或绝对路径两种写法
+  const finalUrlInfo = new URL(finalUrl, window.location.origin)
+  const apiUrlInfo = new URL(DEFAULT_ARTICLE_COVER_API, window.location.origin)
   const isStillApiUrl = finalUrlInfo.origin === apiUrlInfo.origin && finalUrlInfo.pathname === apiUrlInfo.pathname
 
   if (isStillApiUrl) {
@@ -451,16 +482,20 @@ const buildArticlePayload = async (status: ArticleStatus): Promise<ArticleForm> 
  */
 const handleSaveDraft = async () => {
 
-  // 草稿模式下只验证标题
+  // 草稿模式下只验证标题（与后端最低要求保持一致）
   if (!formData.title.trim()) {
     ElMessage.warning('请输入文章标题')
     return
   }
-  
+  if (!formData.categoryId) {
+    ElMessage.warning('请选择文章分类后再保存')
+    return
+  }
+
   saving.value = true
   try {
     const data = await buildArticlePayload(ArticleStatus.DRAFT)
-    
+
     if (isEdit.value) {
       await articleApi.update(articleId.value, data)
       ElMessage.success('草稿保存成功')
@@ -470,12 +505,12 @@ const handleSaveDraft = async () => {
       // 跳转到编辑页面
       router.replace(`/article/edit/${result.id}`)
     }
+    // 保存成功后将当前内容标记为初始状态，避免返回时误判为有未保存修改
+    initialFormData.value = JSON.stringify(formData)
   } catch (error) {
-
+    // 错误提示已由 axios 拦截器统一处理，这里只做日志
     console.error('保存草稿失败:', error)
-    ElMessage.error(error instanceof Error ? error.message : '保存草稿失败')
   } finally {
-
     saving.value = false
   }
 }
@@ -494,7 +529,7 @@ const handlePublish = async () => {
   saving.value = true
   try {
     const data = await buildArticlePayload(ArticleStatus.PUBLISHED)
-    
+
     if (isEdit.value) {
       await articleApi.update(articleId.value, data)
       ElMessage.success('文章发布成功')
@@ -502,15 +537,14 @@ const handlePublish = async () => {
       await articleApi.create(data)
       ElMessage.success('文章发布成功')
     }
-    
-    // 返回列表页
+
+    // 发布成功，重置初始状态后返回列表页
+    initialFormData.value = JSON.stringify(formData)
     router.push('/article/list')
   } catch (error) {
-
+    // 错误提示已由 axios 拦截器统一处理，这里只做日志
     console.error('发布文章失败:', error)
-    ElMessage.error(error instanceof Error ? error.message : '发布文章失败')
   } finally {
-
     saving.value = false
   }
 }
@@ -518,12 +552,12 @@ const handlePublish = async () => {
 // ==================== 生命周期 ====================
 
 onMounted(async () => {
-  // 并行加载分类和标签
-  await Promise.all([loadCategories(), loadTags()])
-  // 编辑模式下加载文章详情
-  if (isEdit.value) {
-    await loadArticle()
-  }
+  // 所有请求并行发出，减少等待时间
+  await Promise.all([
+    loadCategories(),
+    loadTags(),
+    isEdit.value ? loadArticle() : Promise.resolve()
+  ])
 })
 </script>
 

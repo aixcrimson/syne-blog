@@ -6,8 +6,13 @@ import com.syne.server.service.MinioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.net.URI;
 
 /**
  * 文件上传控制器
@@ -28,5 +33,20 @@ public class FileController {
     public Result<FileUploadVO> uploadImage(@RequestParam("file") MultipartFile file) {
         FileUploadVO result = minioService.uploadImage(file);
         return Result.success(result);
+    }
+
+    /**
+     * 随机图片（302 重定向到真实图片地址，模仿 https://www.loliapi.com/acg/ 行为）
+     * 图片来源于独立的图库桶（minio.cover-bucket，默认 syne-cover）。
+     */
+    @Operation(summary = "随机图片（302 重定向到真实图片地址）")
+    @GetMapping("/cover/random")
+    public ResponseEntity<Void> randomCover(@RequestParam(value = "type", defaultValue = "pc") String type) {
+        String url = minioService.pickRandomCoverUrl(type);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create(url));
+        // 不缓存，确保每次都拿到不同图片
+        headers.setCacheControl("no-store");
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 }

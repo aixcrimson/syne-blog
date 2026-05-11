@@ -82,9 +82,13 @@ navigation:
 # MinIO 对象存储配置
 minio:
   endpoint: ${MINIO_ENDPOINT:http://107.173.199.221:9000}
+  # 避免 HTTPS 页面加载 HTTP 图片时被浏览器以 Mixed Content 拦截。留空回退到 endpoint。
+  public-url: ${MINIO_PUBLIC_URL:}
   access-key: ${MINIO_ACCESS_KEY:minio}
   secret-key: ${MINIO_SECRET_KEY:minio123456}
   bucket-name: ${MINIO_BUCKET:syne-blog}
+  # 随机封面图库存储桶
+  cover-bucket: ${MINIO_COVER_BUCKET:syne-cover}
   # 图片允许的类型
   allowed-types: image/jpeg,image/png,image/gif,image/webp
   # 最大文件大小 (单位: MB)
@@ -93,11 +97,11 @@ minio:
 # Spring AI OpenAI 配置（支持中转站）
 spring.ai:
   openai:
-    api-key: ${OPENAI_API_KEY:sk-289e2aafbe6d4d7ebbb127e68aba1867}
-    base-url: ${OPENAI_BASE_URL:http://127.0.0.1:8045}
+    api-key: ${OPENAI_API_KEY:sk-ai-v1-a0fee99102993a5122412257433d7fead732bccc5a87bac8b5ae64babe82e9d6}
+    base-url: ${OPENAI_BASE_URL:https://zenmux.ai/api}
     chat:
       options:
-        model: ${OPENAI_MODEL:gpt-5.2}
+        model: ${OPENAI_MODEL:deepseek/deepseek-v4-flash-free}
         temperature: 0.7
         max-tokens: 2000
     embedding:

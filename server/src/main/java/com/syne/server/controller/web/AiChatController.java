@@ -35,7 +35,7 @@ public class AiChatController {
     @PostMapping("/chat")
     public Result<String> chat(@Valid @RequestBody AiChatRequestDTO request) {
         List<Map<String, String>> history = convertHistory(request.getHistory());
-        String result = ragService.chat(request.getMessage(), history);
+        String result = ragService.chat(request.getMessage(), history, request.getArticleId());
         return Result.success(result);
     }
 
@@ -46,8 +46,7 @@ public class AiChatController {
     @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> chatStream(@Valid @RequestBody AiChatRequestDTO request) {
         List<Map<String, String>> history = convertHistory(request.getHistory());
-        return ragService.chatStream(request.getMessage(), history)
-                .map(this::toSseEvent);
+        return ragService.chatStream(request.getMessage(), history, request.getArticleId());
     }
 
     /**
@@ -62,14 +61,4 @@ public class AiChatController {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 将内容转换为规范 SSE 事件，确保每行都有 data: 前缀
-     */
-    private String toSseEvent(String content) {
-        if (content == null) {
-            return "data: \n\n";
-        }
-        String escaped = content.replace("\r\n", "\\n").replace("\n", "\\n");
-        return "data: " + escaped + "\n\n";
-    }
 }

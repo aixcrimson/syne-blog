@@ -146,13 +146,13 @@
     <el-dialog
       v-model="dialogVisible"
       :title="isEdit ? '编辑项目' : '新建项目'"
-      width="600px"
+      :width="isMobile ? '90%' : '600px'"
       :close-on-click-modal="false"
       destroy-on-close
       append-to-body
       @closed="resetForm"
     >
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
+      <el-form ref="formRef" :model="form" :rules="rules" :label-width="isMobile ? 'auto' : '100px'">
         <el-form-item label="项目标题" prop="title">
           <el-input
             v-model="form.title"
@@ -256,8 +256,10 @@ import {
 import ImageUpload from '@/components/ImageUpload.vue'
 import { projectApi } from "@/api/siteContent";
 import type { Project, ProjectForm } from "@/types";
+import { useResponsive } from '@/utils/useResponsive';
 
 // ==================== 状态 ====================
+const { isMobile } = useResponsive();
 const loading = ref(false);
 const list = ref<(Project & { updating?: boolean })[]>([]);
 const dialogVisible = ref(false);
@@ -404,7 +406,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-:deep(.el-table__row:hover) {
-  background-color: rgba(var(--color-primary-50), 0.5);
+:deep(.el-table) {
+  --el-table-row-hover-bg-color: var(--color-primary-100);
 }
 </style>

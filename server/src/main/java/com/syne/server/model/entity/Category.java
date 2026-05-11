@@ -35,9 +35,6 @@ public class Category extends BaseEntity {
     @TableField("description")
     private String description;
 
-    @Schema(description = "分类图标")
-    @TableField("icon")
-    private String icon;
 
     @Schema(description = "排序权重，数字越大越靠前")
     @TableField("sort_order")
