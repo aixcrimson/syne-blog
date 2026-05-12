@@ -27,7 +27,7 @@
     <el-drawer
       :model-value="appStore.showSidebar"
       @update:model-value="appStore.showSidebar = $event"
-      title="关于作者 & 分类"
+      title="关于作者、分类 & 标签"
       direction="ltr"
       size="80%"
       :lock-scroll="false"
