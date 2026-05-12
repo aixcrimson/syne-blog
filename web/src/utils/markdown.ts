@@ -1,8 +1,9 @@
 import MarkdownIt from 'markdown-it'
-import hljs from 'highlight.js'
+import { getHighlighter } from '@/utils/highlighter'
 import 'highlight.js/styles/github-dark.css'
 
-// 创建 Markdown 解析器实例
+const hljs = getHighlighter()
+
 // 创建 Markdown 解析器实例
 const md = new MarkdownIt({
   html: true,

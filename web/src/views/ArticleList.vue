@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, computed } from "vue";
+import { ref, shallowRef, watch, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import { Bell } from "@element-plus/icons-vue";
 import { useAppStore } from "@/stores/app";
@@ -121,7 +121,7 @@ const selectedCategory = ref<number | string>("");
 const selectedTagIds = ref<number[]>([]);
 const loading = ref(false);
 
-const articles = ref<Article[]>([]);
+const articles = shallowRef<Article[]>([]);
 const totalArticles = ref(0);
 
 // 公告 (打字机数据)

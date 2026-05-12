@@ -525,3 +525,43 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-tertiary);
 }
+
+/* ========== 性能优化 ========== */
+
+/* 硬件加速：强制 GPU 合成层，避免滚动时重新计算高斯模糊等昂贵属性 */
+.reading-progress,
+.reading-progress__bar {
+  will-change: width;
+  transform: translateZ(0);
+}
+
+/* 文章卡片 hover 动画提升为合成层 */
+.article-card {
+  will-change: transform;
+  contain: layout style;
+}
+
+/* 侧边栏抽屉和浮动按钮的 backdrop-blur 提升为 GPU 合成层 */
+.chatbot-container,
+.toc-sidebar-shell {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Markdown 内容区使用 CSS 包含以隔离布局计算 */
+.markdown-content {
+  contain: content;
+}
+
+/* 减少运动偏好时移除所有过渡和动画 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+

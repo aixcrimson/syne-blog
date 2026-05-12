@@ -77,6 +77,8 @@
               <img
                 :src="article.coverImage"
                 :alt="article.title"
+                loading="lazy"
+                decoding="async"
                 class="object-cover w-full h-full"
               />
             </div>
@@ -149,6 +151,8 @@
                     v-if="item.article.coverImage"
                     :src="item.article.coverImage"
                     :alt="item.article.title"
+                    loading="lazy"
+                    decoding="async"
                     class="article-nav-card__image"
                   />
                   <div v-else class="article-nav-card__fallback"></div>
@@ -221,7 +225,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
+import { ref, shallowRef, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
 import { useRoute } from "vue-router";
 import {
   User,
@@ -247,9 +251,9 @@ const tocStore = useTocStore();
 const route = useRoute();
 
 const articleId = computed(() => Number(route.params.id));
-const article = ref<Article | null>(null);
-const prevArticle = ref<Article | null>(null);
-const nextArticle = ref<Article | null>(null);
+const article = shallowRef<Article | null>(null);
+const prevArticle = shallowRef<Article | null>(null);
+const nextArticle = shallowRef<Article | null>(null);
 const loading = ref(false);
 const contentRef = ref<HTMLElement | null>(null);
 const tocAsideRef = ref<HTMLElement | null>(null);
@@ -500,16 +504,28 @@ const updateReadingProgress = () => {
   readingProgress.value = Math.min(100, Math.max(0, progress));
 };
 
+// rAF 节流：确保 scroll 回调最多每帧执行一次，避免掉帧
+let scrollRafId = 0
 const handleScroll = () => {
-  updateReadingProgress();
-  updateActiveHeading();
-};
+  if (scrollRafId) return
+  scrollRafId = requestAnimationFrame(() => {
+    scrollRafId = 0
+    updateReadingProgress()
+    updateActiveHeading()
+  })
+}
 
+// resize 防抖：窗口尺寸变化后 150ms 再执行计算
+let resizeTimer = 0
 const handleResize = () => {
-  void updateHeadingPositions();
-  void updateTocSidebarMetrics();
-  handleScroll();
-};
+  clearTimeout(resizeTimer)
+  resizeTimer = window.setTimeout(() => {
+    void updateHeadingPositions()
+    void updateTocSidebarMetrics()
+    updateReadingProgress()
+    updateActiveHeading()
+  }, 150)
+}
 
 const scrollToHeading = (id: string) => {
   const target = document.getElementById(id);
@@ -578,6 +594,9 @@ watch(activeHeadingId, (id) => {
 onUnmounted(() => {
   window.removeEventListener("scroll", handleScroll);
   window.removeEventListener("resize", handleResize);
+  // 清理未执行的 rAF / timer
+  if (scrollRafId) cancelAnimationFrame(scrollRafId)
+  if (resizeTimer) clearTimeout(resizeTimer)
   tocStore.clear();
 });
 </script>

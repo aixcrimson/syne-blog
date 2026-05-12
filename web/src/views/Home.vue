@@ -92,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, shallowRef, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import ArticleCard from "@/components/ArticleCard.vue";
 import ArticleCardSkeleton from "@/components/ArticleCardSkeleton.vue";
@@ -118,7 +118,7 @@ const scrollToContent = () => {
 };
 
 // 最新文章
-const latestArticles = ref<Article[]>([]);
+const latestArticles = shallowRef<Article[]>([]);
 const loading = ref(false);
 
 // 公告
