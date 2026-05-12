@@ -128,6 +128,7 @@
       :title="isCategoryEdit ? '编辑分类' : '新建分类'" 
       :width="isMobile ? '90%' : '500px'" 
       :close-on-click-modal="false"
+      :lock-scroll="false"
       append-to-body
       @closed="handleCategoryDialogClose"
     >
@@ -155,6 +156,7 @@
       :title="isSiteEdit ? '编辑站点' : '新建站点'" 
       :width="isMobile ? '90%' : '550px'" 
       :close-on-click-modal="false"
+      :lock-scroll="false"
       append-to-body
       @closed="handleSiteDialogClose"
     >
