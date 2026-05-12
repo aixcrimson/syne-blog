@@ -26,7 +26,7 @@
             class="paper-card overflow-hidden"
           >
             <!-- 文章头部 -->
-            <div class="p-8 border-b article-header">
+            <div class="p-5 sm:p-8 border-b article-header">
               <div class="mb-6">
                 <button
                   @click="$router.push('/articles')"
@@ -39,7 +39,7 @@
                 </button>
               </div>
 
-              <h1 class="mb-4 text-4xl font-semibold text-slate-900 dark:text-slate-50">
+              <h1 class="mb-4 text-2xl sm:text-3xl md:text-4xl font-semibold text-slate-900 dark:text-slate-50">
                 {{ article.title }}
               </h1>
 
@@ -82,13 +82,13 @@
             </div>
 
             <!-- 文章内容 -->
-            <div class="p-8 article-content">
+            <div class="p-5 sm:p-8 article-content">
               <div ref="contentRef" class="markdown-content" v-html="renderedContent"></div>
             </div>
 
             <!-- 文章底部 -->
             <div
-              class="p-8 border-t border-slate-200/70 bg-white/70 dark:border-slate-700/70 dark:bg-slate-900/60 article-footer"
+              class="p-5 sm:p-8 border-t border-slate-200/70 bg-white/70 dark:border-slate-700/70 dark:bg-slate-900/60 article-footer"
             >
               <div class="flex justify-between items-center">
                 <div class="text-sm text-slate-600 dark:text-slate-400">
@@ -186,7 +186,7 @@
               <el-collapse-transition>
                 <nav v-show="isTocExpanded" class="toc-list">
                   <div
-                    v-for="item in visibleTocItems"
+                    v-for="item in tocStore.visibleTocItems"
                     :key="item.id"
                     class="toc-item flex items-center cursor-pointer"
                     :class="[
@@ -197,11 +197,11 @@
                   >
                     <!-- 折叠/展开图标 -->
                     <el-icon
-                      v-if="hasChildrenMap.get(item.id)"
+                      v-if="tocStore.hasChildrenMap.get(item.id)"
                       class="mr-1 flex-shrink-0 hover:text-primary"
-                      @click.stop="toggleHeadingCollapse(item.id)"
+                      @click.stop="tocStore.toggleHeadingCollapse(item.id)"
                     >
-                      <ArrowRight v-if="collapsedHeadingIds.has(item.id)" />
+                      <ArrowRight v-if="tocStore.collapsedHeadingIds.has(item.id)" />
                       <ArrowDown v-else />
                     </el-icon>
                     <span v-else class="w-[14px] mr-1 inline-block flex-shrink-0"></span>
@@ -258,7 +258,6 @@ const activeHeadingId = ref("");
 const headingPositions = ref<{ id: string; top: number }[]>([]);
 const tocSidebarMetrics = ref<{ left: number; width: number } | null>(null);
 const isTocExpanded = ref(true);
-const collapsedHeadingIds = ref<Set<string>>(new Set());
 
 
 
@@ -282,61 +281,6 @@ const tocItems = computed(() =>
   markdownResult.value.toc.filter((item) => item.level >= 1 && item.level <= 4)
 );
 
-// 是否有子标题
-const hasChildrenMap = computed(() => {
-  const map = new Map<string, boolean>();
-  for (let i = 0; i < tocItems.value.length; i++) {
-    const item = tocItems.value[i];
-    const hasChild = i < tocItems.value.length - 1 && tocItems.value[i + 1].level > item.level;
-    map.set(item.id, hasChild);
-  }
-  return map;
-});
-
-// 计算可见的目录项
-const visibleTocItems = computed(() => {
-  const visible = [];
-  let currentCollapsedLevel = -1;
-  for (const item of tocItems.value) {
-    if (currentCollapsedLevel !== -1) {
-      if (item.level > currentCollapsedLevel) {
-        // 在被折叠的区域内，跳过
-        continue;
-      } else {
-        // 出了被折叠的区域
-        currentCollapsedLevel = -1;
-      }
-    }
-    
-    visible.push(item);
-    
-    // 如果这个标题被折叠，记录它的层级
-    if (collapsedHeadingIds.value.has(item.id)) {
-      currentCollapsedLevel = item.level;
-    }
-  }
-  return visible;
-});
-
-// 切换某个标题的折叠状态
-const toggleHeadingCollapse = (id: string) => {
-  const newSet = new Set(collapsedHeadingIds.value);
-  if (newSet.has(id)) {
-    newSet.delete(id);
-  } else {
-    newSet.add(id);
-  }
-  collapsedHeadingIds.value = newSet;
-};
-
-// 处理目录项点击事件
-const handleTocItemClick = (item: any) => {
-  scrollToHeading(item.id);
-  if (hasChildrenMap.value.get(item.id)) {
-    toggleHeadingCollapse(item.id);
-  }
-};
-
 // 监听 tocItems 变化，默认折叠所有有子标题的项
 watch(tocItems, (items) => {
   const newCollapsed = new Set<string>();
@@ -345,8 +289,16 @@ watch(tocItems, (items) => {
       newCollapsed.add(items[i].id);
     }
   }
-  collapsedHeadingIds.value = newCollapsed;
+  tocStore.collapsedHeadingIds = newCollapsed;
 }, { immediate: true });
+
+// 处理目录项点击事件
+const handleTocItemClick = (item: any) => {
+  scrollToHeading(item.id);
+  if (tocStore.hasChildrenMap.get(item.id)) {
+    tocStore.toggleHeadingCollapse(item.id);
+  }
+};
 
 const adjacentArticles = computed<ArticleNavItem[]>(() => {
   const items: ArticleNavItem[] = [];

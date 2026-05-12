@@ -5,7 +5,7 @@
     <nav class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo - 左侧 -->
-        <div class="flex items-center min-w-[200px] space-x-2">
+        <div class="flex items-center shrink-0 space-x-2">
           <router-link
             to="/"
             class="flex justify-center items-center w-8 h-8 rounded-lg transition-opacity duration-300 hover:opacity-70"

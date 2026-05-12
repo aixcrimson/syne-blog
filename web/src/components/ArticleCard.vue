@@ -27,7 +27,7 @@
     />
 
     <!-- 卡片内容 - 定位在底部 -->
-    <div class="absolute inset-x-0 bottom-0 p-6 flex flex-col">
+    <div class="absolute inset-x-0 bottom-0 p-4 sm:p-6 flex flex-col">
       <!-- 标签 -->
       <div class="flex flex-wrap gap-2 mb-3">
         <span

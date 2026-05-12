@@ -3,32 +3,7 @@
     <div class="max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,900px)_260px] xl:justify-center">
 
-        <!-- 移动端筛选按钮 -->
-        <div class="mb-4 xl:hidden">
-          <el-button
-            type="primary"
-            class="w-full"
-            @click="drawerVisible = true"
-          >
-            <el-icon class="mr-2"><Filter /></el-icon>
-            筛选与分类
-          </el-button>
-        </div>
 
-        <!-- 侧边栏抽屉 (移动端) -->
-
-        <el-drawer
-          v-model="drawerVisible"
-          title="筛选与分类"
-          direction="ltr"
-          size="80%"
-        >
-          <Sidebar
-            :selected-tag-ids="selectedTagIds"
-            @category-click="handleCategorySelect"
-            @tag-click="handleTagSelect"
-          />
-        </el-drawer>
 
         <!-- 主内容区 -->
         <div class="min-w-0 xl:w-full xl:max-w-[900px]">
@@ -78,8 +53,10 @@
           />
 
           <!-- 分页 -->
-          <div class="flex justify-center" v-if="totalPages > 1">
+          <div class="flex justify-center w-full overflow-hidden" v-if="totalPages > 1">
+            <!-- 桌面端分页 -->
             <el-pagination
+              class="hidden sm:flex"
               v-model:current-page="currentPage"
               v-model:page-size="pageSize"
               :total="totalArticles"
@@ -87,6 +64,16 @@
               layout="total, sizes, prev, pager, next, jumper"
               @current-change="handlePageChange"
               @size-change="handleSizeChange"
+            />
+            <!-- 移动端分页 -->
+            <el-pagination
+              class="flex sm:hidden"
+              v-model:current-page="currentPage"
+              :page-size="pageSize"
+              :total="totalArticles"
+              small
+              layout="prev, pager, next"
+              @current-change="handlePageChange"
             />
           </div>
         </div>
@@ -120,7 +107,7 @@ import type { Article, Notice } from "@/types";
 const route = useRoute();
 const appStore = useAppStore();
 
-const drawerVisible = ref(false);
+
 
 const currentPage = ref(1);
 const pageSize = ref(6);
@@ -176,7 +163,6 @@ watch(totalArticles, () => {
 const handleCategorySelect = (id: number) => {
   selectedCategory.value = id;
   selectedTagIds.value = []; // 切换分类时重置标签
-  drawerVisible.value = false;
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
@@ -188,7 +174,6 @@ const handleTagSelect = (id: number) => {
     selectedTagIds.value.push(id);
   }
   selectedCategory.value = ""; // 切换标签时重置分类
-  // drawerVisible.value = false; // 多选模式下不自动关闭抽屉，方便用户连续选择
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
@@ -208,6 +193,29 @@ const handleSizeChange = (size: number) => {
 watch([searchKeyword, selectedCategory, selectedTagIds], () => {
   currentPage.value = 1;
   loadArticles();
+}, { deep: true });
+
+// 监听路由参数变化，实现通过全局抽屉点击分类/标签时更新列表
+watch(() => route.query, (newQuery) => {
+  if (route.path !== '/articles') return;
+  
+  if (newQuery.category) {
+    selectedCategory.value = Number(newQuery.category);
+  } else {
+    selectedCategory.value = "";
+  }
+  
+  if (newQuery.keyword) {
+    searchKeyword.value = newQuery.keyword as string;
+  } else {
+    searchKeyword.value = "";
+  }
+
+  if (newQuery.tag) {
+    selectedTagIds.value = String(newQuery.tag).split(',').map(Number).filter(n => !isNaN(n));
+  } else {
+    selectedTagIds.value = [];
+  }
 }, { deep: true });
 
 onMounted(() => {

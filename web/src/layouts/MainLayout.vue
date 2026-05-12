@@ -22,12 +22,40 @@
     <div class="relative">
       <Footer />
     </div>
+
+    <!-- 移动端全局侧边栏 (由 FloatingToolbar 触发) -->
+    <el-drawer
+      :model-value="appStore.showSidebar"
+      @update:model-value="appStore.showSidebar = $event"
+      title="关于作者 & 分类"
+      direction="ltr"
+      size="80%"
+      :lock-scroll="false"
+    >
+      <Sidebar @category-click="handleCategoryClick" @tag-click="handleTagClick" />
+    </el-drawer>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useRouter } from "vue-router";
+import { useAppStore } from "@/stores/app";
 import Header from "@/components/layout/Header.vue";
 import Footer from "@/components/layout/Footer.vue";
+import Sidebar from "@/components/Sidebar.vue";
+
+const router = useRouter();
+const appStore = useAppStore();
+
+const handleCategoryClick = (id: number) => {
+  appStore.closeSidebar();
+  router.push(`/articles?category=${id}`);
+};
+
+const handleTagClick = (id: number) => {
+  appStore.closeSidebar();
+  router.push(`/articles?tag=${id}`);
+};
 </script>
 
 <style scoped>

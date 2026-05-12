@@ -5,7 +5,7 @@
       class="hero relative min-h-[calc(100vh-64px)] flex items-center justify-center"
     >
       <div class="text-center px-4">
-        <h1 class="text-5xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-6xl lg:text-7xl" style="font-family: 'Georgia', 'Times New Roman', serif;">
+        <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-6xl lg:text-7xl" style="font-family: 'Georgia', 'Times New Roman', serif;">
           Syne's Blog
         </h1>
         <p class="mt-8 text-xl text-slate-600 dark:text-slate-300 md:text-2xl h-8">
@@ -81,7 +81,9 @@
           </div>
 
           <!-- 侧边栏 -->
-          <Sidebar class="hidden xl:block xl:w-[260px] xl:flex-none" />
+          <div class="hidden xl:block xl:w-[260px] xl:flex-none">
+            <Sidebar />
+          </div>
         </div>
       </div>
 
