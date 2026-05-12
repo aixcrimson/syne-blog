@@ -1,5 +1,5 @@
 <template>
-  <div class="author-info-manage p-4 md:p-6">
+  <div class="author-info-manage p-0 md:p-6">
     <!-- 页面标题 -->
     <div class="mb-6 hidden md:block">
       <h1 class="text-2xl font-bold text-gray-800">作者信息管理</h1>

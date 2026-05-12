@@ -1,5 +1,5 @@
 <template>
-  <div class="settings-page p-4 md:p-6">
+  <div class="settings-page p-0 md:p-6">
     <!-- 页面标题 -->
     <div class="mb-6 hidden md:block">
       <h1 class="text-2xl font-bold text-gray-800">个人设置</h1>
