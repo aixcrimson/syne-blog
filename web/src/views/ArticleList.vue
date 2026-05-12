@@ -8,17 +8,22 @@
         <!-- 主内容区 -->
         <div class="min-w-0 xl:w-full xl:max-w-[900px]">
 
-          <!-- 顶部打字机公告及布局切换 -->
-          <div class="mb-8 p-6 flex flex-col justify-center relative min-h-[120px] rounded-2xl bg-gradient-to-br from-primary-50/80 to-primary-100/30 dark:from-slate-800/80 dark:to-slate-800/40 border border-primary-100/50 dark:border-slate-700/50 shadow-sm backdrop-blur-sm">
-            <div class="text-xl text-slate-700 dark:text-slate-300 font-medium text-center tracking-wide" style="font-family: 'Georgia', 'Times New Roman', serif;">
-              <Typewriter
-                v-if="notices.length > 0"
-                :texts="noticeTexts"
-                :type-speed="150"
-                :delete-speed="80"
-                :pause-time="2000"
-              />
-              <span v-else class="animate-pulse">正在获取宇宙信号...</span>
+          <!-- 顶部公告栏 -->
+          <div class="mb-8 overflow-hidden rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-slate-200/50 dark:border-slate-700/50 shadow-sm backdrop-blur-md transition-all hover:shadow-md">
+            <div class="flex items-center p-4 sm:px-6">
+              <div class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-500 dark:text-primary-400 mr-4">
+                <el-icon :size="20"><Bell /></el-icon>
+              </div>
+              <div class="flex-1 min-w-0 text-base sm:text-lg text-slate-700 dark:text-slate-300 font-medium tracking-wide" style="font-family: 'Georgia', 'Times New Roman', serif;">
+                <Typewriter
+                  v-if="notices.length > 0"
+                  :texts="noticeTexts"
+                  :type-speed="150"
+                  :delete-speed="80"
+                  :pause-time="2000"
+                />
+                <span v-else class="animate-pulse">正在获取宇宙信号...</span>
+              </div>
             </div>
           </div>
 
@@ -94,7 +99,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
-import { Filter } from "@element-plus/icons-vue";
+import { Bell } from "@element-plus/icons-vue";
 import { useAppStore } from "@/stores/app";
 import ArticleCard from "@/components/ArticleCard.vue";
 import ArticleCardSkeleton from "@/components/ArticleCardSkeleton.vue";

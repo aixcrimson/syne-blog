@@ -162,32 +162,10 @@
           GitHub
         </a>
 
-        <!-- 移动端工具栏 -->
-        <div
-          class="grid grid-cols-2 gap-4 px-3 pt-4 mt-4 border-t border-slate-200/70 dark:border-slate-800/70"
-        >
+        <!-- 移动端工具栏 (仅保留搜索) -->
+        <div class="px-3 pt-4 mt-4 border-t border-slate-200/70 dark:border-slate-800/70">
           <button
-            class="flex gap-2 justify-center items-center p-3 bg-white/70 rounded-xl transition-all hover:bg-white active:scale-95 dark:bg-slate-900/60 dark:hover:bg-slate-800"
-            @click="appStore.toggleThemeMode"
-          >
-            <el-icon
-              :size="18"
-              :class="
-                appStore.isDarkMode
-                  ? 'text-yellow-400'
-                  : 'text-slate-700 dark:text-slate-300'
-              "
-            >
-              <Sunny v-if="!appStore.isDarkMode" />
-              <Moon v-else />
-            </el-icon>
-            <span class="text-sm font-medium text-slate-700 dark:text-slate-200">
-              {{ appStore.isDarkMode ? "浅色" : "深色" }}
-            </span>
-          </button>
-
-          <button
-            class="flex gap-2 justify-center items-center p-3 bg-white/70 rounded-xl transition-all hover:bg-white active:scale-95 dark:bg-slate-900/60 dark:hover:bg-slate-800"
+            class="flex gap-2 w-full justify-center items-center p-3 bg-white/70 rounded-xl transition-all hover:bg-white active:scale-95 dark:bg-slate-900/60 dark:hover:bg-slate-800"
             @click="
               handleSearch();
               mobileMenuOpen = false;
@@ -198,18 +176,6 @@
             </el-icon>
             <span class="text-sm font-medium text-slate-700 dark:text-slate-200">
               搜索
-            </span>
-          </button>
-
-          <button
-            class="col-span-2 flex gap-2 justify-center items-center p-3 bg-white/70 rounded-xl transition-all hover:bg-white active:scale-95 dark:bg-slate-900/60 dark:hover:bg-slate-800"
-            @click="appStore.toggleBackgroundMode"
-          >
-            <el-icon :size="18" class="text-slate-700 dark:text-slate-300">
-              <Brush />
-            </el-icon>
-            <span class="text-sm font-medium text-slate-700 dark:text-slate-200">
-              背景：{{ appStore.backgroundMode === "paper" ? "纸卡" : "图片" }}
             </span>
           </button>
         </div>
