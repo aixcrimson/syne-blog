@@ -8,13 +8,13 @@
 
     <!-- 搜索和操作区域 -->
     <div class="glass-card p-4 mb-4 md:mb-6 rounded-lg">
-      <div class="flex flex-wrap items-center justify-between gap-4">
-        <div class="flex items-center gap-4 flex-1">
+      <div class="flex flex-wrap items-center gap-4" :class="isMobile ? 'flex-col items-stretch' : ''">
+        <div class="flex items-center gap-4" :class="isMobile ? 'w-full' : ''">
           <el-input
             v-model="queryParams.keyword"
             placeholder="搜索标签名称"
             clearable
-            class="w-64"
+            :class="isMobile ? 'flex-1' : 'w-64'"
             :prefix-icon="Search"
             @keyup.enter="handleSearch"
             @clear="handleSearch"
@@ -22,11 +22,13 @@
           <el-button type="primary" :icon="Search" @click="handleSearch">
             搜索
           </el-button>
-          <span class="text-gray-500 text-sm ml-2">共 {{ total }} 个标签</span>
         </div>
-        <el-button type="primary" :icon="Plus" @click="handleCreate">
-          新建标签
-        </el-button>
+        <div class="flex items-center justify-between" :class="isMobile ? 'w-full' : 'flex-1'">
+          <span class="text-gray-500 text-sm">共 {{ total }} 个标签</span>
+          <el-button type="primary" :icon="Plus" @click="handleCreate" :class="isMobile ? '' : 'ml-auto'">
+            新建标签
+          </el-button>
+        </div>
       </div>
     </div>
 
@@ -107,7 +109,8 @@
           v-model:page-size="queryParams.pageSize"
           :page-sizes="[10, 20, 50, 100]"
           :total="total"
-          layout="total, sizes, prev, pager, next, jumper"
+          :layout="isMobile ? 'prev, pager, next' : 'total, sizes, prev, pager, next, jumper'"
+          :small="isMobile"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
