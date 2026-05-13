@@ -1,6 +1,6 @@
 <template>
-  <aside class="w-full h-full sidebar">
-    <div class="flex flex-col gap-3 h-full">
+  <aside class="w-full sidebar">
+    <div class="flex flex-col gap-3">
       <!-- 作者信息卡片 -->
       <div class="overflow-hidden paper-card paper-card-hover">
         <div class="p-4">
@@ -86,7 +86,7 @@
         </div>
       </div>
 
-      <div class="sticky top-24 flex flex-col gap-3">
+      <div class="xl:sticky xl:top-24 flex flex-col gap-3">
         <!-- 分类列表卡片 -->
         <div class="overflow-hidden paper-card paper-card-hover">
         <div class="px-4 py-2.5 border-b border-slate-200/70 dark:border-slate-700/70">
