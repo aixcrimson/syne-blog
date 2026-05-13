@@ -108,18 +108,40 @@
               <div
                 v-for="category in categories"
                 :key="category.id"
-                class="flex justify-between items-center px-2.5 py-2 rounded-lg transition-colors cursor-pointer category-item hover:bg-slate-50/70 dark:hover:bg-slate-800/50"
+                class="flex justify-between items-center px-2.5 py-2 rounded-lg transition-all duration-200 cursor-pointer category-item"
+                :class="[
+                  props.selectedCategoryId === category.id
+                    ? 'bg-primary-50 dark:bg-primary-900/30'
+                    : 'hover:bg-slate-50/70 dark:hover:bg-slate-800/50'
+                ]"
                 @click="handleCategoryClick(category.id)"
               >
                 <div class="flex gap-2.5 items-center">
-                  <div class="w-2 h-2 rounded-full bg-primary-500"></div>
+                  <div
+                    class="w-2 h-2 rounded-full transition-transform duration-200"
+                    :class="[
+                      props.selectedCategoryId === category.id
+                        ? 'bg-primary-600 scale-125'
+                        : 'bg-primary-500'
+                    ]"
+                  ></div>
                   <span
-                    class="text-sm font-medium text-slate-700 dark:text-slate-300"
+                    class="text-sm font-medium transition-colors duration-200"
+                    :class="[
+                      props.selectedCategoryId === category.id
+                        ? 'text-primary-600 dark:text-primary-400'
+                        : 'text-slate-700 dark:text-slate-300'
+                    ]"
                     >{{ category.name }}</span
                   >
                 </div>
                 <span
-                  class="px-1.5 py-0.5 text-xs text-slate-500 bg-slate-100/80 rounded-full dark:text-slate-400 dark:bg-slate-800/60"
+                  class="px-1.5 py-0.5 text-xs rounded-full transition-colors duration-200"
+                  :class="[
+                    props.selectedCategoryId === category.id
+                      ? 'text-primary-600 bg-primary-100 dark:text-primary-400 dark:bg-primary-900/50'
+                      : 'text-slate-500 bg-slate-100/80 dark:text-slate-400 dark:bg-slate-800/60'
+                  ]"
                 >
                   {{ category.articleCount }}
                 </span>
@@ -186,6 +208,7 @@ const siteStore = useSiteStore();
 
 const props = defineProps<{
   selectedTagIds?: number[];
+  selectedCategoryId?: number | string;
 }>();
 
 const emit = defineEmits<{

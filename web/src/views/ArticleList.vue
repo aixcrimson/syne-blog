@@ -87,6 +87,7 @@
         <Sidebar
           class="hidden xl:block xl:w-[260px]"
           :selected-tag-ids="selectedTagIds"
+          :selected-category-id="selectedCategory"
           @category-click="handleCategorySelect"
           @tag-click="handleTagSelect"
         />
