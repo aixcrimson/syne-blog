@@ -29,7 +29,7 @@
             <div class="p-5 sm:p-8 border-b article-header">
               <div class="mb-6">
                 <button
-                  @click="$router.push('/articles')"
+                  @click="goBackToList"
                   class="group inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 bg-slate-100/80 rounded-full transition-all hover:bg-slate-200 hover:text-slate-900 dark:text-slate-300 dark:bg-slate-800/80 dark:hover:bg-slate-700 dark:hover:text-slate-50 cursor-pointer"
                 >
                   <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -226,7 +226,7 @@
 
 <script setup lang="ts">
 import { ref, shallowRef, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import {
   User,
   Calendar,
@@ -249,6 +249,18 @@ import { useTocStore } from "@/stores/toc";
 const userStore = useUserStore();
 const tocStore = useTocStore();
 const route = useRoute();
+const router = useRouter();
+
+// 返回列表：优先使用浏览器后退（保留分页/筛选状态和滚动位置）
+const goBackToList = () => {
+  // 检查是否有历史记录可回退（window.history.state.back 是 vue-router 注入的上一页路径）
+  const back = window.history.state?.back as string | undefined
+  if (back && (back.startsWith('/articles') || back === '/')) {
+    router.back()
+  } else {
+    router.push('/articles')
+  }
+}
 
 const articleId = computed(() => Number(route.params.id));
 const article = shallowRef<Article | null>(null);

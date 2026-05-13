@@ -98,7 +98,7 @@
 
 <script setup lang="ts">
 import { ref, shallowRef, watch, onMounted, computed } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { Bell } from "@element-plus/icons-vue";
 import { useAppStore } from "@/stores/app";
 import ArticleCard from "@/components/ArticleCard.vue";
@@ -110,9 +110,8 @@ import { siteApi } from "@/api/site";
 import type { Article, Notice } from "@/types";
 
 const route = useRoute();
+const router = useRouter();
 const appStore = useAppStore();
-
-
 
 const currentPage = ref(1);
 const pageSize = ref(6);
@@ -134,6 +133,20 @@ const getNotices = async () => {
   } catch (error) {
     console.error("获取公告失败:", error);
   }
+};
+
+/**
+ * 将当前筛选/分页状态同步到 URL query 参数（使用 replace 不产生新历史记录）
+ */
+const syncQueryToUrl = () => {
+  const query: Record<string, string> = {};
+  if (currentPage.value > 1) query.page = String(currentPage.value);
+  if (pageSize.value !== 6) query.pageSize = String(pageSize.value);
+  if (selectedCategory.value) query.category = String(selectedCategory.value);
+  if (selectedTagIds.value.length > 0) query.tag = selectedTagIds.value.join(',');
+  if (searchKeyword.value) query.keyword = searchKeyword.value;
+
+  router.replace({ path: '/articles', query });
 };
 
 // 获取文章列表
@@ -168,6 +181,7 @@ watch(totalArticles, () => {
 const handleCategorySelect = (id: number) => {
   selectedCategory.value = id;
   selectedTagIds.value = []; // 切换分类时重置标签
+  currentPage.value = 1;
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
@@ -179,62 +193,68 @@ const handleTagSelect = (id: number) => {
     selectedTagIds.value.push(id);
   }
   selectedCategory.value = ""; // 切换标签时重置分类
+  currentPage.value = 1;
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
 const handlePageChange = (page: number) => {
   currentPage.value = page;
-  loadArticles();
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
 const handleSizeChange = (size: number) => {
   pageSize.value = size;
   currentPage.value = 1;
-  loadArticles();
 };
 
-// 监听过滤条件变化
-watch([searchKeyword, selectedCategory, selectedTagIds], () => {
-  currentPage.value = 1;
+// 监听过滤条件变化 → 加载数据 + 同步 URL
+watch([currentPage, pageSize, searchKeyword, selectedCategory, selectedTagIds], () => {
   loadArticles();
+  syncQueryToUrl();
 }, { deep: true });
 
 // 监听路由参数变化，实现通过全局抽屉点击分类/标签时更新列表
 watch(() => route.query, (newQuery) => {
   if (route.path !== '/articles') return;
-  
-  if (newQuery.category) {
-    selectedCategory.value = Number(newQuery.category);
-  } else {
-    selectedCategory.value = "";
-  }
-  
-  if (newQuery.keyword) {
-    searchKeyword.value = newQuery.keyword as string;
-  } else {
-    searchKeyword.value = "";
-  }
 
-  if (newQuery.tag) {
-    selectedTagIds.value = String(newQuery.tag).split(',').map(Number).filter(n => !isNaN(n));
-  } else {
-    selectedTagIds.value = [];
+  // 防止自身 syncQueryToUrl 触发的变化导致重复加载
+  const qPage = Number(newQuery.page) || 1;
+  const qPageSize = Number(newQuery.pageSize) || 6;
+  const qCategory = newQuery.category ? Number(newQuery.category) : "";
+  const qKeyword = (newQuery.keyword as string) || "";
+  const qTags = newQuery.tag
+    ? String(newQuery.tag).split(',').map(Number).filter(n => !isNaN(n))
+    : [];
+
+  // 仅在外部导航（如抽屉点击分类）时更新状态
+  if (
+    qPage !== currentPage.value ||
+    qPageSize !== pageSize.value ||
+    qCategory !== selectedCategory.value ||
+    qKeyword !== searchKeyword.value ||
+    JSON.stringify(qTags) !== JSON.stringify(selectedTagIds.value)
+  ) {
+    currentPage.value = qPage;
+    pageSize.value = qPageSize;
+    selectedCategory.value = qCategory;
+    searchKeyword.value = qKeyword;
+    selectedTagIds.value = qTags;
   }
 }, { deep: true });
 
+/**
+ * 初始化：从 URL query 恢复状态
+ */
 onMounted(() => {
-  if (route.query.category) {
-    selectedCategory.value = route.query.category as string;
-  }
-  if (route.query.keyword) {
-    searchKeyword.value = route.query.keyword as string;
-  }
+  if (route.query.page) currentPage.value = Number(route.query.page) || 1;
+  if (route.query.pageSize) pageSize.value = Number(route.query.pageSize) || 6;
+  if (route.query.category) selectedCategory.value = Number(route.query.category);
+  if (route.query.keyword) searchKeyword.value = route.query.keyword as string;
   if (route.query.tag) {
-    const tags = String(route.query.tag).split(',').map(Number).filter(n => !isNaN(n));
-    selectedTagIds.value = tags;
+    selectedTagIds.value = String(route.query.tag).split(',').map(Number).filter(n => !isNaN(n));
   }
   loadArticles();
   getNotices();
 });
 </script>
+
