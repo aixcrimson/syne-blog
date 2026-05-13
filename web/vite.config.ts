@@ -25,18 +25,17 @@ export default defineConfig(({ mode }) => {
       }
     },
 
+    // 生产环境 esbuild 配置：移除 console / debugger
+    esbuild: {
+      drop: mode === 'production' ? ['console', 'debugger'] : []
+    },
+
     // ========== 构建优化 ==========
     build: {
       // 启用 CSS 代码分割
       cssCodeSplit: true,
-      // 生产环境移除 console.log
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: true,
-          drop_debugger: true
-        }
-      },
+      // 生产环境移除 console.log（使用内置 esbuild，无需额外安装）
+      minify: 'esbuild',
       rollupOptions: {
         output: {
           // 手动分包策略：利用浏览器并发下载，加快首屏加载
