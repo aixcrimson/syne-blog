@@ -241,25 +241,31 @@
           输入关键词开始搜索
         </div>
 
-        <div v-else-if="filteredSearchResults.length" class="search-result-list">
-          <button
-            v-for="(item, index) in filteredSearchResults"
-            :key="item.article.id"
-            type="button"
-            class="search-result-item"
-            @click="openArticle(item.article.id)"
-          >
-            <span class="search-result-item__index">{{ index + 1 }}.</span>
-            <div class="search-result-item__content">
-              <h3 class="search-result-item__title" v-html="item.titleHtml"></h3>
-              <p class="search-result-item__summary" v-html="item.previewHtml"></p>
-              <div class="search-result-item__meta">
-                <span>{{ item.article.categoryName }}</span>
-                <span>{{ formatDate(item.article.publishedTime) }}</span>
-                <span>{{ item.article.views }} 阅读</span>
+        <div 
+          v-else-if="filteredSearchResults.length" 
+          class="search-result-list"
+          v-bind="containerProps"
+        >
+          <div v-bind="wrapperProps">
+            <button
+              v-for="{ data: item, index } in virtualList"
+              :key="item.article.id"
+              type="button"
+              class="search-result-item"
+              @click="openArticle(item.article.id)"
+            >
+              <span class="search-result-item__index">{{ index + 1 }}.</span>
+              <div class="search-result-item__content">
+                <h3 class="search-result-item__title" v-html="item.titleHtml"></h3>
+                <p class="search-result-item__summary" v-html="item.previewHtml"></p>
+                <div class="search-result-item__meta">
+                  <span>{{ item.article.categoryName }}</span>
+                  <span>{{ formatDate(item.article.publishedTime) }}</span>
+                  <span>{{ item.article.views }} 阅读</span>
+                </div>
               </div>
-            </div>
-          </button>
+            </button>
+          </div>
         </div>
 
         <el-empty
@@ -279,6 +285,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from "vue";
 import { useRouter } from "vue-router";
+import { useVirtualList } from "@vueuse/core";
 import { useAppStore } from "@/stores/app";
 import { useUserStore } from "@/stores/user";
 import { useSiteStore } from "@/stores/site";
@@ -464,6 +471,14 @@ const filteredSearchResults = computed<SearchResultItem[]>(() => {
       return `${b.article.publishedTime || ""}`.localeCompare(`${a.article.publishedTime || ""}`);
     });
 });
+
+const { list: virtualList, containerProps, wrapperProps } = useVirtualList(
+  filteredSearchResults,
+  {
+    itemHeight: 124, // 预估每个搜索结果卡片高度 + gap
+    overscan: 5,
+  }
+);
 
 const searchTotal = computed(() => filteredSearchResults.value.length);
 
