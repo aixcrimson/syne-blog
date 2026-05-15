@@ -20,6 +20,14 @@ export const authApi = {
     return get<UserInfo>('/auth/me')
   },
 
+  /**
+   * 刷新 Token
+   * @returns 新的 Token 字符串
+   */
+  refreshToken: () => {
+    return post<string>('/auth/refresh')
+  },
+
   // 发送验证码 (Mock for now, or real if endpoint exists)
   sendCode: async (email: string) => {
     // 暂时保持 Mock，或者如果后端有 /auth/send-code 接口则替换为:

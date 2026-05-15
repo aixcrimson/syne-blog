@@ -4,7 +4,7 @@
  */
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse, type AxiosError } from 'axios'
 import { ElMessage } from 'element-plus'
-import router, { getToken, removeToken } from '@/router'
+import router, { getToken, setToken, removeToken } from '@/router'
 
 /**
  * 业务错误码映射
@@ -31,15 +31,67 @@ const request: AxiosInstance = axios.create({
 })
 
 /**
+ * 解析 JWT Token 的过期时间（秒级 Unix 时间戳）
+ * @returns 过期时间戳（秒），解析失败返回 null
+ */
+const getTokenExpiration = (token: string): number | null => {
+  try {
+    const parts = token.split('.')
+    if (parts.length !== 3) return null
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')))
+    return payload.exp ?? null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Token 刷新阈值：剩余有效期小于此值时触发刷新（单位：秒）
+ * 设为 1 天，确保在过期前有充足的刷新窗口
+ */
+const REFRESH_THRESHOLD_SECONDS = 86400
+
+/** 是否正在刷新 Token（防止并发刷新） */
+let isRefreshing = false
+
+/**
  * 请求拦截器
  * - 自动添加 Token 到请求头
+ * - Token 快过期时自动静默刷新
  */
 request.interceptors.request.use(
-  (config) => {
+  async (config) => {
     const token = getToken()
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+
+      // 检查 Token 是否快过期，如果是则静默刷新
+      // 跳过 refresh 接口自身，避免死循环
+      if (!isRefreshing && !config.url?.includes('/auth/refresh')) {
+        const exp = getTokenExpiration(token)
+        if (exp) {
+          const remainingSeconds = exp - Math.floor(Date.now() / 1000)
+          if (remainingSeconds > 0 && remainingSeconds < REFRESH_THRESHOLD_SECONDS) {
+            isRefreshing = true
+            try {
+              // 动态导入避免循环依赖
+              const { authApi } = await import('./auth')
+              const newToken = await authApi.refreshToken()
+              if (newToken) {
+                // 更新 localStorage 和当前请求头
+                setToken(newToken)
+                config.headers.Authorization = `Bearer ${newToken}`
+                console.log('🔄 Token 已静默刷新')
+              }
+            } catch (err) {
+              console.warn('⚠️ Token 静默刷新失败，继续使用当前 Token:', err)
+            } finally {
+              isRefreshing = false
+            }
+          }
+        }
+      }
     }
     
     console.log('📤 请求发送:', config.method?.toUpperCase(), config.url)

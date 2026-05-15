@@ -28,17 +28,68 @@ const request: AxiosInstance = axios.create({
 })
 
 /**
+ * 解析 JWT Token 的过期时间（秒级 Unix 时间戳）
+ * @returns 过期时间戳（秒），解析失败返回 null
+ */
+const getTokenExpiration = (token: string): number | null => {
+  try {
+    const parts = token.split('.')
+    if (parts.length !== 3) return null
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')))
+    return payload.exp ?? null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Token 刷新阈值：剩余有效期小于此值时触发刷新（单位：秒）
+ * 设为 1 天，确保在过期前有充足的刷新窗口
+ */
+const REFRESH_THRESHOLD_SECONDS = 86400
+
+/** 是否正在刷新 Token（防止并发刷新） */
+let isRefreshing = false
+
+/**
  * 请求拦截器
  * 在请求发送前进行统一处理
+ * - 自动添加 Token 到请求头
+ * - Token 快过期时自动静默刷新
  */
 request.interceptors.request.use(
-  (config) => {
+  async (config) => {
     // 从本地存储获取 token
     const token = localStorage.getItem('token')
     
     // 如果有 token，添加到请求头
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+
+      // 检查 Token 是否快过期，如果是则静默刷新
+      // 跳过 refresh 接口自身，避免死循环
+      if (!isRefreshing && !config.url?.includes('/auth/refresh')) {
+        const exp = getTokenExpiration(token)
+        if (exp) {
+          const remainingSeconds = exp - Math.floor(Date.now() / 1000)
+          if (remainingSeconds > 0 && remainingSeconds < REFRESH_THRESHOLD_SECONDS) {
+            isRefreshing = true
+            try {
+              const { authApi } = await import('./auth')
+              const newToken = await authApi.refreshToken()
+              if (newToken) {
+                localStorage.setItem('token', newToken)
+                config.headers.Authorization = `Bearer ${newToken}`
+                console.log('🔄 Token 已静默刷新')
+              }
+            } catch (err) {
+              console.warn('⚠️ Token 静默刷新失败，继续使用当前 Token:', err)
+            } finally {
+              isRefreshing = false
+            }
+          }
+        }
+      }
     }
     
     // 可以在这里添加其他请求头
