@@ -601,6 +601,16 @@ watch(tocItems, (items) => {
 // 同步当前激活标题到 toc store
 watch(activeHeadingId, (id) => {
   tocStore.setActiveHeadingId(id);
+  
+  if (id) {
+    nextTick(() => {
+      // 找到所有的 active 元素（可能有多个 toc 列表，如移动端和 PC 端）
+      const activeEls = document.querySelectorAll('.toc-list .is-active');
+      activeEls.forEach((el) => {
+        el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      });
+    });
+  }
 });
 
 onUnmounted(() => {

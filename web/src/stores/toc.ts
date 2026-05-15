@@ -27,6 +27,41 @@ export const useTocStore = defineStore('toc', () => {
 
   const setActiveHeadingId = (id: string) => {
     activeHeadingId.value = id
+    expandToHeading(id)
+  }
+
+  const expandToHeading = (id: string) => {
+    if (!id) return
+    
+    const stack: {id: string, level: number}[] = []
+    let parents: string[] = []
+    
+    for (const item of tocItems.value) {
+      while (stack.length > 0 && stack[stack.length - 1].level >= item.level) {
+        stack.pop()
+      }
+      stack.push({ id: item.id, level: item.level })
+      
+      if (item.id === id) {
+        stack.pop() // remove the item itself
+        parents = stack.map(s => s.id)
+        break
+      }
+    }
+    
+    if (parents.length > 0) {
+      let changed = false
+      const newSet = new Set(collapsedHeadingIds.value)
+      for (const parentId of parents) {
+        if (newSet.has(parentId)) {
+          newSet.delete(parentId)
+          changed = true
+        }
+      }
+      if (changed) {
+        collapsedHeadingIds.value = newSet
+      }
+    }
   }
 
   const toggleToc = () => {
