@@ -26,10 +26,10 @@
             class="paper-card overflow-hidden"
           >
             <!-- 文章头部 -->
-            <div class="p-8 border-b article-header">
+            <div class="p-5 sm:p-8 border-b article-header">
               <div class="mb-6">
                 <button
-                  @click="$router.push('/articles')"
+                  @click="goBackToList"
                   class="group inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 bg-slate-100/80 rounded-full transition-all hover:bg-slate-200 hover:text-slate-900 dark:text-slate-300 dark:bg-slate-800/80 dark:hover:bg-slate-700 dark:hover:text-slate-50 cursor-pointer"
                 >
                   <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,7 +39,7 @@
                 </button>
               </div>
 
-              <h1 class="mb-4 text-4xl font-semibold text-slate-900 dark:text-slate-50">
+              <h1 class="mb-4 text-2xl sm:text-3xl md:text-4xl font-semibold text-slate-900 dark:text-slate-50">
                 {{ article.title }}
               </h1>
 
@@ -77,18 +77,20 @@
               <img
                 :src="article.coverImage"
                 :alt="article.title"
+                loading="lazy"
+                decoding="async"
                 class="object-cover w-full h-full"
               />
             </div>
 
             <!-- 文章内容 -->
-            <div class="p-8 article-content">
+            <div class="p-5 sm:p-8 article-content" @click="handleCopyClick">
               <div ref="contentRef" class="markdown-content" v-html="renderedContent"></div>
             </div>
 
             <!-- 文章底部 -->
             <div
-              class="p-8 border-t border-slate-200/70 bg-white/70 dark:border-slate-700/70 dark:bg-slate-900/60 article-footer"
+              class="p-5 sm:p-8 border-t border-slate-200/70 bg-white/70 dark:border-slate-700/70 dark:bg-slate-900/60 article-footer"
             >
               <div class="flex justify-between items-center">
                 <div class="text-sm text-slate-600 dark:text-slate-400">
@@ -149,6 +151,8 @@
                     v-if="item.article.coverImage"
                     :src="item.article.coverImage"
                     :alt="item.article.title"
+                    loading="lazy"
+                    decoding="async"
                     class="article-nav-card__image"
                   />
                   <div v-else class="article-nav-card__fallback"></div>
@@ -186,7 +190,7 @@
               <el-collapse-transition>
                 <nav v-show="isTocExpanded" class="toc-list">
                   <div
-                    v-for="item in visibleTocItems"
+                    v-for="item in tocStore.visibleTocItems"
                     :key="item.id"
                     class="toc-item flex items-center cursor-pointer"
                     :class="[
@@ -197,11 +201,11 @@
                   >
                     <!-- 折叠/展开图标 -->
                     <el-icon
-                      v-if="hasChildrenMap.get(item.id)"
+                      v-if="tocStore.hasChildrenMap.get(item.id)"
                       class="mr-1 flex-shrink-0 hover:text-primary"
-                      @click.stop="toggleHeadingCollapse(item.id)"
+                      @click.stop="tocStore.toggleHeadingCollapse(item.id)"
                     >
-                      <ArrowRight v-if="collapsedHeadingIds.has(item.id)" />
+                      <ArrowRight v-if="tocStore.collapsedHeadingIds.has(item.id)" />
                       <ArrowDown v-else />
                     </el-icon>
                     <span v-else class="w-[14px] mr-1 inline-block flex-shrink-0"></span>
@@ -221,8 +225,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
-import { useRoute } from "vue-router";
+import { ref, shallowRef, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import {
   User,
   Calendar,
@@ -245,11 +249,23 @@ import { useTocStore } from "@/stores/toc";
 const userStore = useUserStore();
 const tocStore = useTocStore();
 const route = useRoute();
+const router = useRouter();
+
+// 返回列表：优先使用浏览器后退（保留分页/筛选状态和滚动位置）
+const goBackToList = () => {
+  // 检查是否有历史记录可回退（window.history.state.back 是 vue-router 注入的上一页路径）
+  const back = window.history.state?.back as string | undefined
+  if (back && (back.startsWith('/articles') || back === '/')) {
+    router.back()
+  } else {
+    router.push('/articles')
+  }
+}
 
 const articleId = computed(() => Number(route.params.id));
-const article = ref<Article | null>(null);
-const prevArticle = ref<Article | null>(null);
-const nextArticle = ref<Article | null>(null);
+const article = shallowRef<Article | null>(null);
+const prevArticle = shallowRef<Article | null>(null);
+const nextArticle = shallowRef<Article | null>(null);
 const loading = ref(false);
 const contentRef = ref<HTMLElement | null>(null);
 const tocAsideRef = ref<HTMLElement | null>(null);
@@ -258,7 +274,6 @@ const activeHeadingId = ref("");
 const headingPositions = ref<{ id: string; top: number }[]>([]);
 const tocSidebarMetrics = ref<{ left: number; width: number } | null>(null);
 const isTocExpanded = ref(true);
-const collapsedHeadingIds = ref<Set<string>>(new Set());
 
 
 
@@ -282,61 +297,6 @@ const tocItems = computed(() =>
   markdownResult.value.toc.filter((item) => item.level >= 1 && item.level <= 4)
 );
 
-// 是否有子标题
-const hasChildrenMap = computed(() => {
-  const map = new Map<string, boolean>();
-  for (let i = 0; i < tocItems.value.length; i++) {
-    const item = tocItems.value[i];
-    const hasChild = i < tocItems.value.length - 1 && tocItems.value[i + 1].level > item.level;
-    map.set(item.id, hasChild);
-  }
-  return map;
-});
-
-// 计算可见的目录项
-const visibleTocItems = computed(() => {
-  const visible = [];
-  let currentCollapsedLevel = -1;
-  for (const item of tocItems.value) {
-    if (currentCollapsedLevel !== -1) {
-      if (item.level > currentCollapsedLevel) {
-        // 在被折叠的区域内，跳过
-        continue;
-      } else {
-        // 出了被折叠的区域
-        currentCollapsedLevel = -1;
-      }
-    }
-    
-    visible.push(item);
-    
-    // 如果这个标题被折叠，记录它的层级
-    if (collapsedHeadingIds.value.has(item.id)) {
-      currentCollapsedLevel = item.level;
-    }
-  }
-  return visible;
-});
-
-// 切换某个标题的折叠状态
-const toggleHeadingCollapse = (id: string) => {
-  const newSet = new Set(collapsedHeadingIds.value);
-  if (newSet.has(id)) {
-    newSet.delete(id);
-  } else {
-    newSet.add(id);
-  }
-  collapsedHeadingIds.value = newSet;
-};
-
-// 处理目录项点击事件
-const handleTocItemClick = (item: any) => {
-  scrollToHeading(item.id);
-  if (hasChildrenMap.value.get(item.id)) {
-    toggleHeadingCollapse(item.id);
-  }
-};
-
 // 监听 tocItems 变化，默认折叠所有有子标题的项
 watch(tocItems, (items) => {
   const newCollapsed = new Set<string>();
@@ -345,8 +305,16 @@ watch(tocItems, (items) => {
       newCollapsed.add(items[i].id);
     }
   }
-  collapsedHeadingIds.value = newCollapsed;
+  tocStore.collapsedHeadingIds = newCollapsed;
 }, { immediate: true });
+
+// 处理目录项点击事件
+const handleTocItemClick = (item: any) => {
+  scrollToHeading(item.id);
+  if (tocStore.hasChildrenMap.get(item.id)) {
+    tocStore.toggleHeadingCollapse(item.id);
+  }
+};
 
 const adjacentArticles = computed<ArticleNavItem[]>(() => {
   const items: ArticleNavItem[] = [];
@@ -548,16 +516,28 @@ const updateReadingProgress = () => {
   readingProgress.value = Math.min(100, Math.max(0, progress));
 };
 
+// rAF 节流：确保 scroll 回调最多每帧执行一次，避免掉帧
+let scrollRafId = 0
 const handleScroll = () => {
-  updateReadingProgress();
-  updateActiveHeading();
-};
+  if (scrollRafId) return
+  scrollRafId = requestAnimationFrame(() => {
+    scrollRafId = 0
+    updateReadingProgress()
+    updateActiveHeading()
+  })
+}
 
+// resize 防抖：窗口尺寸变化后 150ms 再执行计算
+let resizeTimer = 0
 const handleResize = () => {
-  void updateHeadingPositions();
-  void updateTocSidebarMetrics();
-  handleScroll();
-};
+  clearTimeout(resizeTimer)
+  resizeTimer = window.setTimeout(() => {
+    void updateHeadingPositions()
+    void updateTocSidebarMetrics()
+    updateReadingProgress()
+    updateActiveHeading()
+  }, 150)
+}
 
 const scrollToHeading = (id: string) => {
   const target = document.getElementById(id);
@@ -594,6 +574,37 @@ const loadArticlePage = async () => {
   }
 };
 
+// 处理代码块复制
+const handleCopyClick = async (e: MouseEvent) => {
+  const target = e.target as HTMLElement;
+  const btn = target.closest('.code-block-copy');
+  if (!btn) return;
+  
+  const wrapper = btn.closest('.code-block-wrapper');
+  if (!wrapper) return;
+  
+  const codeEl = wrapper.querySelector('code');
+  if (!codeEl) return;
+  
+  try {
+    await navigator.clipboard.writeText(codeEl.textContent || '');
+    const copyIcon = btn.querySelector('.copy-icon') as HTMLElement;
+    const successIcon = btn.querySelector('.success-icon') as HTMLElement;
+    if (copyIcon && successIcon) {
+      copyIcon.style.display = 'none';
+      successIcon.style.display = 'block';
+      setTimeout(() => {
+        copyIcon.style.display = 'block';
+        successIcon.style.display = 'none';
+      }, 2000);
+    }
+    ElMessage.success("代码已复制到剪贴板");
+  } catch (err) {
+    console.error("复制失败:", err);
+    ElMessage.error("复制失败，请手动选择复制");
+  }
+};
+
 onMounted(() => {
   loadArticlePage();
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -621,11 +632,24 @@ watch(tocItems, (items) => {
 // 同步当前激活标题到 toc store
 watch(activeHeadingId, (id) => {
   tocStore.setActiveHeadingId(id);
+  
+  if (id) {
+    nextTick(() => {
+      // 找到所有的 active 元素（可能有多个 toc 列表，如移动端和 PC 端）
+      const activeEls = document.querySelectorAll('.toc-list .is-active');
+      activeEls.forEach((el) => {
+        el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      });
+    });
+  }
 });
 
 onUnmounted(() => {
   window.removeEventListener("scroll", handleScroll);
   window.removeEventListener("resize", handleResize);
+  // 清理未执行的 rAF / timer
+  if (scrollRafId) cancelAnimationFrame(scrollRafId)
+  if (resizeTimer) clearTimeout(resizeTimer)
   tocStore.clear();
 });
 </script>

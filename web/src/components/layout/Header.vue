@@ -5,7 +5,7 @@
     <nav class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo - 左侧 -->
-        <div class="flex items-center min-w-[200px] space-x-2">
+        <div class="flex items-center shrink-0 space-x-2">
           <router-link
             to="/"
             class="flex justify-center items-center w-8 h-8 rounded-lg transition-opacity duration-300 hover:opacity-70"
@@ -162,32 +162,10 @@
           GitHub
         </a>
 
-        <!-- 移动端工具栏 -->
-        <div
-          class="grid grid-cols-2 gap-4 px-3 pt-4 mt-4 border-t border-slate-200/70 dark:border-slate-800/70"
-        >
+        <!-- 移动端工具栏 (仅保留搜索) -->
+        <div class="px-3 pt-4 mt-4 border-t border-slate-200/70 dark:border-slate-800/70">
           <button
-            class="flex gap-2 justify-center items-center p-3 bg-white/70 rounded-xl transition-all hover:bg-white active:scale-95 dark:bg-slate-900/60 dark:hover:bg-slate-800"
-            @click="appStore.toggleThemeMode"
-          >
-            <el-icon
-              :size="18"
-              :class="
-                appStore.isDarkMode
-                  ? 'text-yellow-400'
-                  : 'text-slate-700 dark:text-slate-300'
-              "
-            >
-              <Sunny v-if="!appStore.isDarkMode" />
-              <Moon v-else />
-            </el-icon>
-            <span class="text-sm font-medium text-slate-700 dark:text-slate-200">
-              {{ appStore.isDarkMode ? "浅色" : "深色" }}
-            </span>
-          </button>
-
-          <button
-            class="flex gap-2 justify-center items-center p-3 bg-white/70 rounded-xl transition-all hover:bg-white active:scale-95 dark:bg-slate-900/60 dark:hover:bg-slate-800"
+            class="flex gap-2 w-full justify-center items-center p-3 bg-white/70 rounded-xl transition-all hover:bg-white active:scale-95 dark:bg-slate-900/60 dark:hover:bg-slate-800"
             @click="
               handleSearch();
               mobileMenuOpen = false;
@@ -198,18 +176,6 @@
             </el-icon>
             <span class="text-sm font-medium text-slate-700 dark:text-slate-200">
               搜索
-            </span>
-          </button>
-
-          <button
-            class="col-span-2 flex gap-2 justify-center items-center p-3 bg-white/70 rounded-xl transition-all hover:bg-white active:scale-95 dark:bg-slate-900/60 dark:hover:bg-slate-800"
-            @click="appStore.toggleBackgroundMode"
-          >
-            <el-icon :size="18" class="text-slate-700 dark:text-slate-300">
-              <Brush />
-            </el-icon>
-            <span class="text-sm font-medium text-slate-700 dark:text-slate-200">
-              背景：{{ appStore.backgroundMode === "paper" ? "纸卡" : "图片" }}
             </span>
           </button>
         </div>
@@ -275,25 +241,31 @@
           输入关键词开始搜索
         </div>
 
-        <div v-else-if="filteredSearchResults.length" class="search-result-list">
-          <button
-            v-for="(item, index) in filteredSearchResults"
-            :key="item.article.id"
-            type="button"
-            class="search-result-item"
-            @click="openArticle(item.article.id)"
-          >
-            <span class="search-result-item__index">{{ index + 1 }}.</span>
-            <div class="search-result-item__content">
-              <h3 class="search-result-item__title" v-html="item.titleHtml"></h3>
-              <p class="search-result-item__summary" v-html="item.previewHtml"></p>
-              <div class="search-result-item__meta">
-                <span>{{ item.article.categoryName }}</span>
-                <span>{{ formatDate(item.article.publishedTime) }}</span>
-                <span>{{ item.article.views }} 阅读</span>
+        <div 
+          v-else-if="filteredSearchResults.length" 
+          class="search-result-list"
+          v-bind="containerProps"
+        >
+          <div v-bind="wrapperProps">
+            <button
+              v-for="{ data: item, index } in virtualList"
+              :key="item.article.id"
+              type="button"
+              class="search-result-item"
+              @click="openArticle(item.article.id)"
+            >
+              <span class="search-result-item__index">{{ index + 1 }}.</span>
+              <div class="search-result-item__content">
+                <h3 class="search-result-item__title" v-html="item.titleHtml"></h3>
+                <p class="search-result-item__summary" v-html="item.previewHtml"></p>
+                <div class="search-result-item__meta">
+                  <span>{{ item.article.categoryName }}</span>
+                  <span>{{ formatDate(item.article.publishedTime) }}</span>
+                  <span>{{ item.article.views }} 阅读</span>
+                </div>
               </div>
-            </div>
-          </button>
+            </button>
+          </div>
         </div>
 
         <el-empty
@@ -313,6 +285,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from "vue";
 import { useRouter } from "vue-router";
+import { useVirtualList } from "@vueuse/core";
 import { useAppStore } from "@/stores/app";
 import { useUserStore } from "@/stores/user";
 import { useSiteStore } from "@/stores/site";
@@ -498,6 +471,14 @@ const filteredSearchResults = computed<SearchResultItem[]>(() => {
       return `${b.article.publishedTime || ""}`.localeCompare(`${a.article.publishedTime || ""}`);
     });
 });
+
+const { list: virtualList, containerProps, wrapperProps } = useVirtualList(
+  filteredSearchResults,
+  {
+    itemHeight: 124, // 预估每个搜索结果卡片高度 + gap
+    overscan: 5,
+  }
+);
 
 const searchTotal = computed(() => filteredSearchResults.value.length);
 

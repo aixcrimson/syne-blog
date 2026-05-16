@@ -10,6 +10,7 @@ export const useAppStore = defineStore('app', () => {
   const themeMode = ref<'light' | 'dark'>('light')
   const backgroundMode = ref<'paper' | 'image'>('paper')
   const articleListLayout = ref<'grid' | 'list'>('grid')
+  const showSidebar = ref(false)
   const loading = ref(false)
 
   // 计算属性
@@ -75,6 +76,14 @@ export const useAppStore = defineStore('app', () => {
     localStorage.setItem('articleListLayout', articleListLayout.value)
   }
 
+  const toggleSidebar = () => {
+    showSidebar.value = !showSidebar.value
+  }
+
+  const closeSidebar = () => {
+    showSidebar.value = false
+  }
+
   // 设置主题模式
   const setThemeMode = (mode: 'light' | 'dark') => {
     themeMode.value = mode
@@ -136,6 +145,9 @@ export const useAppStore = defineStore('app', () => {
     setThemeMode,
     toggleBackgroundMode,
     toggleArticleListLayout,
-    setLoading
+    setLoading,
+    showSidebar,
+    toggleSidebar,
+    closeSidebar
   }
 })

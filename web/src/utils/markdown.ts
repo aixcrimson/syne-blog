@@ -1,8 +1,9 @@
 import MarkdownIt from 'markdown-it'
-import hljs from 'highlight.js'
+import { getHighlighter } from '@/utils/highlighter'
 import 'highlight.js/styles/github-dark.css'
 
-// 创建 Markdown 解析器实例
+const hljs = getHighlighter()
+
 // 创建 Markdown 解析器实例
 const md = new MarkdownIt({
   html: true,
@@ -11,18 +12,37 @@ const md = new MarkdownIt({
   breaks: true
 })
 
-md.set({
-  highlight: function (str, lang) {
-    if (lang && hljs.getLanguage(lang)) {
-      try {
-        return `<pre class="hljs"><code>${hljs.highlight(str, { language: lang, ignoreIllegals: true }).value}</code></pre>`
-      } catch (__) {
-        // ignore
-      }
+md.renderer.rules.fence = function (tokens, idx, options, env, self) {
+  const token = tokens[idx];
+  const lang = token.info ? token.info.trim() : '';
+  let highlightedStr = md.utils.escapeHtml(token.content);
+
+  if (lang && hljs.getLanguage(lang)) {
+    try {
+      highlightedStr = hljs.highlight(token.content, { language: lang, ignoreIllegals: true }).value;
+    } catch (__) {
+      // ignore
     }
-    return `<pre class="hljs"><code>${md.utils.escapeHtml(str)}</code></pre>`
   }
-})
+
+  return `<div class="code-block-wrapper">
+    <div class="code-block-header">
+      <div class="code-block-header-left">
+        <span class="code-block-lang">${lang || 'CODE'}</span>
+      </div>
+      <div class="code-block-copy" title="复制代码">
+        <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <svg class="success-icon" style="display: none; color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+    </div>
+    <pre class="hljs"><code>${highlightedStr}</code></pre>
+  </div>`;
+};
 
 /**
  * 渲染 Markdown 文本为 HTML

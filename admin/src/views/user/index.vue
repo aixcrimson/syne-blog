@@ -40,13 +40,13 @@
         <el-table-column label="用户名" min-width="150">
           <template #default="{ row }">
             <div class="flex items-center gap-2">
-              <el-avatar :size="isMobile ? 28 : 32" :src="row.avatar">
+              <el-avatar :size="isMobile ? 28 : 32" :src="row.avatar" class="shrink-0">
                 {{ row.username?.charAt(0)?.toUpperCase() }}
               </el-avatar>
-              <div class="flex flex-col">
-                 <span class="text-gray-800 font-medium">{{ row.username }}</span>
+              <div class="flex flex-col min-w-0">
+                 <span class="text-gray-800 font-medium truncate">{{ row.username }}</span>
                  <!-- 移动端在此显示邮箱 -->
-                 <span v-if="isMobile && row.email" class="text-xs text-gray-400">{{ row.email }}</span>
+                 <span v-if="isMobile && row.email" class="text-xs text-gray-400 truncate">{{ row.email }}</span>
               </div>
             </div>
           </template>

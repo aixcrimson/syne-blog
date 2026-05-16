@@ -65,7 +65,7 @@ mybatis-plus:
 # JWT 配置
 jwt:
   secret: your-secret-key-change-this-in-production-at-least-256-bits
-  expiration: 86400 # 24小时，单位秒
+  expiration: 604800 # 7天，单位秒
   header: Authorization
   prefix: Bearer
 

@@ -5,16 +5,19 @@ import com.syne.server.model.dto.LoginDTO;
 import com.syne.server.model.dto.RegisterDTO;
 import com.syne.server.model.vo.LoginVO;
 import com.syne.server.service.AuthService;
+import com.syne.server.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.syne.server.model.vo.UserInfoVO;
@@ -31,6 +34,7 @@ import com.syne.server.model.vo.UserInfoVO;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
     /**
      * 获取当前登录用户信息
@@ -73,5 +77,38 @@ public class AuthController {
         log.info("用户登录: {}", loginDTO.getUsername());
         LoginVO loginVO = authService.login(loginDTO);
         return Result.success("登录成功", loginVO);
+    }
+
+    /**
+     * 刷新Token
+     *
+     * @param token 旧的JWT Token
+     * @return 新的JWT Token
+     */
+    @Operation(summary = "刷新Token", description = "刷新即将过期的JWT Token")
+    @PostMapping("/refresh")
+    public Result<String> refreshToken(
+            @Parameter(description = "JWT Token", hidden = true)
+            @RequestHeader(value = "Authorization") String token
+    ) {
+        try {
+            if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+
+            if (jwtUtil.isTokenExpired(token)) {
+                return Result.error(401, "Token已过期且无法刷新");
+            }
+
+            String newToken = jwtUtil.refreshToken(token);
+            if (newToken == null) {
+                return Result.error(400, "Token刷新失败");
+            }
+
+            return Result.success("Token刷新成功", newToken);
+        } catch (Exception e) {
+            log.error("Token刷新失败", e);
+            return Result.error(400, "Token刷新失败");
+        }
     }
 }

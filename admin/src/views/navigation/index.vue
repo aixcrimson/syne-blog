@@ -8,13 +8,20 @@
 
     <!-- 操作区域 -->
     <div class="glass-card p-4 mb-4 md:mb-6 rounded-lg">
-      <div class="flex items-center justify-between">
-        <span class="text-gray-600">共 {{ categoryList.length }} 个分类，{{ totalSites }} 个站点</span>
-        <div class="flex gap-2">
-          <el-button type="success" :icon="Upload" @click="showBookmarkImport">
+      <div class="flex items-center justify-between" :class="isMobile ? 'flex-col gap-3 items-stretch' : ''">
+        <div class="flex items-center gap-3" :class="isMobile ? 'justify-center' : ''">
+          <el-tag type="info" effect="plain" round>
+            <el-icon class="mr-1"><Folder /></el-icon>{{ categoryList.length }} 个分类
+          </el-tag>
+          <el-tag type="success" effect="plain" round>
+            <el-icon class="mr-1"><Link /></el-icon>{{ totalSites }} 个站点
+          </el-tag>
+        </div>
+        <div class="flex gap-2" :class="isMobile ? 'w-full' : ''">
+          <el-button type="success" :icon="Upload" @click="showBookmarkImport" :class="isMobile ? 'flex-1' : ''">
             导入书签
           </el-button>
-          <el-button type="primary" :icon="Plus" @click="handleCreateCategory">
+          <el-button type="primary" :icon="Plus" @click="handleCreateCategory" :class="isMobile ? 'flex-1' : ''">
             新建分类
           </el-button>
         </div>
@@ -121,6 +128,7 @@
       :title="isCategoryEdit ? '编辑分类' : '新建分类'" 
       :width="isMobile ? '90%' : '500px'" 
       :close-on-click-modal="false"
+      :lock-scroll="false"
       append-to-body
       @closed="handleCategoryDialogClose"
     >
@@ -148,6 +156,7 @@
       :title="isSiteEdit ? '编辑站点' : '新建站点'" 
       :width="isMobile ? '90%' : '550px'" 
       :close-on-click-modal="false"
+      :lock-scroll="false"
       append-to-body
       @closed="handleSiteDialogClose"
     >
@@ -192,7 +201,7 @@
  */
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Plus, Edit, Delete, Rank, Link, Upload } from '@element-plus/icons-vue'
+import { Plus, Edit, Delete, Rank, Link, Upload, Folder } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
 import { navigationApi, type NavigationCategoryForm, type NavigationSiteForm } from '@/api/navigation'
 import type { NavigationCategory, NavigationSite, SortOrderItem } from '@/types'

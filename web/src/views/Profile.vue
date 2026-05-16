@@ -7,7 +7,7 @@
           class="h-32 bg-gradient-to-r from-slate-900 via-slate-700 to-blue-600"
         ></div>
 
-        <div class="px-8 pb-8">
+        <div class="px-5 sm:px-8 pb-5 sm:pb-8">
           <!-- 头像区域 -->
           <div class="flex relative justify-between items-end -mt-16 mb-6">
             <div class="relative group">

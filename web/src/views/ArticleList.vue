@@ -3,47 +3,27 @@
     <div class="max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,900px)_260px] xl:justify-center">
 
-        <!-- 移动端筛选按钮 -->
-        <div class="mb-4 xl:hidden">
-          <el-button
-            type="primary"
-            class="w-full"
-            @click="drawerVisible = true"
-          >
-            <el-icon class="mr-2"><Filter /></el-icon>
-            筛选与分类
-          </el-button>
-        </div>
 
-        <!-- 侧边栏抽屉 (移动端) -->
-
-        <el-drawer
-          v-model="drawerVisible"
-          title="筛选与分类"
-          direction="ltr"
-          size="80%"
-        >
-          <Sidebar
-            :selected-tag-ids="selectedTagIds"
-            @category-click="handleCategorySelect"
-            @tag-click="handleTagSelect"
-          />
-        </el-drawer>
 
         <!-- 主内容区 -->
         <div class="min-w-0 xl:w-full xl:max-w-[900px]">
 
-          <!-- 顶部打字机公告及布局切换 -->
-          <div class="mb-8 p-6 flex flex-col justify-center relative min-h-[120px] rounded-2xl bg-gradient-to-br from-primary-50/80 to-primary-100/30 dark:from-slate-800/80 dark:to-slate-800/40 border border-primary-100/50 dark:border-slate-700/50 shadow-sm backdrop-blur-sm">
-            <div class="text-xl text-slate-700 dark:text-slate-300 font-medium text-center tracking-wide" style="font-family: 'Georgia', 'Times New Roman', serif;">
-              <Typewriter
-                v-if="notices.length > 0"
-                :texts="noticeTexts"
-                :type-speed="150"
-                :delete-speed="80"
-                :pause-time="2000"
-              />
-              <span v-else class="animate-pulse">正在获取宇宙信号...</span>
+          <!-- 顶部公告栏 -->
+          <div class="mb-8 overflow-hidden rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-slate-200/50 dark:border-slate-700/50 shadow-sm backdrop-blur-md transition-all hover:shadow-md">
+            <div class="flex items-center p-4 sm:px-6">
+              <div class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-500 dark:text-primary-400 mr-4">
+                <el-icon :size="20"><Bell /></el-icon>
+              </div>
+              <div class="flex-1 min-w-0 text-base sm:text-lg text-slate-700 dark:text-slate-300 font-medium tracking-wide" style="font-family: 'Georgia', 'Times New Roman', serif;">
+                <Typewriter
+                  v-if="notices.length > 0"
+                  :texts="noticeTexts"
+                  :type-speed="150"
+                  :delete-speed="80"
+                  :pause-time="2000"
+                />
+                <span v-else class="animate-pulse">正在获取宇宙信号...</span>
+              </div>
             </div>
           </div>
 
@@ -78,8 +58,10 @@
           />
 
           <!-- 分页 -->
-          <div class="flex justify-center" v-if="totalPages > 1">
+          <div class="flex justify-center w-full overflow-hidden" v-if="totalPages > 1">
+            <!-- 桌面端分页 -->
             <el-pagination
+              class="hidden sm:flex"
               v-model:current-page="currentPage"
               v-model:page-size="pageSize"
               :total="totalArticles"
@@ -88,6 +70,16 @@
               @current-change="handlePageChange"
               @size-change="handleSizeChange"
             />
+            <!-- 移动端分页 -->
+            <el-pagination
+              class="flex sm:hidden"
+              v-model:current-page="currentPage"
+              :page-size="pageSize"
+              :total="totalArticles"
+              small
+              layout="prev, pager, next"
+              @current-change="handlePageChange"
+            />
           </div>
         </div>
 
@@ -95,6 +87,7 @@
         <Sidebar
           class="hidden xl:block xl:w-[260px]"
           :selected-tag-ids="selectedTagIds"
+          :selected-category-id="selectedCategory"
           @category-click="handleCategorySelect"
           @tag-click="handleTagSelect"
         />
@@ -105,9 +98,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, computed } from "vue";
-import { useRoute } from "vue-router";
-import { Filter } from "@element-plus/icons-vue";
+import { ref, shallowRef, watch, onMounted, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { Bell } from "@element-plus/icons-vue";
 import { useAppStore } from "@/stores/app";
 import ArticleCard from "@/components/ArticleCard.vue";
 import ArticleCardSkeleton from "@/components/ArticleCardSkeleton.vue";
@@ -118,9 +111,8 @@ import { siteApi } from "@/api/site";
 import type { Article, Notice } from "@/types";
 
 const route = useRoute();
+const router = useRouter();
 const appStore = useAppStore();
-
-const drawerVisible = ref(false);
 
 const currentPage = ref(1);
 const pageSize = ref(6);
@@ -129,7 +121,7 @@ const selectedCategory = ref<number | string>("");
 const selectedTagIds = ref<number[]>([]);
 const loading = ref(false);
 
-const articles = ref<Article[]>([]);
+const articles = shallowRef<Article[]>([]);
 const totalArticles = ref(0);
 
 // 公告 (打字机数据)
@@ -142,6 +134,20 @@ const getNotices = async () => {
   } catch (error) {
     console.error("获取公告失败:", error);
   }
+};
+
+/**
+ * 将当前筛选/分页状态同步到 URL query 参数（使用 replace 不产生新历史记录）
+ */
+const syncQueryToUrl = () => {
+  const query: Record<string, string> = {};
+  if (currentPage.value > 1) query.page = String(currentPage.value);
+  if (pageSize.value !== 6) query.pageSize = String(pageSize.value);
+  if (selectedCategory.value) query.category = String(selectedCategory.value);
+  if (selectedTagIds.value.length > 0) query.tag = selectedTagIds.value.join(',');
+  if (searchKeyword.value) query.keyword = searchKeyword.value;
+
+  router.replace({ path: '/articles', query });
 };
 
 // 获取文章列表
@@ -176,7 +182,7 @@ watch(totalArticles, () => {
 const handleCategorySelect = (id: number) => {
   selectedCategory.value = id;
   selectedTagIds.value = []; // 切换分类时重置标签
-  drawerVisible.value = false;
+  currentPage.value = 1;
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
@@ -188,40 +194,68 @@ const handleTagSelect = (id: number) => {
     selectedTagIds.value.push(id);
   }
   selectedCategory.value = ""; // 切换标签时重置分类
-  // drawerVisible.value = false; // 多选模式下不自动关闭抽屉，方便用户连续选择
+  currentPage.value = 1;
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
 const handlePageChange = (page: number) => {
   currentPage.value = page;
-  loadArticles();
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
 const handleSizeChange = (size: number) => {
   pageSize.value = size;
   currentPage.value = 1;
-  loadArticles();
 };
 
-// 监听过滤条件变化
-watch([searchKeyword, selectedCategory, selectedTagIds], () => {
-  currentPage.value = 1;
+// 监听过滤条件变化 → 加载数据 + 同步 URL
+watch([currentPage, pageSize, searchKeyword, selectedCategory, selectedTagIds], () => {
   loadArticles();
+  syncQueryToUrl();
 }, { deep: true });
 
+// 监听路由参数变化，实现通过全局抽屉点击分类/标签时更新列表
+watch(() => route.query, (newQuery) => {
+  if (route.path !== '/articles') return;
+
+  // 防止自身 syncQueryToUrl 触发的变化导致重复加载
+  const qPage = Number(newQuery.page) || 1;
+  const qPageSize = Number(newQuery.pageSize) || 6;
+  const qCategory = newQuery.category ? Number(newQuery.category) : "";
+  const qKeyword = (newQuery.keyword as string) || "";
+  const qTags = newQuery.tag
+    ? String(newQuery.tag).split(',').map(Number).filter(n => !isNaN(n))
+    : [];
+
+  // 仅在外部导航（如抽屉点击分类）时更新状态
+  if (
+    qPage !== currentPage.value ||
+    qPageSize !== pageSize.value ||
+    qCategory !== selectedCategory.value ||
+    qKeyword !== searchKeyword.value ||
+    JSON.stringify(qTags) !== JSON.stringify(selectedTagIds.value)
+  ) {
+    currentPage.value = qPage;
+    pageSize.value = qPageSize;
+    selectedCategory.value = qCategory;
+    searchKeyword.value = qKeyword;
+    selectedTagIds.value = qTags;
+  }
+}, { deep: true });
+
+/**
+ * 初始化：从 URL query 恢复状态
+ */
 onMounted(() => {
-  if (route.query.category) {
-    selectedCategory.value = route.query.category as string;
-  }
-  if (route.query.keyword) {
-    searchKeyword.value = route.query.keyword as string;
-  }
+  if (route.query.page) currentPage.value = Number(route.query.page) || 1;
+  if (route.query.pageSize) pageSize.value = Number(route.query.pageSize) || 6;
+  if (route.query.category) selectedCategory.value = Number(route.query.category);
+  if (route.query.keyword) searchKeyword.value = route.query.keyword as string;
   if (route.query.tag) {
-    const tags = String(route.query.tag).split(',').map(Number).filter(n => !isNaN(n));
-    selectedTagIds.value = tags;
+    selectedTagIds.value = String(route.query.tag).split(',').map(Number).filter(n => !isNaN(n));
   }
   loadArticles();
   getNotices();
 });
 </script>
+

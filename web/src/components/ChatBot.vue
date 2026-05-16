@@ -369,7 +369,9 @@ import { useUserStore } from '@/stores/user'
 import aiIconImg from '@/assets/images/ai-icon.png'
 import defaultAvatar from '@/assets/images/avatar/defalutAvatar.jpg'
 import MarkdownIt from 'markdown-it'
-import hljs from 'highlight.js'
+import { getHighlighter } from '@/utils/highlighter'
+
+const hljs = getHighlighter()
 
 const escapeHtml = (str: string): string => {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');

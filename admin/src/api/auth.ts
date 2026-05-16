@@ -35,7 +35,16 @@ export const authApi = {
    */
   getCurrentUser: (): Promise<UserInfo> => {
     return get<UserInfo>('/admin/auth/current')
+  },
+
+  /**
+   * 刷新 Token
+   * @returns 新的 Token 字符串
+   */
+  refreshToken: (): Promise<string> => {
+    return post<string>('/admin/auth/refresh')
   }
 }
 
 export default authApi
+

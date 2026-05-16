@@ -81,24 +81,26 @@
 
             <div class="w-full h-px bg-slate-200 dark:bg-slate-700" />
 
-            <!-- 布局模式切换 -->
-            <el-tooltip :content="appStore.articleListLayout === 'grid' ? '切换到列表视图' : '切换到网格视图'" placement="left" :show-after="300">
-              <button
-                class="flex items-center justify-center w-10 h-10 rounded-xl text-slate-600 transition-all duration-200 cursor-pointer hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700/50"
-                @click="appStore.toggleArticleListLayout"
-              >
-                <!-- 列表视图图标 -->
-                <el-icon v-if="appStore.articleListLayout === 'grid'" class="text-lg">
-                  <Menu />
-                </el-icon>
-                <!-- 网格视图图标 -->
-                <el-icon v-else class="text-lg">
-                  <Grid />
-                </el-icon>
-              </button>
-            </el-tooltip>
+            <!-- 布局模式切换 (仅桌面端显示) -->
+            <div class="hidden md:block w-full">
+              <el-tooltip :content="appStore.articleListLayout === 'grid' ? '切换到列表视图' : '切换到网格视图'" placement="left" :show-after="300">
+                <button
+                  class="flex items-center justify-center w-10 h-10 rounded-xl text-slate-600 transition-all duration-200 cursor-pointer hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700/50 w-full"
+                  @click="appStore.toggleArticleListLayout"
+                >
+                  <!-- 列表视图图标 -->
+                  <el-icon v-if="appStore.articleListLayout === 'grid'" class="text-lg">
+                    <Menu />
+                  </el-icon>
+                  <!-- 网格视图图标 -->
+                  <el-icon v-else class="text-lg">
+                    <Grid />
+                  </el-icon>
+                </button>
+              </el-tooltip>
+            </div>
 
-            <div class="w-full h-px bg-slate-200 dark:bg-slate-700" />
+            <div class="hidden md:block w-full h-px bg-slate-200 dark:bg-slate-700" />
 
             <!-- 主题颜色选择 -->
             <div class="relative">
@@ -175,7 +177,7 @@
         </div>
 
         <!-- 目录按钮 - 在主按钮下方，大屏幕隐藏 -->
-        <div v-if="tocStore.tocItems.length" class="relative xl:hidden">
+        <div v-if="tocStore.tocItems.length" class="relative xl:hidden mt-3">
           <!-- 目录弹出面板 - 在按钮左侧 -->
           <Transition
             enter-active-class="transition-all duration-200 ease-out"
@@ -193,22 +195,33 @@
                 <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">目录</span>
               </div>
               <nav class="p-2 max-h-64 overflow-y-auto">
-                <button
-                  v-for="item in tocStore.tocItems"
+                <div
+                  v-for="item in tocStore.visibleTocItems"
                   :key="item.id"
-                  type="button"
-                  class="w-full text-left text-sm py-1.5 px-2 rounded-lg transition-colors cursor-pointer truncate hover:bg-slate-100 dark:hover:bg-slate-700/50"
+                  class="w-full flex items-center text-left text-sm py-1.5 px-2 rounded-lg transition-colors cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/50"
                   :class="[
                     tocIndentClass(item.level),
                     tocStore.activeHeadingId === item.id
                       ? 'text-primary-600 bg-primary-50 dark:bg-primary-900/30'
                       : 'text-slate-600 dark:text-slate-400'
                   ]"
-                  :title="item.title"
-                  @click="scrollToHeading(item.id)"
+                  @click="scrollToHeading(item)"
                 >
-                  {{ item.title }}
-                </button>
+                  <!-- 折叠/展开图标 -->
+                  <el-icon
+                    v-if="tocStore.hasChildrenMap.get(item.id)"
+                    class="mr-1 flex-shrink-0 hover:text-primary-600"
+                    @click.stop="tocStore.toggleHeadingCollapse(item.id)"
+                  >
+                    <ArrowRight v-if="tocStore.collapsedHeadingIds.has(item.id)" />
+                    <ArrowDown v-else />
+                  </el-icon>
+                  <span v-else class="w-[14px] mr-1 inline-block flex-shrink-0"></span>
+
+                  <span class="flex-1 truncate" :title="item.title">
+                    {{ item.title }}
+                  </span>
+                </div>
               </nav>
             </div>
           </Transition>
@@ -223,6 +236,19 @@
             </svg>
           </button>
         </div>
+
+        <!-- 博客信息侧边栏按钮 - 大屏幕隐藏 (仅首页和文章列表展示) -->
+        <div v-if="showSidebarButton" class="relative xl:hidden mt-3">
+          <button
+            class="flex items-center justify-center w-12 h-12 rounded-xl border border-slate-200/70 bg-white/80 shadow-lg backdrop-blur-md transition-all duration-300 cursor-pointer hover:scale-105 hover:shadow-xl dark:border-slate-700/70 dark:bg-slate-800/80"
+            @click="appStore.toggleSidebar"
+            title="博客信息"
+          >
+            <svg class="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   </Teleport>
@@ -230,16 +256,22 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 import { useTocStore } from '@/stores/toc'
-import { Sunny, Moon, Check, Menu, Grid } from '@element-plus/icons-vue'
+import { Sunny, Moon, Check, Menu, Grid, User, ArrowDown, ArrowRight } from '@element-plus/icons-vue'
 import type { ThemeColor } from '@/types'
 
 const appStore = useAppStore()
 const tocStore = useTocStore()
+const route = useRoute()
 
 const isExpanded = ref(false)
 const showColorPicker = ref(false)
+
+const showSidebarButton = computed(() => {
+  return route.path === '/' || route.path === '/articles'
+})
 
 const themeColors = [
   { value: 'blue' as ThemeColor, label: '蓝色', class: 'bg-blue-500' },
@@ -271,6 +303,7 @@ const closeAll = () => {
   isExpanded.value = false
   showColorPicker.value = false
   tocStore.closeToc()
+  appStore.closeSidebar()
 }
 
 const scrollToTop = () => {
@@ -298,10 +331,12 @@ const tocIndentClass = (level: number) => {
   return ''
 }
 
-const scrollToHeading = (id: string) => {
-  const target = document.getElementById(id)
+const scrollToHeading = (item: any) => {
+  const target = document.getElementById(item.id)
   if (!target) return
   target.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  tocStore.closeToc()
+  if (tocStore.hasChildrenMap.get(item.id)) {
+    tocStore.toggleHeadingCollapse(item.id)
+  }
 }
 </script>

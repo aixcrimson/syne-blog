@@ -4,6 +4,7 @@
     title="导入Chrome书签"
     :width="isMobile ? '90%' : '800px'"
     :close-on-click-modal="false"
+    :lock-scroll="false"
     append-to-body
     @closed="handleClose"
   >

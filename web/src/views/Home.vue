@@ -2,10 +2,10 @@
   <div class="home">
     <!-- Hero Section -->
     <section
-      class="hero relative min-h-[calc(100vh-64px)] flex items-center justify-center"
+      class="hero relative flex items-center justify-center min-h-[calc(100vh-64px)] min-h-[calc(100svh-64px)]"
     >
       <div class="text-center px-4">
-        <h1 class="text-5xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-6xl lg:text-7xl" style="font-family: 'Georgia', 'Times New Roman', serif;">
+        <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-6xl lg:text-7xl" style="font-family: 'Georgia', 'Times New Roman', serif;">
           Syne's Blog
         </h1>
         <p class="mt-8 text-xl text-slate-600 dark:text-slate-300 md:text-2xl h-8">
@@ -81,7 +81,9 @@
           </div>
 
           <!-- 侧边栏 -->
-          <Sidebar class="hidden xl:block xl:w-[260px] xl:flex-none" />
+          <div class="hidden xl:block xl:w-[260px] xl:flex-none">
+            <Sidebar />
+          </div>
         </div>
       </div>
 
@@ -90,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, shallowRef, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import ArticleCard from "@/components/ArticleCard.vue";
 import ArticleCardSkeleton from "@/components/ArticleCardSkeleton.vue";
@@ -116,7 +118,7 @@ const scrollToContent = () => {
 };
 
 // 最新文章
-const latestArticles = ref<Article[]>([]);
+const latestArticles = shallowRef<Article[]>([]);
 const loading = ref(false);
 
 // 公告
@@ -152,4 +154,5 @@ onMounted(() => {
   getLatestArticles();
   getNotices();
 });
+
 </script>

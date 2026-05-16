@@ -82,6 +82,9 @@
   --el-fill-color: var(--color-bg-secondary);
   --el-fill-color-light: var(--color-bg-tertiary);
   --el-fill-color-blank: transparent;
+  --el-table-bg-color: var(--color-surface);
+  --el-table-tr-bg-color: var(--color-surface);
+  --el-table-header-bg-color: var(--color-bg-secondary);
   --el-table-row-hover-bg-color: var(--color-bg-secondary);
   --el-border-radius-base: var(--radius-sm);
   --el-border-radius-small: 6px;
@@ -383,3 +386,26 @@
     scrollbar-width: none;
   }
 }
+
+/* ========================================
+   修复 Element Plus 表格透明导致的固定列重叠问题
+======================================== */
+.el-table {
+  --el-table-bg-color: var(--color-surface) !important;
+  --el-table-tr-bg-color: var(--color-surface) !important;
+  --el-table-header-bg-color: var(--color-bg-secondary) !important;
+  background-color: var(--color-surface) !important;
+}
+
+.el-table th.el-table__cell, 
+.el-table th.el-table__cell.is-leaf {
+  background-color: var(--el-table-header-bg-color) !important;
+}
+
+.dark .el-table {
+  --el-table-bg-color: var(--color-bg-primary) !important;
+  --el-table-tr-bg-color: var(--color-bg-primary) !important;
+  --el-table-header-bg-color: var(--color-bg-secondary) !important;
+  background-color: var(--color-bg-primary) !important;
+}
+
