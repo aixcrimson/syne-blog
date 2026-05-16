@@ -575,6 +575,25 @@ onMounted(async () => {
   overflow: hidden;
 }
 
+/* 修复 Tailwind preflight 导致的 Markdown 预览中列表无样式的缺陷 */
+.md-editor-custom :deep(.md-editor-preview ul) {
+  list-style-type: disc;
+}
+
+.md-editor-custom :deep(.md-editor-preview ol) {
+  list-style-type: decimal;
+}
+
+.md-editor-custom :deep(.md-editor-preview li > ul) {
+  list-style-type: circle;
+}
+
+/* 保持任务列表不要显示圆点 */
+.md-editor-custom :deep(.md-editor-preview ol .task-list-item),
+.md-editor-custom :deep(.md-editor-preview ul .task-list-item) {
+  list-style-type: none;
+}
+
 /* 毛玻璃卡片效果 */
 .glass-card {
   background: var(--color-surface);
