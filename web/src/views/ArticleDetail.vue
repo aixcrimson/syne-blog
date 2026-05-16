@@ -84,7 +84,7 @@
             </div>
 
             <!-- 文章内容 -->
-            <div class="p-5 sm:p-8 article-content">
+            <div class="p-5 sm:p-8 article-content" @click="handleCopyClick">
               <div ref="contentRef" class="markdown-content" v-html="renderedContent"></div>
             </div>
 
@@ -571,6 +571,37 @@ const loadArticlePage = async () => {
   if (article.value) {
     // 文章加载成功后再增加浏览量，确保 article.value 存在，且体验更好
     handleIncreaseViews();
+  }
+};
+
+// 处理代码块复制
+const handleCopyClick = async (e: MouseEvent) => {
+  const target = e.target as HTMLElement;
+  const btn = target.closest('.code-block-copy');
+  if (!btn) return;
+  
+  const wrapper = btn.closest('.code-block-wrapper');
+  if (!wrapper) return;
+  
+  const codeEl = wrapper.querySelector('code');
+  if (!codeEl) return;
+  
+  try {
+    await navigator.clipboard.writeText(codeEl.textContent || '');
+    const copyIcon = btn.querySelector('.copy-icon') as HTMLElement;
+    const successIcon = btn.querySelector('.success-icon') as HTMLElement;
+    if (copyIcon && successIcon) {
+      copyIcon.style.display = 'none';
+      successIcon.style.display = 'block';
+      setTimeout(() => {
+        copyIcon.style.display = 'block';
+        successIcon.style.display = 'none';
+      }, 2000);
+    }
+    ElMessage.success("代码已复制到剪贴板");
+  } catch (err) {
+    console.error("复制失败:", err);
+    ElMessage.error("复制失败，请手动选择复制");
   }
 };
 

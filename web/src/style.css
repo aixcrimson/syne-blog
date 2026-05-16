@@ -344,43 +344,84 @@
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
-.markdown-content pre,
-.markdown-content pre.hljs {
+.markdown-content .code-block-wrapper {
   position: relative;
-  color: #e5e7eb;
-  background:
-    linear-gradient(180deg, rgba(51, 65, 85, 0.96) 0, rgba(51, 65, 85, 0.96) 44px, rgba(15, 23, 42, 0.98) 44px, rgba(15, 23, 42, 0.98) 100%);
-  padding: 3.25rem 1rem 1rem;
   border-radius: 1rem;
-  overflow-x: auto;
   margin-bottom: 1rem;
+  background: rgba(15, 23, 42, 0.98);
   border: 1px solid rgba(148, 163, 184, 0.28);
   box-shadow: 0 18px 40px -24px rgba(15, 23, 42, 0.75);
+  overflow: hidden;
 }
 
-.markdown-content pre::before,
-.markdown-content pre.hljs::before {
+.markdown-content .code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  height: 44px;
+  background: rgba(51, 65, 85, 0.96);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  position: relative;
+  user-select: none;
+}
+
+.markdown-content .code-block-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.markdown-content .code-block-header-left::before {
   content: "";
-  position: absolute;
-  top: 16px;
-  left: 18px;
+  display: inline-block;
   width: 12px;
   height: 12px;
   border-radius: 9999px;
   background: #ff5f57;
   box-shadow: 20px 0 0 #febc2e, 40px 0 0 #28c840;
-  z-index: 2;
+  margin-right: 52px;
 }
 
-.markdown-content pre::after,
-.markdown-content pre.hljs::after {
-  content: "";
-  position: absolute;
-  top: 44px;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: rgba(148, 163, 184, 0.18);
+.markdown-content .code-block-lang {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+
+.markdown-content .code-block-copy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.markdown-content .code-block-copy:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.markdown-content .code-block-copy svg {
+  width: 16px;
+  height: 16px;
+}
+
+.markdown-content pre,
+.markdown-content pre.hljs {
+  position: relative;
+  color: #e5e7eb;
+  padding: 1rem;
+  margin: 0;
+  overflow-x: auto;
+  border-radius: 0 0 1rem 1rem;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .markdown-content pre code,
@@ -394,6 +435,22 @@
   color: inherit;
 }
 
+/* 自定义代码块滚动条 */
+.markdown-content pre::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.markdown-content pre::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 0 0 1rem 1rem;
+}
+.markdown-content pre::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+.markdown-content pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
 
 .markdown-content blockquote {
   border-left: 4px solid var(--color-primary-500);
@@ -451,9 +508,19 @@
 }
 
 /* 暗色模式下的 Markdown 样式调整 */
-.dark .markdown-content pre {
+.dark .markdown-content .code-block-wrapper {
   background-color: #1f2937;
   border: 1px solid var(--color-border-primary);
+}
+
+.dark .markdown-content .code-block-header {
+  background-color: rgba(31, 41, 55, 0.96);
+  border-bottom-color: var(--color-border-primary);
+}
+
+.dark .markdown-content pre {
+  background-color: transparent;
+  border: none;
 }
 
 .dark .markdown-content code {
