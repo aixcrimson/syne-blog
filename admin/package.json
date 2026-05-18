@@ -16,6 +16,7 @@
     "axios": "^1.13.1",
     "dayjs": "^1.11.18",
     "element-plus": "^2.11.5",
+    "markdown-it-link-attributes": "^4.0.1",
     "md-editor-v3": "^6.2.0",
     "pinia": "^2.3.1",
     "vue": "^3.5.22",
@@ -23,6 +24,7 @@
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
+    "@types/markdown-it-link-attributes": "^3.0.5",
     "@types/node": "^20.19.24",
     "@vitejs/plugin-vue": "^5.2.4",
     "@vue/test-utils": "^2.4.6",

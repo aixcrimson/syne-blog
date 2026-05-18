@@ -163,8 +163,9 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { ArrowLeft } from '@element-plus/icons-vue'
-import { MdEditor } from 'md-editor-v3'
+import { MdEditor, config } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
+import LinkAttr from 'markdown-it-link-attributes'
 import AiWritingPanel from '@/components/AiWritingPanel.vue'
 import ImageUpload from '@/components/ImageUpload.vue'
 import { articleApi } from '@/api/article'
@@ -174,6 +175,28 @@ import { tagApi } from '@/api/tag'
 import type { ArticleForm, Category, Tag } from '@/types'
 import { ArticleStatus } from '@/types'
 import { useResponsive } from '@/utils/useResponsive'
+
+// 配置 MdEditor 链接在新标签页打开
+config({
+  markdownItPlugins(plugins) {
+    return [
+      ...plugins,
+      {
+        type: 'linkAttr',
+        plugin: LinkAttr,
+        options: {
+          matcher(href: string) {
+            return !href.startsWith('#')
+          },
+          attrs: {
+            target: '_blank',
+            rel: 'noopener noreferrer'
+          }
+        }
+      }
+    ]
+  }
+})
 
 // 响应式状态
 const { isMobile } = useResponsive()
