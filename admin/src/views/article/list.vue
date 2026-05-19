@@ -176,12 +176,13 @@
         </el-table-column>
         
         <!-- 操作列 -->
-        <el-table-column label="操作" :width="isMobile ? 120 : 220" fixed="right" align="center">
+        <el-table-column label="操作" :width="isMobile ? 160 : 280" fixed="right" align="center">
           <template #default="{ row }">
             <div class="flex items-center gap-1 justify-center">
               <!-- 移动端只显示编辑和更多 -->
               <template v-if="isMobile">
                 <el-button type="primary" :icon="Edit" size="small" circle @click="handleEdit(row)" />
+                <el-button type="success" :icon="View" size="small" circle @click="handlePreview(row)" />
                 <el-dropdown trigger="click">
                   <el-button type="info" :icon="More" size="small" circle />
                   <template #dropdown>
@@ -211,6 +212,17 @@
                   />
                 </el-tooltip>
 
+                
+                <!-- 预览按钮 -->
+                <el-tooltip content="预览">
+                  <el-button
+                    type="success"
+                    :icon="View"
+                    size="small"
+                    circle
+                    @click="handlePreview(row)"
+                  />
+                </el-tooltip>
                 
                 <!-- 编辑按钮 -->
                 <el-tooltip content="编辑">
@@ -273,7 +285,8 @@ import {
   Top,
   Star,
   StarFilled,
-  More
+  More,
+  View
 } from '@element-plus/icons-vue'
 import { articleApi } from '@/api/article'
 import { categoryApi } from '@/api/category'
@@ -281,6 +294,18 @@ import type { Article, ArticleListParams, Category } from '@/types'
 import { ArticleStatus } from '@/types'
 import dayjs from 'dayjs'
 import { useResponsive } from '@/utils/useResponsive'
+
+/**
+ * 前台网站地址
+ */
+const WEB_URL = import.meta.env.VITE_WEB_URL || 'http://localhost:3000'
+
+/**
+ * 跳转到前台文章预览页面
+ */
+const handlePreview = (article: Article) => {
+  window.open(`${WEB_URL}/article/${article.id}`, '_blank')
+}
 
 // 响应式状态
 const { isMobile } = useResponsive()

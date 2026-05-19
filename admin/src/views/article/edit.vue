@@ -14,6 +14,9 @@
           :selected-text="selectedText"
           @apply="handleAiApply"
         />
+        <el-button type="success" :icon="View" @click="handlePreview" :disabled="!isEdit" size="default">
+          预览
+        </el-button>
         <el-button @click="handleSaveDraft" :loading="saving" size="default" class="!ml-0">
           保存草稿
         </el-button>
@@ -162,9 +165,10 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { ArrowLeft } from '@element-plus/icons-vue'
-import { MdEditor } from 'md-editor-v3'
+import { ArrowLeft, View } from '@element-plus/icons-vue'
+import { MdEditor, config } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
+import LinkAttr from 'markdown-it-link-attributes'
 import AiWritingPanel from '@/components/AiWritingPanel.vue'
 import ImageUpload from '@/components/ImageUpload.vue'
 import { articleApi } from '@/api/article'
@@ -174,6 +178,44 @@ import { tagApi } from '@/api/tag'
 import type { ArticleForm, Category, Tag } from '@/types'
 import { ArticleStatus } from '@/types'
 import { useResponsive } from '@/utils/useResponsive'
+
+// 配置 MdEditor 链接在新标签页打开
+config({
+  markdownItPlugins(plugins) {
+    return [
+      ...plugins,
+      {
+        type: 'linkAttr',
+        plugin: LinkAttr,
+        options: {
+          matcher(href: string) {
+            return !href.startsWith('#')
+          },
+          attrs: {
+            target: '_blank',
+            rel: 'noopener noreferrer'
+          }
+        }
+      }
+    ]
+  }
+})
+
+/**
+ * 前台网站地址
+ */
+const WEB_URL = import.meta.env.VITE_WEB_URL || 'http://localhost:3000'
+
+/**
+ * 跳转到前台文章预览页面
+ */
+const handlePreview = () => {
+  if (isEdit.value && articleId.value) {
+    window.open(`${WEB_URL}/article/${articleId.value}`, '_blank')
+  } else {
+    ElMessage.warning('请先保存文章后再预览')
+  }
+}
 
 // 响应式状态
 const { isMobile } = useResponsive()

@@ -1,6 +1,7 @@
 import MarkdownIt from 'markdown-it'
 import { getHighlighter } from '@/utils/highlighter'
 import 'highlight.js/styles/github-dark.css'
+import mila from 'markdown-it-link-attributes'
 
 const hljs = getHighlighter()
 
@@ -10,6 +11,15 @@ const md = new MarkdownIt({
   linkify: true,
   typographer: true,
   breaks: true
+})
+
+// 配置链接在新标签页打开
+md.use(mila, {
+  matcher: (href: string) => !href.startsWith('#'),
+  attrs: {
+    target: '_blank',
+    rel: 'noopener noreferrer'
+  }
 })
 
 md.renderer.rules.fence = function (tokens, idx, options, env, self) {
