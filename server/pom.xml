@@ -68,7 +68,7 @@
             <version>${mybatis-plus.version}</version>
         </dependency>
 
-        <!-- PostgreSQL 驱动 (需要 42.6.0+ 版本以支持 Neon SCRAM 认证) -->
+        <!-- PostgreSQL 驱动 -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>

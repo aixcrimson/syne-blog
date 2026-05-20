@@ -160,3 +160,8 @@ admin/lerna-debug.log*
 *.md
 !README.md
 /.spec-workflow/user-templates/README.md
+
+# ============================================
+# SSL 证书（不应提交到版本控制）
+# ============================================
+nginx/ssl/
