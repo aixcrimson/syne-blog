@@ -297,16 +297,7 @@ const tocItems = computed(() =>
   markdownResult.value.toc.filter((item) => item.level >= 1 && item.level <= 4)
 );
 
-// 监听 tocItems 变化，默认折叠所有有子标题的项
-watch(tocItems, (items) => {
-  const newCollapsed = new Set<string>();
-  for (let i = 0; i < items.length; i++) {
-    if (i < items.length - 1 && items[i + 1].level > items[i].level) {
-      newCollapsed.add(items[i].id);
-    }
-  }
-  tocStore.collapsedHeadingIds = newCollapsed;
-}, { immediate: true });
+
 
 // 处理目录项点击事件
 const handleTocItemClick = (item: any) => {
