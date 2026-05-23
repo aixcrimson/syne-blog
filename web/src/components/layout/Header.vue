@@ -205,6 +205,7 @@
     class="search-dialog"
     top="10vh"
     destroy-on-close
+    @opened="focusSearchInput"
   >
     <div class="search-panel">
       <el-input
@@ -513,10 +514,13 @@ const openArticle = (id: number) => {
   router.push(`/article/${id}`);
 };
 
+const focusSearchInput = () => {
+  searchInputRef.value?.focus?.();
+};
+
 watch(searchVisible, async (visible) => {
   if (visible) {
     await nextTick();
-    searchInputRef.value?.focus?.();
     void ensureSearchArticlesLoaded();
     return;
   }
@@ -600,13 +604,10 @@ const handleLogout = () => {
 }
 
 .search-panel__body {
-  max-height: min(64vh, 640px);
-  overflow-y: auto;
   padding: 2px 6px 0 0;
 }
 
 .search-panel__body--compact {
-  max-height: none;
   overflow: hidden;
 }
 
@@ -641,6 +642,8 @@ const handleLogout = () => {
   flex-direction: column;
   gap: 10px;
   padding-top: 2px;
+  max-height: min(64vh, 640px);
+  overflow-y: auto;
 }
 
 .search-result-item {
@@ -759,11 +762,11 @@ const handleLogout = () => {
 
 @media (max-width: 768px) {
   .search-panel__body {
-    max-height: 52vh;
     padding-right: 2px;
   }
 
   .search-result-list {
+    max-height: 52vh;
     gap: 8px;
   }
 
