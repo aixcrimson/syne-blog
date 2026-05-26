@@ -9,6 +9,8 @@
     <ChatBot />
     <!-- 全局浮动工具栏 -->
     <FloatingToolbar />
+    <!-- 全局音乐播放器 -->
+    <MusicPlayer />
   </div>
 </template>
 
@@ -19,6 +21,7 @@ import { useSiteStore } from "@/stores/site";
 import { useUserStore } from "@/stores/user";
 import ChatBot from "@/components/ChatBot.vue";
 import FloatingToolbar from "@/components/FloatingToolbar.vue";
+import MusicPlayer from "@/components/MusicPlayer.vue";
 
 const appStore = useAppStore();
 const siteStore = useSiteStore();
