@@ -12,9 +12,9 @@
           <Typewriter
             v-if="notices.length > 0"
             :texts="noticeTexts"
-            :type-speed="200"
-            :delete-speed="100"
-            :pause-time="1500"
+            :type-speed="100"
+            :delete-speed="50"
+            :pause-time="2000"
           />
         </p>
       </div>

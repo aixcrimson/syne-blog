@@ -18,8 +18,8 @@
                 <Typewriter
                   v-if="notices.length > 0"
                   :texts="noticeTexts"
-                  :type-speed="150"
-                  :delete-speed="80"
+                  :type-speed="100"
+                  :delete-speed="50"
                   :pause-time="2000"
                 />
                 <span v-else class="animate-pulse">正在获取宇宙信号...</span>
