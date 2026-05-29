@@ -142,3 +142,18 @@ export function formatDuration(startDate: string, endDate?: string): string {
   return parts.length > 0 ? parts.join('') : '刚刚'
 }
 
+/**
+ * 按标点符号对句子进行拆分（不显示标点符号）
+ * @param text 输入文本
+ * @returns 拆分后的子句数组
+ */
+export function splitByPunctuation(text: string): string[] {
+  if (!text) return []
+  return text
+    .split(/[，。！？；\n,.;!?]+[”"’'）\)]*/)
+    .map(s => s.trim())
+    .filter(Boolean)
+}
+
+
+

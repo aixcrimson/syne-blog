@@ -12,9 +12,9 @@
           <Typewriter
             v-if="notices.length > 0"
             :texts="noticeTexts"
-            :type-speed="200"
-            :delete-speed="100"
-            :pause-time="1500"
+            :type-speed="100"
+            :delete-speed="50"
+            :pause-time="2000"
           />
         </p>
       </div>
@@ -102,6 +102,8 @@ import type { Article, Notice } from "@/types";
 import { articleApi } from "@/api/article";
 import { siteApi } from "@/api/site";
 import { ArrowDown } from "@element-plus/icons-vue";
+import { splitByPunctuation } from "@/utils/format";
+
 
 const router = useRouter();
 
@@ -124,7 +126,7 @@ const loading = ref(false);
 // 公告
 const notices = ref<Notice[]>([]);
 const noticeTexts = computed(() =>
-  notices.value.map((n) => n.content)
+  notices.value.flatMap((n) => splitByPunctuation(n.content))
 );
 
 const getLatestArticles = async () => {

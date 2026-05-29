@@ -51,6 +51,9 @@ const REFRESH_THRESHOLD_SECONDS = 86400
 /** 是否正在刷新 Token（防止并发刷新） */
 let isRefreshing = false
 
+/** 挂起的请求队列 */
+let requests: ((token: string | null) => void)[] = []
+
 /**
  * 请求拦截器
  * 在请求发送前进行统一处理
@@ -68,11 +71,15 @@ request.interceptors.request.use(
 
       // 检查 Token 是否快过期，如果是则静默刷新
       // 跳过 refresh 接口自身，避免死循环
-      if (!isRefreshing && !config.url?.includes('/auth/refresh')) {
-        const exp = getTokenExpiration(token)
-        if (exp) {
-          const remainingSeconds = exp - Math.floor(Date.now() / 1000)
-          if (remainingSeconds > 0 && remainingSeconds < REFRESH_THRESHOLD_SECONDS) {
+      if (config.url?.includes('/auth/refresh')) {
+        return config
+      }
+
+      const exp = getTokenExpiration(token)
+      if (exp) {
+        const remainingSeconds = exp - Math.floor(Date.now() / 1000)
+        if (remainingSeconds > 0 && remainingSeconds < REFRESH_THRESHOLD_SECONDS) {
+          if (!isRefreshing) {
             isRefreshing = true
             try {
               const { authApi } = await import('./auth')
@@ -81,12 +88,27 @@ request.interceptors.request.use(
                 localStorage.setItem('token', newToken)
                 config.headers.Authorization = `Bearer ${newToken}`
                 console.log('🔄 Token 已静默刷新')
+                // 执行队列里的回调
+                requests.forEach((cb) => cb(newToken))
+                requests = []
               }
             } catch (err) {
               console.warn('⚠️ Token 静默刷新失败，继续使用当前 Token:', err)
+              requests.forEach((cb) => cb(null))
+              requests = []
             } finally {
               isRefreshing = false
             }
+          } else {
+            // 正在刷新，将此请求挂起，放入队列
+            return new Promise((resolve) => {
+              requests.push((newToken: string | null) => {
+                if (newToken) {
+                  config.headers.Authorization = `Bearer ${newToken}`
+                }
+                resolve(config)
+              })
+            })
           }
         }
       }
@@ -126,6 +148,16 @@ request.interceptors.response.use(
       }
       
       // 业务错误
+      if (code === 401) {
+        ElMessage.error(message || '登录已过期，请重新登录')
+        localStorage.removeItem('token')
+        import('@/stores/user').then(({ useUserStore }) => {
+          useUserStore().logout()
+          window.location.reload()
+        })
+        return Promise.reject(new Error(message || '请求失败'))
+      }
+
       ElMessage.error(message || '请求失败')
       return Promise.reject(new Error(message || '请求失败'))
     }
@@ -152,11 +184,13 @@ request.interceptors.response.use(
           ElMessage.error(backendMsg || '请求参数有误，请检查后重试')
           break
         case 401:
-          ElMessage.error(backendMsg || '登录已过期，请重新登录')
-          localStorage.removeItem('token')
-          break
         case 403:
-          ElMessage.error(backendMsg || '没有权限执行此操作')
+          ElMessage.error(backendMsg || (status === 401 ? '登录已过期，请重新登录' : '没有权限执行此操作，请重新登录'))
+          localStorage.removeItem('token')
+          import('@/stores/user').then(({ useUserStore }) => {
+            useUserStore().logout()
+            window.location.reload()
+          })
           break
         case 404:
           ElMessage.error(backendMsg || '请求的资源不存在')

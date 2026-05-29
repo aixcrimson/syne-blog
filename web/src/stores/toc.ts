@@ -31,7 +31,19 @@ export const useTocStore = defineStore('toc', () => {
   }
 
   const expandToHeading = (id: string) => {
-    if (!id) return
+    if (!id) {
+      // 如果没有激活的标题，默认折叠所有有子标题的项
+      const newCollapsed = new Set<string>()
+      for (let i = 0; i < tocItems.value.length; i++) {
+        const item = tocItems.value[i]
+        const hasChild = i < tocItems.value.length - 1 && tocItems.value[i + 1].level > item.level
+        if (hasChild) {
+          newCollapsed.add(item.id)
+        }
+      }
+      collapsedHeadingIds.value = newCollapsed
+      return
+    }
     
     const stack: {id: string, level: number}[] = []
     let parents: string[] = []
@@ -43,25 +55,28 @@ export const useTocStore = defineStore('toc', () => {
       stack.push({ id: item.id, level: item.level })
       
       if (item.id === id) {
-        stack.pop() // remove the item itself
+        stack.pop() // 移除自身，剩下的是父级
         parents = stack.map(s => s.id)
         break
       }
     }
     
-    if (parents.length > 0) {
-      let changed = false
-      const newSet = new Set(collapsedHeadingIds.value)
-      for (const parentId of parents) {
-        if (newSet.has(parentId)) {
-          newSet.delete(parentId)
-          changed = true
+    // 当前激活项和其所有父级都应该展开（即不属于折叠集合）
+    // 其他所有拥有子项的标题，如果不在当前展开列表中，则自动折叠
+    const expandedIds = new Set<string>([id, ...parents])
+    const newCollapsed = new Set<string>()
+    
+    for (let i = 0; i < tocItems.value.length; i++) {
+      const item = tocItems.value[i]
+      const hasChild = i < tocItems.value.length - 1 && tocItems.value[i + 1].level > item.level
+      if (hasChild) {
+        if (!expandedIds.has(item.id)) {
+          newCollapsed.add(item.id)
         }
       }
-      if (changed) {
-        collapsedHeadingIds.value = newSet
-      }
     }
+    
+    collapsedHeadingIds.value = newCollapsed
   }
 
   const toggleToc = () => {

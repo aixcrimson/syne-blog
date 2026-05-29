@@ -18,8 +18,8 @@
                 <Typewriter
                   v-if="notices.length > 0"
                   :texts="noticeTexts"
-                  :type-speed="150"
-                  :delete-speed="80"
+                  :type-speed="100"
+                  :delete-speed="50"
                   :pause-time="2000"
                 />
                 <span v-else class="animate-pulse">正在获取宇宙信号...</span>
@@ -109,6 +109,8 @@ import Typewriter from "@/components/Typewriter.vue";
 import { articleApi } from "@/api/article";
 import { siteApi } from "@/api/site";
 import type { Article, Notice } from "@/types";
+import { splitByPunctuation } from "@/utils/format";
+
 
 const route = useRoute();
 const router = useRouter();
@@ -126,7 +128,7 @@ const totalArticles = ref(0);
 
 // 公告 (打字机数据)
 const notices = ref<Notice[]>([]);
-const noticeTexts = computed(() => notices.value.map((n) => n.content));
+const noticeTexts = computed(() => notices.value.flatMap((n) => splitByPunctuation(n.content)));
 
 const getNotices = async () => {
   try {
