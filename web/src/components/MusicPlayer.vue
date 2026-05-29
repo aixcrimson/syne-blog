@@ -116,30 +116,6 @@
             </div>
           </div>
 
-          <!-- 播放列表抽屉 -->
-          <div
-            v-show="showPlaylist"
-            class="max-h-48 overflow-y-auto border-b border-slate-200/30 dark:border-slate-800/30 bg-slate-50/50 dark:bg-slate-950/30"
-          >
-            <div
-              v-for="(song, index) in musicStore.songs"
-              :key="song.id"
-              class="flex items-center justify-between px-4 py-2 text-xs cursor-pointer transition-colors hover:bg-slate-100/60 dark:hover:bg-slate-800/60"
-              :class="musicStore.currentIndex === index ? 'text-primary-600 dark:text-primary-400 font-semibold bg-primary-50/30 dark:bg-primary-950/10' : 'text-slate-600 dark:text-slate-350'"
-              @click="musicStore.selectSong(index)"
-            >
-              <div class="flex items-center gap-2 truncate pr-4">
-                <span>{{ String(index + 1).padStart(2, '0') }}</span>
-                <span class="truncate">{{ song.title }}</span>
-                <span class="text-[10px] text-slate-400 truncate">- {{ song.artist }}</span>
-              </div>
-              <div v-if="musicStore.currentIndex === index && musicStore.isPlaying" class="flex gap-[2px] items-end h-3">
-                <div class="w-[2px] h-3 bg-primary-500 rounded-full animate-bar-1"></div>
-                <div class="w-[2px] h-2 bg-primary-500 rounded-full animate-bar-2"></div>
-                <div class="w-[2px] h-3 bg-primary-500 rounded-full animate-bar-3"></div>
-              </div>
-            </div>
-          </div>
 
           <!-- 主内容区 -->
           <div class="p-4 flex flex-col gap-4">
@@ -284,6 +260,59 @@
             </div>
           </div>
         </div>
+
+        <!-- 播放列表面板 -->
+        <Transition
+          enter-active-class="transition-all duration-300 ease-out"
+          enter-from-class="opacity-0 scale-95 translate-x-4"
+          enter-to-class="opacity-100 scale-100 translate-x-0"
+          leave-active-class="transition-all duration-200 ease-in"
+          leave-from-class="opacity-100 scale-100 translate-x-0"
+          leave-to-class="opacity-0 scale-95 translate-x-4"
+        >
+          <div
+            v-if="showPlaylist"
+            class="w-80 h-[26rem] rounded-2xl border border-slate-200/50 bg-white/75 shadow-2xl backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/75 overflow-hidden flex flex-col"
+          >
+            <!-- 播放列表头部 -->
+            <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200/30 dark:border-slate-800/30 flex-shrink-0">
+              <span class="text-xs font-bold text-slate-500 tracking-wider dark:text-slate-400">播放列表 PLAYLIST</span>
+              <button
+                class="p-1 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+                @click="showPlaylist = false"
+                title="关闭播放列表"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- 播放列表内容滚动区 -->
+            <div class="flex-1 overflow-y-auto py-2 scrollbar-none">
+              <div
+                v-for="(song, index) in musicStore.songs"
+                :key="song.id"
+                class="flex items-center justify-between px-4 py-3 text-xs cursor-pointer transition-colors hover:bg-slate-100/60 dark:hover:bg-slate-800/60"
+                :class="musicStore.currentIndex === index ? 'text-primary-600 dark:text-primary-400 font-semibold bg-primary-50/30 dark:bg-primary-950/10' : 'text-slate-650 dark:text-slate-300'"
+                @click="musicStore.selectSong(index)"
+              >
+                <div class="flex items-center gap-3 truncate pr-4">
+                  <span class="font-mono text-slate-400 text-[10px]">{{ String(index + 1).padStart(2, '0') }}</span>
+                  <div class="flex flex-col truncate gap-0.5">
+                    <span class="truncate text-[13px] font-medium" :class="musicStore.currentIndex === index ? 'text-primary-600 dark:text-primary-400' : 'text-slate-700 dark:text-slate-200'">{{ song.title }}</span>
+                    <span class="text-[10px] text-slate-400 truncate">{{ song.artist }}</span>
+                  </div>
+                </div>
+                <div v-if="musicStore.currentIndex === index && musicStore.isPlaying" class="flex gap-[2px] items-end h-3 flex-shrink-0">
+                  <div class="w-[2px] h-3 bg-primary-500 rounded-full animate-bar-1"></div>
+                  <div class="w-[2px] h-2 bg-primary-500 rounded-full animate-bar-2"></div>
+                  <div class="w-[2px] h-3 bg-primary-500 rounded-full animate-bar-3"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Transition>
 
           <!-- 歌词面板 -->
           <Transition
