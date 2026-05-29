@@ -109,6 +109,8 @@ import Typewriter from "@/components/Typewriter.vue";
 import { articleApi } from "@/api/article";
 import { siteApi } from "@/api/site";
 import type { Article, Notice } from "@/types";
+import { splitByPunctuation } from "@/utils/format";
+
 
 const route = useRoute();
 const router = useRouter();
@@ -126,7 +128,7 @@ const totalArticles = ref(0);
 
 // 公告 (打字机数据)
 const notices = ref<Notice[]>([]);
-const noticeTexts = computed(() => notices.value.map((n) => n.content));
+const noticeTexts = computed(() => notices.value.flatMap((n) => splitByPunctuation(n.content)));
 
 const getNotices = async () => {
   try {
