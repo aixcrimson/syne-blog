@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div class="music-player-container fixed left-4 bottom-4 z-50 transition-all duration-300">
+    <div ref="playerRef" class="music-player-container fixed left-4 bottom-4 z-50 transition-all duration-300" :class="musicStore.isCollapsed ? 'w-14 h-14' : ''">
       <!-- 隐藏的音频标签 -->
       <audio
         ref="audioRef"
@@ -21,8 +21,8 @@
       >
         <div
           v-if="musicStore.isCollapsed"
-          class="group relative flex items-center justify-center w-14 h-14 rounded-full cursor-pointer bg-slate-900 border-2 border-slate-700/80 shadow-[0_8px_32px_rgba(15,23,42,0.35)] dark:border-slate-600/80 hover:scale-105 active:scale-95 transition-transform duration-200"
-          @click="musicStore.toggleCollapse"
+          class="group absolute left-0 bottom-0 flex items-center justify-center w-14 h-14 rounded-full cursor-pointer bg-slate-900 border-2 border-slate-700/80 shadow-[0_8px_32px_rgba(15,23,42,0.35)] dark:border-slate-600/80 hover:scale-105 active:scale-95 transition-transform duration-200"
+          @click.stop="musicStore.toggleCollapse"
           title="打开音乐播放器"
         >
           <!-- 旋转唱片 -->
@@ -65,7 +65,7 @@
           class="flex items-end gap-4"
         >
           <!-- 播放器面板 -->
-          <div class="w-80 rounded-2xl border border-slate-200/50 bg-white/75 shadow-2xl backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/75 overflow-hidden flex flex-col">
+          <div class="music-player-panel w-80 flex-shrink-0 rounded-2xl border border-slate-200/50 bg-white/75 shadow-2xl backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/75 overflow-hidden flex flex-col">
           <!-- 面板头部 -->
           <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200/30 dark:border-slate-800/30">
             <span class="text-xs font-bold text-slate-500 tracking-wider dark:text-slate-400">MUSIC BOX</span>
@@ -272,7 +272,7 @@
         >
           <div
             v-if="showPlaylist"
-            class="w-80 h-[26rem] rounded-2xl border border-slate-200/50 bg-white/75 shadow-2xl backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/75 overflow-hidden flex flex-col"
+            class="music-player-panel w-80 flex-shrink-0 h-[26rem] rounded-2xl border border-slate-200/50 bg-white/75 shadow-2xl backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/75 overflow-hidden flex flex-col"
           >
             <!-- 播放列表头部 -->
             <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200/30 dark:border-slate-800/30 flex-shrink-0">
@@ -325,7 +325,7 @@
           >
             <div
               v-if="musicStore.showLyrics"
-              class="w-80 h-[26rem] rounded-2xl border border-slate-200/50 bg-white/75 shadow-2xl backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/75 overflow-hidden flex flex-col"
+              class="music-player-panel w-80 flex-shrink-0 h-[26rem] rounded-2xl border border-slate-200/50 bg-white/75 shadow-2xl backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/75 overflow-hidden flex flex-col"
             >
               <!-- 歌词面板头部 -->
               <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200/30 dark:border-slate-800/30 flex-shrink-0">
@@ -415,12 +415,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useMusicStore } from '@/stores/music'
 
 const musicStore = useMusicStore()
 const audioRef = ref<HTMLAudioElement | null>(null)
 const showPlaylist = ref(false)
+
+const playerRef = ref<HTMLElement | null>(null)
+
+const onClickOutside = (event: MouseEvent) => {
+  if (musicStore.isCollapsed) return
+  const target = event.target as HTMLElement
+  
+  // 检查是否点击了播放器面板、播放列表或歌词面板等实际的面板元素
+  const clickedInsidePanel = target.closest('.music-player-panel')
+  
+  if (clickedInsidePanel || !document.body.contains(target)) {
+    return
+  }
+  
+  musicStore.toggleCollapse()
+}
 
 // 歌词滚动相关
 const lyricsContainerRef = ref<HTMLElement | null>(null)
@@ -536,6 +552,12 @@ onMounted(() => {
   if (audioRef.value) {
     audioRef.value.volume = musicStore.volume / 100
   }
+
+  document.addEventListener('click', onClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', onClickOutside)
 })
 
 // 统一监听歌曲 URL 与播放状态的变化，避免并发冲突
