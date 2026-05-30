@@ -323,6 +323,29 @@ const handleFileRemove = () => {
   selectedFile.value = null;
 };
 
+const resolveCategoryName = (folderPath: string): string => {
+  if (!folderPath) return "其他";
+  const parts = folderPath.split("/").map((p) => p.trim()).filter(Boolean);
+  const excludeRoots = new Set([
+    "书签栏",
+    "书签分类",
+    "其他书签",
+    "移动设备书签",
+    "根目录",
+    "bookmarks bar",
+    "bookmarks",
+    "other bookmarks",
+    "mobile bookmarks",
+  ]);
+
+  for (const part of parts) {
+    if (!excludeRoots.has(part.toLowerCase())) {
+      return part;
+    }
+  }
+  return parts[parts.length - 1] || "其他";
+};
+
 const nextStep = async () => {
   if (currentStep.value === 0) {
     if (!selectedFile.value) {
@@ -336,15 +359,22 @@ const nextStep = async () => {
         selectedFile.value
       );
 
-      // 初始化文件夹映射
-      folderMappings.value = previewData.value.categories.map((cat) => ({
-        folder: cat.name,
-        count: cat.count,
-        selected: true,
-        mappingType: "existing" as const,
-        categoryId: null,
-        newCategoryName: cat.name,
-      }));
+      // 初始化文件夹映射，智能匹配现有分类或预设新分类名
+      folderMappings.value = previewData.value.categories.map((cat) => {
+        const resolvedName = resolveCategoryName(cat.name);
+        const existingCat = props.categories.find(
+          (c) => c.name.toLowerCase() === resolvedName.toLowerCase()
+        );
+
+        return {
+          folder: cat.name,
+          count: cat.count,
+          selected: true,
+          mappingType: existingCat ? ("existing" as const) : ("new" as const),
+          categoryId: existingCat ? existingCat.id : null,
+          newCategoryName: existingCat ? "" : resolvedName,
+        };
+      });
 
       currentStep.value = 1;
     } catch (error: any) {
