@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { getAudioCover, getAudioLyrics } from '@/utils/id3'
 import { parseLyrics, type LyricLine } from '@/utils/lyrics'
 import defaultCover from '@/assets/images/default-cover.svg'
@@ -115,6 +115,11 @@ export const useMusicStore = defineStore('music', () => {
   const showLyrics = ref(false)
   const showFloatingLyrics = ref(false)
 
+  // 暂存暂停前的歌词显示状态
+  const savedShowLyrics = ref(false)
+  const savedShowFloatingLyrics = ref(false)
+  let isInternalChange = false
+
   // 计算属性
   const currentSong = computed(() => songs.value[currentIndex.value] || songs.value[0])
 
@@ -145,7 +150,13 @@ export const useMusicStore = defineStore('music', () => {
 
     const savedFloatingLyrics = localStorage.getItem('music_showFloatingLyrics')
     if (savedFloatingLyrics !== null) {
-      showFloatingLyrics.value = savedFloatingLyrics === 'true'
+      const isTrue = savedFloatingLyrics === 'true'
+      savedShowFloatingLyrics.value = isTrue
+      if (isPlaying.value) {
+        showFloatingLyrics.value = isTrue
+      } else {
+        showFloatingLyrics.value = false
+      }
     }
 
     // 异步提取歌曲内嵌封面
@@ -191,8 +202,34 @@ export const useMusicStore = defineStore('music', () => {
     void loadLyrics()
   })
 
+  // 监听 showLyrics 的变化，保存用户手动修改的状态
+  watch(showLyrics, (val) => {
+    if (!isInternalChange) {
+      savedShowLyrics.value = val
+    }
+  })
+
+  // 监听 showFloatingLyrics 的变化，保存用户手动修改的状态并同步到本地存储
   watch(showFloatingLyrics, (val) => {
-    localStorage.setItem('music_showFloatingLyrics', val.toString())
+    if (!isInternalChange) {
+      savedShowFloatingLyrics.value = val
+      localStorage.setItem('music_showFloatingLyrics', val.toString())
+    }
+  })
+
+  // 监听播放状态的变化以自动控制歌词显示/隐藏
+  watch(isPlaying, (playing) => {
+    isInternalChange = true
+    if (!playing) {
+      showLyrics.value = false
+      showFloatingLyrics.value = false
+    } else {
+      showLyrics.value = savedShowLyrics.value
+      showFloatingLyrics.value = savedShowFloatingLyrics.value
+    }
+    nextTick(() => {
+      isInternalChange = false
+    })
   })
 
   // 动作
