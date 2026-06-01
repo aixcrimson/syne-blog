@@ -8,6 +8,7 @@ import com.syne.server.service.BookmarkImportService;
 import com.syne.server.service.NavigationCategoryService;
 import com.syne.server.service.NavigationSiteService;
 import com.syne.server.utils.BookmarkParser;
+import com.syne.server.utils.NavigationCacheManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ public class BookmarkImportServiceImpl implements BookmarkImportService {
 
     private final NavigationCategoryService categoryService;
     private final NavigationSiteService siteService;
+    private final NavigationCacheManager navigationCacheManager;
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -91,32 +93,38 @@ public class BookmarkImportServiceImpl implements BookmarkImportService {
         try {
             // 构建文件夹到分类的映射
             Map<String, Long> folderToCategoryMap = new HashMap<>();
-            List<NavigationCategory> newCategories = new ArrayList<>();
+
+            // 缓存已存在的分类名（大小写不敏感） -> ID
+            Map<String, Long> categoryNameToIdMap = new HashMap<>();
+            for (NavigationCategory cat : categoryService.listAllCategories()) {
+                categoryNameToIdMap.put(cat.getName().trim().toLowerCase(), cat.getId());
+            }
 
             // 处理映射关系
             for (FolderMappingDTO mapping : mappingDTO.getMappings()) {
                 if (Boolean.TRUE.equals(mapping.getCreateNew())) {
-                    // 创建新分类
-                    NavigationCategory category = new NavigationCategory();
-                    category.setName(mapping.getNewCategoryName());
-                    category.setSortOrder((int) (categoryService.count() + newCategories.size()));
+                    String targetCategoryName = mapping.getNewCategoryName().trim();
+                    String cacheKey = targetCategoryName.toLowerCase();
 
+                    Long categoryId;
+                    if (categoryNameToIdMap.containsKey(cacheKey)) {
+                        // 如果分类已存在（或在本次批处理中已被创建），直接复用其 ID，避免重复创建
+                        categoryId = categoryNameToIdMap.get(cacheKey);
+                    } else {
+                        // 创建新分类
+                        NavigationCategoryDTO dto = new NavigationCategoryDTO();
+                        dto.setName(targetCategoryName);
+                        dto.setSortOrder((int) (categoryService.count() + categoryNameToIdMap.size()));
+                        NavigationCategory created = categoryService.createNavigationCategory(dto);
+                        categoryId = created.getId();
+                        categoryNameToIdMap.put(cacheKey, categoryId);
+                    }
 
-                    newCategories.add(category);
+                    // 使用完整的文件夹路径映射到分类 ID，确保书签匹配时能找到
+                    folderToCategoryMap.put(mapping.getFolder(), categoryId);
                 } else {
                     // 使用现有分类
                     folderToCategoryMap.put(mapping.getFolder(), mapping.getCategoryId());
-                }
-            }
-
-            // 批量保存新分类
-            if (!newCategories.isEmpty()) {
-                for (NavigationCategory category : newCategories) {
-                    NavigationCategoryDTO dto = new NavigationCategoryDTO();
-                    dto.setName(category.getName());
-                    dto.setSortOrder(category.getSortOrder());
-                    NavigationCategory created = categoryService.createNavigationCategory(dto);
-                    folderToCategoryMap.put(created.getName(), created.getId());
                 }
             }
 
@@ -181,15 +189,10 @@ public class BookmarkImportServiceImpl implements BookmarkImportService {
 
             // 批量保存站点
             if (!sitesToCreate.isEmpty()) {
-                for (NavigationSite site : sitesToCreate) {
-                    NavigationSiteDTO dto = new NavigationSiteDTO();
-                    dto.setCategoryId(site.getCategoryId());
-                    dto.setName(site.getName());
-                    dto.setDescription(site.getDescription());
-                    dto.setUrl(site.getUrl());
-                    dto.setSortOrder(site.getSortOrder());
-                    siteService.createNavigationSite(dto);
-                }
+                // 使用 MyBatis-Plus 的 saveBatch 批量插入，大幅提升性能，防止 15s 超时
+                siteService.saveBatch(sitesToCreate);
+                // 批量插入完成后，统一清理一次缓存
+                navigationCacheManager.invalidateAll();
             }
 
             log.info("书签导入完成：成功 {} 个，跳过 {} 个，错误 {} 个", successCount, skipCount, errorCount);

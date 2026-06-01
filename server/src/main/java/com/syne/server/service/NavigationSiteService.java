@@ -1,5 +1,6 @@
 package com.syne.server.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.syne.server.common.PageQuery;
 import com.syne.server.common.PageResult;
 import com.syne.server.model.entity.NavigationSite;
@@ -14,7 +15,7 @@ import java.util.List;
 /**
  * 导航站点Service接口
  */
-public interface NavigationSiteService {
+public interface NavigationSiteService extends IService<NavigationSite> {
 
     /**
      * 分页查询导航站点列表

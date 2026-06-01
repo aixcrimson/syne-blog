@@ -135,7 +135,7 @@ public class NavigationSiteServiceImpl extends ServiceImpl<NavigationSiteMapper,
     @Override
     @Transactional
     public boolean batchDeleteNavigationSites(List<Long> ids) {
-        int result = navigationSiteMapper.deleteBatchIds(ids);
+        int result = navigationSiteMapper.deleteByIds(ids);
         if (result > 0) {
             navigationCacheManager.invalidateAll();
         }
