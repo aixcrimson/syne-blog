@@ -476,7 +476,7 @@ const filteredSearchResults = computed<SearchResultItem[]>(() => {
 const { list: virtualList, containerProps, wrapperProps } = useVirtualList(
   filteredSearchResults,
   {
-    itemHeight: 124, // 预估每个搜索结果卡片高度 + gap
+    itemHeight: 90, // 预估每个搜索结果卡片高度 + gap
     overscan: 5,
   }
 );
@@ -640,60 +640,99 @@ const handleLogout = () => {
 .search-result-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding-top: 2px;
-  max-height: min(64vh, 640px);
+  gap: 4px;
+  padding: 2px 4px;
+  max-height: min(60vh, 600px);
   overflow-y: auto;
+}
+
+.search-result-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-result-list::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 4px;
+}
+
+.search-result-list::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .search-result-item {
   position: relative;
   width: 100%;
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
+  grid-template-columns: 24px minmax(0, 1fr);
   gap: 10px;
   align-items: start;
-  padding: 12px 14px;
+  padding: 10px 12px;
   text-align: left;
-  border-radius: 14px;
-  border: 1px solid rgba(191, 219, 254, 0.95);
-  background: rgba(248, 250, 252, 0.82);
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+  background: transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.search-result-item:last-child {
+  border-bottom-color: transparent;
 }
 
 .search-result-item:hover {
-  border-color: rgba(96, 165, 250, 0.95);
-  background: rgba(239, 246, 255, 0.92);
-  box-shadow: 0 14px 24px -22px rgba(59, 130, 246, 0.55);
+  border-color: rgba(219, 234, 254, 0.8);
+  background: rgba(239, 246, 255, 0.6);
+  box-shadow: 0 4px 12px -6px rgba(59, 130, 246, 0.15);
+  transform: translateX(4px);
+  z-index: 1;
 }
 
 .search-result-item__index {
-  font-size: 1.08rem;
-  font-weight: 700;
-  line-height: 1.55;
-  color: rgb(37 99 235);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-top: 2px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgb(148, 163, 184);
+  background: transparent;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.search-result-item:hover .search-result-item__index {
+  color: rgb(59, 130, 246);
+  background: rgba(59, 130, 246, 0.1);
 }
 
 .search-result-item__content {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .search-result-item__title {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  line-height: 1.45;
-  color: rgb(15 23 42);
+  line-height: 1.35;
+  color: rgb(30, 41, 59);
+  transition: color 0.2s ease;
+}
+
+.search-result-item:hover .search-result-item__title {
+  color: rgb(37, 99, 235);
 }
 
 .search-result-item__summary {
-  margin: 4px 0 0;
-  color: rgb(71 85 105);
-  font-size: 0.9rem;
-  line-height: 1.62;
+  margin: 0;
+  color: rgb(100, 116, 139);
+  font-size: 0.8rem;
+  line-height: 1.5;
   display: -webkit-box;
   overflow: hidden;
   -webkit-line-clamp: 2;
@@ -703,10 +742,20 @@ const handleLogout = () => {
 .search-result-item__meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 12px;
-  margin-top: 6px;
-  font-size: 0.78rem;
-  color: rgb(100 116 139);
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.search-result-item__meta span {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: rgb(100, 116, 139);
+  background: rgba(241, 245, 249, 0.6);
+  border-radius: 4px;
+  border: 1px solid rgba(226, 232, 240, 0.6);
 }
 
 .search-panel__footer {
@@ -735,22 +784,38 @@ const handleLogout = () => {
 }
 
 .dark .search-result-item {
-  border-color: rgba(71, 85, 105, 0.85);
-  background: rgba(15, 23, 42, 0.72);
+  border-bottom-color: rgba(51, 65, 85, 0.4);
 }
 
 .dark .search-result-item:hover {
-  border-color: rgba(96, 165, 250, 0.9);
-  background: rgba(15, 23, 42, 0.92);
-  box-shadow: 0 14px 24px -22px rgba(15, 23, 42, 0.8);
+  border-color: rgba(59, 130, 246, 0.3);
+  background: rgba(30, 41, 59, 0.5);
+  box-shadow: 0 4px 12px -6px rgba(0, 0, 0, 0.4);
+}
+
+.dark .search-result-item:hover .search-result-item__index {
+  color: rgb(96, 165, 250);
+  background: rgba(96, 165, 250, 0.15);
 }
 
 .dark .search-result-item__title {
-  color: rgb(241 245 249);
+  color: rgb(226, 232, 240);
 }
 
-.dark .search-result-item__summary,
-.dark .search-result-item__meta,
+.dark .search-result-item:hover .search-result-item__title {
+  color: rgb(96, 165, 250);
+}
+
+.dark .search-result-item__summary {
+  color: rgb(148, 163, 184);
+}
+
+.dark .search-result-item__meta span {
+  background: rgba(15, 23, 42, 0.4);
+  border-color: rgba(51, 65, 85, 0.6);
+  color: rgb(148, 163, 184);
+}
+
 .dark .search-panel__count,
 .dark .search-panel__state--compact {
   color: rgb(148 163 184);
@@ -766,27 +831,34 @@ const handleLogout = () => {
   }
 
   .search-result-list {
-    max-height: 52vh;
-    gap: 8px;
+    max-height: 50vh;
+    gap: 4px;
   }
 
   .search-result-item {
-    grid-template-columns: 24px minmax(0, 1fr);
+    grid-template-columns: 20px minmax(0, 1fr);
     gap: 8px;
-    padding: 10px 12px;
+    padding: 8px 10px;
   }
 
   .search-result-item__index {
-    font-size: 0.98rem;
+    width: 20px;
+    height: 20px;
+    font-size: 0.75rem;
   }
 
   .search-result-item__title {
-    font-size: 0.96rem;
+    font-size: 0.9rem;
   }
 
   .search-result-item__summary {
-    font-size: 0.86rem;
-    line-height: 1.56;
+    font-size: 0.75rem;
+    line-height: 1.45;
+  }
+  
+  .search-result-item__meta span {
+    font-size: 0.65rem;
+    padding: 1px 4px;
   }
 }
 
