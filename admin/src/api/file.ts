@@ -43,6 +43,25 @@ export const fileApi = {
         'Content-Type': 'multipart/form-data'
       }
     })
+  },
+
+  /**
+   * 批量上传图库图片
+   * @param files 文件对象数组（前端处理好的 WebP）
+   * @param type 类型 (pc / mobile)
+   */
+  uploadCoverBatch: (files: (File | Blob)[], type: 'pc' | 'mobile'): Promise<FileUploadResult[]> => {
+    const formData = new FormData()
+    files.forEach((file, index) => {
+      formData.append('files', file, `upload_${type}_${index}.webp`)
+    })
+    formData.append('type', type)
+
+    return post<FileUploadResult[]>('/admin/file/cover/upload/batch', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
   }
 }
 

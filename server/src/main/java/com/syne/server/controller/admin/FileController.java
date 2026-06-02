@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 /**
  * 文件上传控制器
  */
@@ -50,5 +52,17 @@ public class FileController {
             @RequestParam(value = "type", defaultValue = "pc") String type) {
         FileUploadVO result = minioService.uploadCover(file, type);
         return Result.success(result);
+    }
+
+    /**
+     * 批量上传图库图片 (PC/Mobile)
+     */
+    @Operation(summary = "批量上传图库图片")
+    @PostMapping("/cover/upload/batch")
+    public Result<List<FileUploadVO>> uploadCoverBatch(
+            @RequestParam("files") MultipartFile[] files,
+            @RequestParam(value = "type", defaultValue = "pc") String type) {
+        List<FileUploadVO> results = minioService.uploadCoverBatch(files, type);
+        return Result.success(results);
     }
 }

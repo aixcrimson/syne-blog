@@ -55,6 +55,7 @@
       ref="coverInputRef"
       type="file"
       accept="image/jpeg,image/png,image/gif,image/webp"
+      multiple
       class="hidden"
       @change="handleCoverChange"
     />
@@ -88,30 +89,38 @@ const triggerCoverUpload = (type: CoverType) => {
 }
 
 /**
- * 处理图库文件选择并上传
+ * 处理图库文件选择并上传（支持多选）
  */
 const handleCoverChange = async (event: Event) => {
   const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
+  const files = target.files
 
-  if (!file) return
+  if (!files || files.length === 0) return
 
   const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
-  if (!validTypes.includes(file.type)) {
-    ElMessage.error('请上传 JPG、PNG、GIF 或 WebP 格式的图片')
-    return
+  const validFiles: File[] = []
+
+  for (const file of Array.from(files)) {
+    if (!validTypes.includes(file.type)) {
+      ElMessage.error(`文件"${file.name}"格式不支持，请上传 JPG、PNG、GIF 或 WebP 格式的图片`)
+      target.value = ''
+      return
+    }
+    validFiles.push(file)
   }
 
   const type = currentCoverUploadType.value
   coverUploadLoading[type] = true
 
   try {
-    // 1. 前端处理图片：居中裁剪并转 WebP
-    const webpBlob = await processCoverImage(file, type)
-    
-    // 2. 调用上传 API
-    await fileApi.uploadCover(webpBlob, type)
-    ElMessage.success(`图库 (${type === 'pc' ? 'PC端' : '移动端'}) 上传成功`)
+    // 1. 前端并行处理所有图片为 WebP
+    const webpBlobs = await Promise.all(
+      validFiles.map(file => processCoverImage(file, type))
+    )
+
+    // 2. 单次请求批量上传
+    const results = await fileApi.uploadCoverBatch(webpBlobs, type)
+    ElMessage.success(`${type === 'pc' ? 'PC端' : '移动端'}图库：成功上传 ${results.length} 张图片`)
   } catch (error: any) {
     console.error('图库上传失败:', error)
     ElMessage.error(error.message || '上传失败，请重试')
