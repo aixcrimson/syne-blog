@@ -410,6 +410,68 @@ export interface RecentComment {
   createTime: string
 }
 
+// ==================== 仪表盘图表相关 ====================
+
+/**
+ * 月度计数（文章发布趋势）
+ */
+export interface MonthlyCount {
+  /** 月份，格式: yyyy-MM */
+  month: string
+  /** 数量 */
+  count: number
+}
+
+/**
+ * 分类文章分布
+ */
+export interface CategoryDistribution {
+  /** 分类名称 */
+  name: string
+  /** 文章数量 */
+  articleCount: number
+}
+
+/**
+ * 热门文章
+ */
+export interface TopArticle {
+  /** 文章ID */
+  id: number
+  /** 文章标题 */
+  title: string
+  /** 浏览量 */
+  views: number
+}
+
+/**
+ * 月度互动数据
+ */
+export interface MonthlyInteraction {
+  /** 月份，格式: yyyy-MM */
+  month: string
+  /** 浏览总数 */
+  views: number
+  /** 点赞总数 */
+  likes: number
+  /** 评论总数 */
+  comments: number
+}
+
+/**
+ * 仪表盘图表聚合数据
+ */
+export interface DashboardChartsData {
+  /** 文章发布趋势 */
+  articleTrend: MonthlyCount[]
+  /** 分类文章分布 */
+  categoryDistribution: CategoryDistribution[]
+  /** 热门文章TOP10 */
+  topArticles: TopArticle[]
+  /** 互动趋势 */
+  interactionTrend: MonthlyInteraction[]
+}
+
 // ==================== 菜单相关 ====================
 
 /**

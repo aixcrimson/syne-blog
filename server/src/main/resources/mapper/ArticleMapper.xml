@@ -235,4 +235,45 @@
         WHERE af.create_by = #{userId} AND af.deleted = 0
         AND a.status = 1 AND a.deleted = 0
     </select>
+
+    <!-- ==================== 仪表盘图表查询 ==================== -->
+
+    <!-- 按月统计已发布文章数量 -->
+    <select id="selectMonthlyArticleCount" resultType="com.syne.server.model.vo.MonthlyCountVO">
+        SELECT TO_CHAR(a.published_time, 'YYYY-MM') AS month,
+               COUNT(*) AS count
+        FROM articles a
+        WHERE a.deleted = 0
+          AND a.status = 1
+          AND a.published_time >= #{startDate}
+        GROUP BY TO_CHAR(a.published_time, 'YYYY-MM')
+        ORDER BY month ASC
+    </select>
+
+    <!-- 按浏览量降序获取热门文章 TOP N -->
+    <select id="selectTopArticlesByViews" resultType="com.syne.server.model.vo.TopArticleVO">
+        SELECT a.id,
+               a.title,
+               COALESCE(a.views, 0) AS views
+        FROM articles a
+        WHERE a.deleted = 0
+          AND a.status = 1
+        ORDER BY a.views DESC NULLS LAST
+        LIMIT #{limit}
+    </select>
+
+    <!-- 按月汇总已发布文章的浏览量和点赞量 -->
+    <select id="selectMonthlyInteraction" resultType="com.syne.server.model.vo.MonthlyInteractionVO">
+        SELECT TO_CHAR(a.published_time, 'YYYY-MM') AS month,
+               COALESCE(SUM(a.views), 0) AS views,
+               COALESCE(SUM(a.likes), 0) AS likes,
+               0 AS comments
+        FROM articles a
+        WHERE a.deleted = 0
+          AND a.status = 1
+          AND a.published_time >= #{startDate}
+        GROUP BY TO_CHAR(a.published_time, 'YYYY-MM')
+        ORDER BY month ASC
+    </select>
+
 </mapper>

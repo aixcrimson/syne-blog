@@ -1,5 +1,6 @@
 package com.syne.server.service;
 
+import com.syne.server.model.vo.DashboardChartsVO;
 import com.syne.server.model.vo.DashboardDataVO;
 import com.syne.server.model.vo.DashboardStatsVO;
 import com.syne.server.model.vo.RecentArticleVO;
@@ -41,4 +42,12 @@ public interface DashboardService {
      * @return 仪表盘数据
      */
     DashboardDataVO getDashboardData();
+
+    /**
+     * 获取仪表盘图表数据
+     * 包含文章发布趋势、分类分布、热门文章、互动趋势
+     *
+     * @return 图表数据
+     */
+    DashboardChartsVO getChartsData();
 }

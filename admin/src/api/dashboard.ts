@@ -1,9 +1,9 @@
 /**
  * 仪表盘 API
- * 提供统计数据、最近文章和最近评论的获取方法
+ * 提供统计数据、最近文章、最近评论和图表数据的获取方法
  */
 import { get } from './request'
-import type { DashboardStats, RecentArticle, RecentComment } from '@/types'
+import type { DashboardStats, RecentArticle, RecentComment, DashboardChartsData } from '@/types'
 
 /**
  * 仪表盘数据接口
@@ -51,6 +51,13 @@ export const dashboardApi = {
    * @returns 仪表盘完整数据
    */
   getDashboardData: () => get<DashboardData>('/admin/dashboard'),
+
+  /**
+   * 获取仪表盘图表数据
+   * 包含文章发布趋势、分类分布、热门文章TOP10、互动趋势
+   * @returns 图表聚合数据
+   */
+  getChartsData: () => get<DashboardChartsData>('/admin/dashboard/charts'),
 }
 
 export default dashboardApi
