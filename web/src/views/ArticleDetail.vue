@@ -180,15 +180,10 @@
         >
           <div class="toc-sidebar-shell" :style="tocSidebarStyle">
             <div class="toc-card paper-card">
-              <div class="toc-title cursor-pointer flex items-center justify-between" @click="isTocExpanded = !isTocExpanded">
+              <div class="toc-title flex items-center justify-between">
                 <span>目录</span>
-                <el-icon>
-                  <ArrowDown v-if="isTocExpanded" />
-                  <ArrowRight v-else />
-                </el-icon>
               </div>
-              <el-collapse-transition>
-                <nav v-show="isTocExpanded" class="toc-list">
+              <nav class="toc-list">
                   <div
                     v-for="item in tocStore.visibleTocItems"
                     :key="item.id"
@@ -215,7 +210,6 @@
                     </span>
                   </div>
                 </nav>
-              </el-collapse-transition>
             </div>
           </div>
         </aside>
@@ -273,7 +267,6 @@ const readingProgress = ref(0);
 const activeHeadingId = ref("");
 const headingPositions = ref<{ id: string; top: number }[]>([]);
 const tocSidebarMetrics = ref<{ left: number; width: number } | null>(null);
-const isTocExpanded = ref(true);
 
 
 
@@ -686,9 +679,6 @@ onUnmounted(() => {
   color: var(--color-text-primary);
   margin-bottom: 8px;
   user-select: none;
-}
-.toc-title:hover {
-  color: var(--color-primary);
 }
 
 .toc-list {
