@@ -376,12 +376,12 @@ const handleLike = async () => {
   try {
     const res = await articleApi.like(articleId.value);
     if (article.value && res) {
-      if (typeof res.likes === "number") {
-        article.value.likes = res.likes;
-      }
-      if (typeof res.liked === "boolean") {
-        article.value.isLiked = res.liked;
-      }
+      // shallowRef 需要替换整个对象引用才能触发视图更新
+      article.value = {
+        ...article.value,
+        ...(typeof res.likes === "number" ? { likes: res.likes } : {}),
+        ...(typeof res.liked === "boolean" ? { isLiked: res.liked } : {}),
+      };
       ElMessage.success(res.liked ? "点赞成功" : "已取消点赞");
     }
   } catch (e) {
@@ -400,14 +400,13 @@ const handleFavorite = async () => {
   try {
     const res = await articleApi.favorite(articleId.value);
 
-    // 更新 UI 计数和状态
+    // shallowRef 需要替换整个对象引用才能触发视图更新
     if (article.value && res) {
-      if (typeof res.favorites === "number") {
-        article.value.favorites = res.favorites;
-      }
-      if (typeof res.favorited === "boolean") {
-        article.value.isFavorited = res.favorited;
-      }
+      article.value = {
+        ...article.value,
+        ...(typeof res.favorites === "number" ? { favorites: res.favorites } : {}),
+        ...(typeof res.favorited === "boolean" ? { isFavorited: res.favorited } : {}),
+      };
 
       ElMessage.success(res.favorited ? "收藏成功" : "已取消收藏");
     }
@@ -541,8 +540,9 @@ const tocIndentClass = (level: number) => {
 const handleIncreaseViews = async () => {
   try {
     const res = await articleApi.increaseViews(articleId.value);
+    // shallowRef 需要替换整个对象引用才能触发视图更新
     if (article.value && res && typeof res.views === "number") {
-      article.value.views = res.views;
+      article.value = { ...article.value, views: res.views };
     }
   } catch (e) {
     console.error("增加浏览量失败:", e);
