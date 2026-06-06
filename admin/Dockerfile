@@ -15,6 +15,9 @@ RUN pnpm install --frozen-lockfile || pnpm install
 # 复制源码
 COPY . .
 
+# 强行将 Node.js 的运行内存上限调高到 4GB (4096MB)
+ENV NODE_OPTIONS="--max_old_space_size=4096"
+
 # 构建生产版本
 RUN pnpm run build
 
