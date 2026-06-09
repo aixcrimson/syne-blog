@@ -53,37 +53,54 @@
           技术栈
         </h2>
         <!-- 骨架屏 -->
-        <div v-if="loadingSkills" class="flex flex-wrap gap-3">
-          <el-skeleton animated>
-            <template #template>
-              <el-skeleton-item
-                v-for="i in 6"
-                :key="i"
-                variant="rect"
-                style="width: 120px; height: 44px; border-radius: 8px"
-              />
-            </template>
-          </el-skeleton>
+        <div v-if="loadingSkills" class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+          <div
+            v-for="i in 8"
+            :key="i"
+            class="flex flex-col p-4 bg-white/70 rounded-xl border border-slate-200/70 dark:bg-slate-900/60 dark:border-slate-800/60"
+          >
+            <el-skeleton animated>
+              <template #template>
+                <div class="flex justify-between items-center mb-3">
+                  <el-skeleton-item variant="text" style="width: 50%; height: 20px" />
+                  <el-skeleton-item variant="text" style="width: 20%; height: 16px" />
+                </div>
+                <el-skeleton-item variant="rect" style="width: 100%; height: 6px; border-radius: 9999px" />
+              </template>
+            </el-skeleton>
+          </div>
         </div>
         <!-- 实际内容 -->
-        <div v-else class="flex flex-wrap gap-3">
+        <div v-else class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
           <div
             v-for="skill in skills"
             :key="skill.id"
-            class="flex items-center px-4 py-2 bg-white/70 rounded-lg border border-slate-200/70 transition-all duration-300 skill-tag dark:bg-slate-900/60 dark:border-slate-800/60 hover:border-blue-300/80 hover:bg-primary-50/70 dark:hover:bg-slate-800/60"
+            class="flex flex-col p-4 bg-white/70 rounded-xl border border-slate-200/70 transition-all duration-300 skill-card dark:bg-slate-900/60 dark:border-slate-800/60 hover:-translate-y-1 hover:shadow-lg"
+            :style="{ '--skill-color': skill.color || 'rgb(59, 130, 246)' }"
           >
-            <i
-              v-if="skill.icon && skill.icon.startsWith('fa')"
-              :class="skill.icon + ' mr-2 text-xl'"
-            ></i>
-            <span v-else class="mr-2 text-xl">{{ skill.icon }}</span>
-
-            <span class="font-medium text-slate-700 dark:text-slate-200">{{
-              skill.name
-            }}</span>
-            <span class="ml-2 text-xs text-slate-500"
-              >{{ skill.percentage }}%</span
-            >
+            <div class="flex justify-between items-center mb-3">
+              <div class="flex items-center min-w-0">
+                <i
+                  v-if="skill.icon && skill.icon.startsWith('fa')"
+                  :class="skill.icon + ' mr-2 text-xl shrink-0'"
+                  :style="{ color: skill.color }"
+                ></i>
+                <span v-else class="mr-2 text-xl shrink-0">{{ skill.icon }}</span>
+                <span class="font-semibold text-slate-700 dark:text-slate-200 truncate">{{
+                  skill.name
+                }}</span>
+              </div>
+              <span class="ml-2 text-xs font-bold shrink-0" :style="{ color: skill.color }"
+                >{{ skill.percentage }}%</span
+              >
+            </div>
+            <!-- 进度条 -->
+            <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+              <div
+                class="h-full rounded-full transition-all duration-500 ease-out"
+                :style="{ width: skill.percentage + '%', backgroundColor: skill.color }"
+              ></div>
+            </div>
           </div>
         </div>
       </div>
@@ -341,7 +358,11 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.skill-tag {
+.skill-card {
   user-select: none;
+}
+.skill-card:hover {
+  border-color: var(--skill-color) !important;
+  box-shadow: 0 4px 12px -2px var(--skill-color) !important;
 }
 </style>
