@@ -180,15 +180,10 @@
         >
           <div class="toc-sidebar-shell" :style="tocSidebarStyle">
             <div class="toc-card paper-card">
-              <div class="toc-title cursor-pointer flex items-center justify-between" @click="isTocExpanded = !isTocExpanded">
+              <div class="toc-title flex items-center justify-between">
                 <span>目录</span>
-                <el-icon>
-                  <ArrowDown v-if="isTocExpanded" />
-                  <ArrowRight v-else />
-                </el-icon>
               </div>
-              <el-collapse-transition>
-                <nav v-show="isTocExpanded" class="toc-list">
+              <nav class="toc-list">
                   <div
                     v-for="item in tocStore.visibleTocItems"
                     :key="item.id"
@@ -215,7 +210,6 @@
                     </span>
                   </div>
                 </nav>
-              </el-collapse-transition>
             </div>
           </div>
         </aside>
@@ -273,7 +267,6 @@ const readingProgress = ref(0);
 const activeHeadingId = ref("");
 const headingPositions = ref<{ id: string; top: number }[]>([]);
 const tocSidebarMetrics = ref<{ left: number; width: number } | null>(null);
-const isTocExpanded = ref(true);
 
 
 
@@ -383,12 +376,12 @@ const handleLike = async () => {
   try {
     const res = await articleApi.like(articleId.value);
     if (article.value && res) {
-      if (typeof res.likes === "number") {
-        article.value.likes = res.likes;
-      }
-      if (typeof res.liked === "boolean") {
-        article.value.isLiked = res.liked;
-      }
+      // shallowRef 需要替换整个对象引用才能触发视图更新
+      article.value = {
+        ...article.value,
+        ...(typeof res.likes === "number" ? { likes: res.likes } : {}),
+        ...(typeof res.liked === "boolean" ? { isLiked: res.liked } : {}),
+      };
       ElMessage.success(res.liked ? "点赞成功" : "已取消点赞");
     }
   } catch (e) {
@@ -407,14 +400,13 @@ const handleFavorite = async () => {
   try {
     const res = await articleApi.favorite(articleId.value);
 
-    // 更新 UI 计数和状态
+    // shallowRef 需要替换整个对象引用才能触发视图更新
     if (article.value && res) {
-      if (typeof res.favorites === "number") {
-        article.value.favorites = res.favorites;
-      }
-      if (typeof res.favorited === "boolean") {
-        article.value.isFavorited = res.favorited;
-      }
+      article.value = {
+        ...article.value,
+        ...(typeof res.favorites === "number" ? { favorites: res.favorites } : {}),
+        ...(typeof res.favorited === "boolean" ? { isFavorited: res.favorited } : {}),
+      };
 
       ElMessage.success(res.favorited ? "收藏成功" : "已取消收藏");
     }
@@ -548,8 +540,9 @@ const tocIndentClass = (level: number) => {
 const handleIncreaseViews = async () => {
   try {
     const res = await articleApi.increaseViews(articleId.value);
+    // shallowRef 需要替换整个对象引用才能触发视图更新
     if (article.value && res && typeof res.views === "number") {
-      article.value.views = res.views;
+      article.value = { ...article.value, views: res.views };
     }
   } catch (e) {
     console.error("增加浏览量失败:", e);
@@ -686,9 +679,6 @@ onUnmounted(() => {
   color: var(--color-text-primary);
   margin-bottom: 8px;
   user-select: none;
-}
-.toc-title:hover {
-  color: var(--color-primary);
 }
 
 .toc-list {

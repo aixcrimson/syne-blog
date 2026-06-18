@@ -274,4 +274,22 @@ public class MinioService {
             throw new BusinessException("图库文件上传失败: " + e.getMessage());
         }
     }
+    /**
+     * 批量上传图片到图库（syne-cover）
+     *
+     * @param files 图片文件数组（预期为前端已处理好的 webp）
+     * @param type  类型（pc 或 mobile）
+     * @return 上传结果列表
+     */
+    public List<FileUploadVO> uploadCoverBatch(MultipartFile[] files, String type) {
+        if (files == null || files.length == 0) {
+            throw new BusinessException("请选择要上传的文件");
+        }
+
+        List<FileUploadVO> results = new ArrayList<>();
+        for (MultipartFile file : files) {
+            results.add(uploadCover(file, type));
+        }
+        return results;
+    }
 }

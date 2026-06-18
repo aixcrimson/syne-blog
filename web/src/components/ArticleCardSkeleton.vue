@@ -2,93 +2,101 @@
   <el-skeleton animated>
     <template #template>
       <div
-        class="group relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/70 transform-gpu"
-        :class="layout === 'list' ? 'h-72 sm:h-80 md:h-[22rem]' : 'h-64'"
+        class="group relative overflow-hidden rounded-2xl border border-slate-200/50 bg-white/70 dark:border-slate-800/40 dark:bg-slate-900/60 transform-gpu flex"
+        :class="[
+          layout === 'list' 
+            ? 'flex-col sm:flex-row h-auto sm:h-52 md:h-56' 
+            : 'flex-col h-[26rem]'
+        ]"
       >
-        <!-- 模拟封面图作为背景 -->
+        <!-- 模拟封面图 -->
         <div
-          class="absolute inset-0 bg-gradient-to-br from-primary-200 via-primary-300 to-primary-400 dark:from-slate-700 dark:to-slate-600"
-        />
+          class="relative overflow-hidden shrink-0 transform-gpu bg-slate-200/60 dark:bg-slate-800/50"
+          :class="[
+            layout === 'list' 
+              ? 'w-full sm:w-[35%] md:w-[32%] h-44 sm:h-full' 
+              : 'w-full h-48'
+          ]"
+        >
+          <!-- 模拟分类标签 -->
+          <el-skeleton-item
+            variant="rect"
+            class="absolute top-3 left-3 !rounded-md"
+            style="width: 54px; height: 20px"
+          />
+        </div>
 
-        <!-- 渐变遮罩层 -->
-        <div
-          class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent dark:from-black/80 dark:via-black/50"
-        />
+        <!-- 模拟文字内容区域 -->
+        <div class="flex-1 p-5 flex flex-col justify-between min-w-0">
+          <div class="min-w-0 flex-1">
+            <!-- 模拟标签 -->
+            <div class="flex flex-wrap gap-1.5 mb-3">
+              <el-skeleton-item
+                variant="rect"
+                class="!rounded"
+                style="width: 46px; height: 16px"
+              />
+              <el-skeleton-item
+                variant="rect"
+                class="!rounded"
+                style="width: 52px; height: 16px"
+              />
+            </div>
 
-        <!-- 卡片内容 - 定位在底部 -->
-        <div class="absolute inset-x-0 bottom-0 p-6 flex flex-col">
-          <!-- 标签 -->
-          <div class="flex flex-wrap gap-2 mb-3">
-            <el-skeleton-item
-              variant="rect"
-              class="!rounded-full"
-              style="width: 60px; height: 22px"
-            />
-            <el-skeleton-item
-              variant="rect"
-              class="!rounded-full"
-              style="width: 48px; height: 22px"
-            />
-            <el-skeleton-item
-              variant="rect"
-              class="!rounded-full"
-              style="width: 40px; height: 22px"
-            />
+            <!-- 模拟标题 -->
+            <div class="mb-3 space-y-1.5">
+              <el-skeleton-item
+                variant="rect"
+                class="!rounded-md"
+                style="width: 90%; height: 22px"
+              />
+              <el-skeleton-item
+                variant="rect"
+                class="!rounded-md"
+                style="width: 60%; height: 22px"
+              />
+            </div>
+
+            <!-- 模拟摘要 -->
+            <div class="mb-4 space-y-1.5">
+              <el-skeleton-item
+                variant="rect"
+                class="!rounded"
+                style="width: 100%; height: 14px"
+              />
+              <el-skeleton-item
+                variant="rect"
+                class="!rounded"
+                style="width: 75%; height: 14px"
+              />
+            </div>
           </div>
 
-          <!-- 标题 (line-clamp-2) -->
-          <div class="mb-2 space-y-1.5">
-            <el-skeleton-item
-              variant="rect"
-              class="!rounded-md"
-              style="width: 88%; height: 24px"
-            />
-            <el-skeleton-item
-              variant="rect"
-              class="!rounded-md"
-              style="width: 62%; height: 24px"
-            />
-          </div>
-
-          <!-- 摘要 (line-clamp-2) -->
-          <div class="mb-4 space-y-1.5">
-            <el-skeleton-item
-              variant="rect"
-              class="!rounded"
-              style="width: 100%; height: 16px"
-            />
-            <el-skeleton-item
-              variant="rect"
-              class="!rounded"
-              style="width: 72%; height: 16px"
-            />
-          </div>
-
-          <!-- 元信息 -->
+          <!-- 模拟元数据底部 -->
           <div
-            class="flex flex-wrap justify-between items-center pt-3 border-t border-white/40 dark:border-white/20 gap-2"
+            class="flex justify-between items-center pt-3 border-t border-slate-100 dark:border-slate-800/60 gap-2 mt-auto"
           >
             <div class="flex items-center gap-x-3">
               <el-skeleton-item
                 variant="rect"
                 class="!rounded"
-                style="width: 70px; height: 14px"
+                style="width: 65px; height: 12px"
               />
               <el-skeleton-item
                 variant="rect"
                 class="!rounded"
-                style="width: 42px; height: 14px"
+                style="width: 42px; height: 12px"
               />
               <el-skeleton-item
                 variant="rect"
                 class="!rounded"
-                style="width: 38px; height: 14px"
+                style="width: 38px; height: 12px"
               />
             </div>
             <el-skeleton-item
               variant="rect"
               class="!rounded"
-              style="width: 78px; height: 14px"
+              style="width: 60px; height: 12px"
             />
           </div>
         </div>

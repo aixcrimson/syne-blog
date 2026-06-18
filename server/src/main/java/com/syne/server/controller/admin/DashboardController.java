@@ -3,6 +3,7 @@ package com.syne.server.controller.admin;
 import com.syne.server.common.Result;
 import com.syne.server.model.vo.DashboardDataVO;
 import com.syne.server.model.vo.DashboardStatsVO;
+import com.syne.server.model.vo.DashboardChartsVO;
 import com.syne.server.model.vo.RecentArticleVO;
 import com.syne.server.model.vo.RecentCommentVO;
 import com.syne.server.service.DashboardService;
@@ -88,5 +89,18 @@ public class DashboardController {
         log.info("获取仪表盘数据");
         DashboardDataVO dashboardData = dashboardService.getDashboardData();
         return Result.success(dashboardData);
+    }
+
+    /**
+     * 获取仪表盘图表数据
+     *
+     * @return 图表数据（文章趋势、分类分布、热门文章、互动趋势）
+     */
+    @Operation(summary = "获取图表数据", description = "获取仪表盘图表数据，包括文章发布趋势、分类分布、热门文章TOP10、互动趋势")
+    @GetMapping("/charts")
+    public Result<DashboardChartsVO> getChartsData() {
+        log.info("获取仪表盘图表数据");
+        DashboardChartsVO chartsData = dashboardService.getChartsData();
+        return Result.success(chartsData);
     }
 }

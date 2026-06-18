@@ -2,6 +2,7 @@ package com.syne.server.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.syne.server.model.entity.Category;
+import com.syne.server.model.vo.CategoryDistributionVO;
 import com.syne.server.model.vo.CategoryListVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -59,4 +60,13 @@ public interface CategoryMapper extends BaseMapper<Category> {
      */
     @Update("UPDATE categories SET name = #{name}, slug = #{slug}, description = #{description}, sort_order = #{sortOrder}, deleted = 0, update_time = NOW() WHERE id = #{id}")
     int restoreDeletedCategory(@Param("id") Long id, @Param("name") String name, @Param("slug") String slug, @Param("description") String description, @Param("sortOrder") Integer sortOrder);
+
+    // ==================== 仪表盘图表查询 ====================
+
+    /**
+     * 查询各分类的已发布文章数分布
+     *
+     * @return 分类文章分布列表
+     */
+    List<CategoryDistributionVO> selectCategoryArticleDistribution();
 }

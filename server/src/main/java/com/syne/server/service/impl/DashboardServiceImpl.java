@@ -7,6 +7,11 @@ import com.syne.server.model.entity.Comment;
 import com.syne.server.model.entity.User;
 import com.syne.server.model.vo.DashboardDataVO;
 import com.syne.server.model.vo.DashboardStatsVO;
+import com.syne.server.model.vo.DashboardChartsVO;
+import com.syne.server.model.vo.MonthlyCountVO;
+import com.syne.server.model.vo.MonthlyInteractionVO;
+import com.syne.server.model.vo.CategoryDistributionVO;
+import com.syne.server.model.vo.TopArticleVO;
 import com.syne.server.model.vo.RecentArticleVO;
 import com.syne.server.model.vo.RecentCommentVO;
 import com.syne.server.mapper.*;
@@ -15,7 +20,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -161,5 +168,92 @@ public class DashboardServiceImpl implements DashboardService {
         dashboardData.setRecentComments(getRecentComments(5));
 
         return dashboardData;
+    }
+
+    @Override
+    public DashboardChartsVO getChartsData() {
+        DashboardChartsVO charts = new DashboardChartsVO();
+
+        // 计算12个月前的起始日期（当月1日零点）
+        LocalDateTime startDate = LocalDateTime.now()
+                .minusMonths(11)
+                .withDayOfMonth(1)
+                .withHour(0).withMinute(0).withSecond(0).withNano(0);
+
+        // 1. 文章发布趋势
+        List<MonthlyCountVO> articleTrend = articleMapper.selectMonthlyArticleCount(startDate);
+        charts.setArticleTrend(fillMissingMonths(articleTrend, startDate));
+
+        // 2. 分类文章分布
+        charts.setCategoryDistribution(categoryMapper.selectCategoryArticleDistribution());
+
+        // 3. 热门文章 TOP10
+        charts.setTopArticles(articleMapper.selectTopArticlesByViews(10));
+
+        // 4. 互动趋势（浏览 + 点赞 + 评论）
+        List<MonthlyInteractionVO> interactions = articleMapper.selectMonthlyInteraction(startDate);
+        List<MonthlyCountVO> commentCounts = commentMapper.selectMonthlyCommentCount(startDate);
+
+        // 将评论数合并到互动趋势中
+        Map<String, Long> commentMap = commentCounts.stream()
+                .collect(Collectors.toMap(MonthlyCountVO::getMonth, MonthlyCountVO::getCount, Long::sum));
+
+        // 补全空月份并合并评论数
+        List<MonthlyInteractionVO> filledInteractions = fillMissingInteractionMonths(interactions, startDate);
+        for (MonthlyInteractionVO item : filledInteractions) {
+            item.setComments(commentMap.getOrDefault(item.getMonth(), 0L));
+        }
+        charts.setInteractionTrend(filledInteractions);
+
+        return charts;
+    }
+
+    /**
+     * 补全文章趋势中缺失的月份（用0填充），保证图表连续
+     */
+    private List<MonthlyCountVO> fillMissingMonths(List<MonthlyCountVO> data, LocalDateTime startDate) {
+        Map<String, Long> dataMap = data.stream()
+                .collect(Collectors.toMap(MonthlyCountVO::getMonth, MonthlyCountVO::getCount, Long::sum));
+
+        List<MonthlyCountVO> result = new java.util.ArrayList<>();
+        LocalDateTime current = startDate;
+        LocalDateTime now = LocalDateTime.now();
+
+        while (!current.isAfter(now)) {
+            String month = current.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM"));
+            MonthlyCountVO vo = new MonthlyCountVO();
+            vo.setMonth(month);
+            vo.setCount(dataMap.getOrDefault(month, 0L));
+            result.add(vo);
+            current = current.plusMonths(1);
+        }
+        return result;
+    }
+
+    /**
+     * 补全互动趋势中缺失的月份（用0填充），保证图表连续
+     */
+    private List<MonthlyInteractionVO> fillMissingInteractionMonths(List<MonthlyInteractionVO> data, LocalDateTime startDate) {
+        Map<String, MonthlyInteractionVO> dataMap = data.stream()
+                .collect(Collectors.toMap(MonthlyInteractionVO::getMonth, v -> v, (a, b) -> a));
+
+        List<MonthlyInteractionVO> result = new java.util.ArrayList<>();
+        LocalDateTime current = startDate;
+        LocalDateTime now = LocalDateTime.now();
+
+        while (!current.isAfter(now)) {
+            String month = current.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM"));
+            MonthlyInteractionVO vo = dataMap.get(month);
+            if (vo == null) {
+                vo = new MonthlyInteractionVO();
+                vo.setMonth(month);
+                vo.setViews(0L);
+                vo.setLikes(0L);
+                vo.setComments(0L);
+            }
+            result.add(vo);
+            current = current.plusMonths(1);
+        }
+        return result;
     }
 }

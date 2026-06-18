@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.syne.server.model.entity.Comment;
 import com.syne.server.model.vo.CommentListVO;
 import com.syne.server.model.vo.CommentShowVO;
+import com.syne.server.model.vo.MonthlyCountVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -103,4 +104,14 @@ public interface CommentMapper extends BaseMapper<Comment> {
      * @return 子评论列表
      */
     List<CommentShowVO> selectCommentReplies(@Param("parentId") Long parentId);
+
+    // ==================== 仪表盘图表查询 ====================
+
+    /**
+     * 按月统计评论数量（从 startDate 起，排除已删除评论）
+     *
+     * @param startDate 起始日期
+     * @return 月度评论数列表
+     */
+    List<MonthlyCountVO> selectMonthlyCommentCount(@Param("startDate") LocalDateTime startDate);
 }

@@ -181,4 +181,18 @@
         ORDER BY c.create_time ASC
     </select>
 
+    <!-- ==================== 仪表盘图表查询 ==================== -->
+
+    <!-- 按月统计评论数量（排除已删除评论） -->
+    <select id="selectMonthlyCommentCount" resultType="com.syne.server.model.vo.MonthlyCountVO">
+        SELECT TO_CHAR(c.create_time, 'YYYY-MM') AS month,
+               COUNT(*) AS count
+        FROM comments c
+        WHERE c.deleted = 0
+          AND c.status != 3
+          AND c.create_time >= #{startDate}
+        GROUP BY TO_CHAR(c.create_time, 'YYYY-MM')
+        ORDER BY month ASC
+    </select>
+
 </mapper>

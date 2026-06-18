@@ -3,9 +3,13 @@ package com.syne.server.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.syne.server.model.entity.Article;
 import com.syne.server.model.vo.ArticleListVO;
+import com.syne.server.model.vo.MonthlyCountVO;
+import com.syne.server.model.vo.MonthlyInteractionVO;
+import com.syne.server.model.vo.TopArticleVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -91,4 +95,30 @@ public interface ArticleMapper extends BaseMapper<Article> {
     );
 
     Long countFavoriteArticles(@Param("userId") Long userId);
+
+    // ==================== 仪表盘图表查询 ====================
+
+    /**
+     * 按月统计已发布文章数量（从 startDate 起）
+     *
+     * @param startDate 起始日期
+     * @return 月度文章发布数列表
+     */
+    List<MonthlyCountVO> selectMonthlyArticleCount(@Param("startDate") LocalDateTime startDate);
+
+    /**
+     * 按浏览量降序获取热门文章 TOP N
+     *
+     * @param limit 数量限制
+     * @return 热门文章列表
+     */
+    List<TopArticleVO> selectTopArticlesByViews(@Param("limit") Integer limit);
+
+    /**
+     * 按月汇总已发布文章的浏览量和点赞量（从 startDate 起）
+     *
+     * @param startDate 起始日期
+     * @return 月度互动数据列表（不含评论，评论需从 CommentMapper 获取）
+     */
+    List<MonthlyInteractionVO> selectMonthlyInteraction(@Param("startDate") LocalDateTime startDate);
 }
