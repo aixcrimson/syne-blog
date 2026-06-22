@@ -174,11 +174,11 @@
             <div
               v-for="tag in tags"
               :key="tag.id"
-              class="px-3 py-1 text-xs font-medium transition-all duration-300 rounded-full cursor-pointer select-none"
+              class="px-3 py-1 text-xs font-medium transition-all duration-300 rounded-full cursor-pointer select-none tag-pill"
               :class="[
                 selectedTagIds?.includes(tag.id)
                   ? 'bg-primary-500 text-white shadow-sm scale-105'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+                  : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
               ]"
               @click="handleTagClick(tag.id)"
             >
@@ -302,11 +302,13 @@ onMounted(() => {
 }
 
 .tag-pill {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.tag-pill:hover {
+.tag-pill:hover:not(.bg-primary-500) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.3);
+  background: linear-gradient(135deg, var(--color-primary-500, #3b82f6) 0%, var(--color-primary-600, #2563eb) 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.35);
 }
 </style>

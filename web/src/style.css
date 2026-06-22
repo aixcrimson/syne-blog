@@ -632,3 +632,27 @@
   }
 }
 
+/* 圆形主题切换过渡动画样式 */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* 亮色切暗色时，新视图（暗色）在上方扩散 */
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+/* 暗色切亮色时，旧视图（暗色）在上方收缩 */
+.dark::view-transition-old(root) {
+  z-index: 9999;
+}
+.dark::view-transition-new(root) {
+  z-index: 1;
+}
+
+

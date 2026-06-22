@@ -53,7 +53,7 @@
             <el-tooltip :content="appStore.isDarkMode ? '切换到浅色模式' : '切换到深色模式'" placement="left" :show-after="300">
               <button
                 class="flex items-center justify-center w-10 h-10 rounded-xl text-slate-600 transition-all duration-200 cursor-pointer hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700/50"
-                @click="appStore.toggleThemeMode"
+                @click="toggleTheme"
               >
                 <el-icon class="text-lg" :class="appStore.isDarkMode ? 'text-yellow-400' : ''">
                   <Sunny v-if="!appStore.isDarkMode" />
@@ -338,5 +338,49 @@ const scrollToHeading = (item: any) => {
   if (tocStore.hasChildrenMap.get(item.id)) {
     tocStore.toggleHeadingCollapse(item.id)
   }
+}
+
+const toggleTheme = (event: MouseEvent) => {
+  const x = event.clientX
+  const y = event.clientY
+  
+  const isAppearanceTransition =
+    document.startViewTransition !== undefined &&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  if (!isAppearanceTransition) {
+    appStore.toggleThemeMode()
+    return
+  }
+
+  const endRadius = Math.hypot(
+    Math.max(x, window.innerWidth - x),
+    Math.max(y, window.innerHeight - y)
+  )
+
+  const transition = document.startViewTransition(() => {
+    appStore.toggleThemeMode()
+  })
+
+  transition.ready.then(() => {
+    const isDark = appStore.isDarkMode
+    const clipPath = [
+      `circle(0px at ${x}px ${y}px)`,
+      `circle(${endRadius}px at ${x}px ${y}px)`
+    ]
+    
+    document.documentElement.animate(
+      {
+        clipPath: isDark ? clipPath : [...clipPath].reverse()
+      },
+      {
+        duration: 450,
+        easing: 'ease-out',
+        pseudoElement: isDark
+          ? '::view-transition-new(root)'
+          : '::view-transition-old(root)'
+      }
+    )
+  })
 }
 </script>
