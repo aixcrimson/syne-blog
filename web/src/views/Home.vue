@@ -2,10 +2,16 @@
   <div class="home">
     <!-- Hero Section -->
     <section
-      class="hero relative flex items-center justify-center min-h-[calc(100vh-64px)] min-h-[calc(100svh-64px)]"
+      class="hero relative flex items-center justify-center min-h-[calc(100vh-64px)] min-h-[calc(100svh-64px)] overflow-hidden"
     >
-      <div class="text-center px-4">
-        <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-6xl lg:text-7xl" style="font-family: 'Georgia', 'Times New Roman', serif;">
+      <!-- Ambient Blurry Glows -->
+      <div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="hero-glow hero-glow-1"></div>
+        <div class="hero-glow hero-glow-2"></div>
+      </div>
+
+      <div class="text-center px-4 relative z-10">
+        <h1 class="hero-title text-4xl sm:text-5xl font-semibold tracking-tight md:text-6xl lg:text-7xl">
           Syne's Blog
         </h1>
         <p class="mt-8 text-xl text-slate-600 dark:text-slate-300 md:text-2xl h-8">
@@ -21,7 +27,7 @@
 
       <!-- 滚动提示箭头 -->
       <div
-        class="absolute right-0 left-0 bottom-4 flex justify-center md:bottom-8"
+        class="absolute right-0 left-0 bottom-4 flex justify-center md:bottom-8 z-10"
       >
         <div
           class="flex justify-center items-center w-12 h-12 rounded-full border border-slate-200/70 bg-white/70 shadow-[0_10px_24px_-18px_rgba(15,23,42,0.4)] transition-all duration-300 animate-bounce cursor-pointer hover:border-blue-300/80 hover:shadow-[0_16px_45px_-22px_rgba(37,99,235,0.45)] dark:border-slate-800/70 dark:bg-slate-900/60 motion-reduce:animate-none"
