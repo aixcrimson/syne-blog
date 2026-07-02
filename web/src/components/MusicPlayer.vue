@@ -65,7 +65,7 @@
           class="flex items-end gap-4"
         >
           <!-- 播放器面板 -->
-          <div class="music-player-panel w-80 flex-shrink-0 rounded-2xl border border-slate-200/50 bg-white/75 shadow-2xl backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/75 overflow-hidden flex flex-col">
+          <div class="music-player-panel w-80 flex-shrink-0 rounded-2xl border border-slate-200/40 bg-white/60 shadow-2xl backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-950/60 overflow-hidden flex flex-col">
           <!-- 面板头部 -->
           <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200/30 dark:border-slate-800/30">
             <span class="text-xs font-bold text-slate-500 tracking-wider dark:text-slate-400">MUSIC BOX</span>
@@ -272,7 +272,7 @@
         >
           <div
             v-if="showPlaylist"
-            class="music-player-panel w-80 flex-shrink-0 h-[26rem] rounded-2xl border border-slate-200/50 bg-white/75 shadow-2xl backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/75 overflow-hidden flex flex-col"
+            class="music-player-panel w-80 flex-shrink-0 h-[26rem] rounded-2xl border border-slate-200/40 bg-white/60 shadow-2xl backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-950/60 overflow-hidden flex flex-col"
           >
             <!-- 播放列表头部 -->
             <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200/30 dark:border-slate-800/30 flex-shrink-0">
@@ -325,7 +325,7 @@
           >
             <div
               v-if="musicStore.showLyrics"
-              class="music-player-panel w-80 flex-shrink-0 h-[26rem] rounded-2xl border border-slate-200/50 bg-white/75 shadow-2xl backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-900/75 overflow-hidden flex flex-col"
+              class="music-player-panel w-80 flex-shrink-0 h-[26rem] rounded-2xl border border-slate-200/40 bg-white/60 shadow-2xl backdrop-blur-xl dark:border-slate-800/50 dark:bg-slate-950/60 overflow-hidden flex flex-col"
             >
               <!-- 歌词面板头部 -->
               <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200/30 dark:border-slate-800/30 flex-shrink-0">

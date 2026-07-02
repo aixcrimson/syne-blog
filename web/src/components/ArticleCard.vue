@@ -1,7 +1,7 @@
 <template>
   <div
     ref="cardRef"
-    class="group relative overflow-hidden rounded-2xl cursor-pointer article-card-separated border border-slate-200/50 bg-white/70 shadow-sm transition-all duration-500 hover:shadow-xl hover:-translate-y-1 dark:border-slate-800/40 dark:bg-slate-900/60 will-change-transform transform-gpu flex"
+    class="group relative overflow-hidden rounded-2xl cursor-pointer article-card-separated glass-effect shadow-sm transition-all duration-500 hover:shadow-xl hover:-translate-y-1.5 hover:border-primary-400/40 dark:hover:border-primary-500/30 will-change-transform transform-gpu flex"
     :class="[
       layout === 'list' 
         ? 'flex-col sm:flex-row h-auto sm:h-52 md:h-56' 

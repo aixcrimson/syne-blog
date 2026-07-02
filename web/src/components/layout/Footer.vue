@@ -1,6 +1,6 @@
 <template>
   <footer
-    class="mt-auto border-t border-slate-200/70 bg-white/75 text-slate-600 backdrop-blur-md dark:bg-slate-900/70 dark:border-slate-800/70 dark:text-slate-300"
+    class="mt-auto border-t border-slate-200/50 bg-white/65 text-slate-600 backdrop-blur-md dark:bg-slate-950/65 dark:border-slate-800/50 dark:text-slate-300"
   >
     <div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
       <p class="text-center text-xs text-slate-500 md:text-sm dark:text-slate-400">

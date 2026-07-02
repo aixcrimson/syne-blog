@@ -38,7 +38,7 @@
     <Transition name="slide-up">
       <div
         v-show="isOpen"
-        class="chatbot-window absolute bottom-0 right-0 w-[360px] h-[500px] flex flex-col overflow-hidden rounded-2xl border border-slate-200/70 bg-white/95 shadow-2xl shadow-slate-900/10 backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-900/95 dark:shadow-slate-900/50"
+        class="chatbot-window absolute bottom-0 right-0 w-[360px] h-[500px] flex flex-col overflow-hidden rounded-2xl border border-slate-200/40 bg-white/75 shadow-2xl shadow-slate-900/10 backdrop-blur-xl dark:border-slate-850/40 dark:bg-slate-950/70 dark:shadow-slate-900/50"
       >
         <!-- 头部 -->
         <div
@@ -115,7 +115,7 @@
           <Transition name="slide-left">
             <div
               v-if="showHistory"
-              class="absolute inset-0 z-10 flex flex-col bg-white dark:bg-slate-900"
+              class="absolute inset-0 z-10 flex flex-col bg-white/85 backdrop-blur-md dark:bg-slate-950/85"
             >
               <!-- 搜索框 -->
               <div class="p-3 border-b border-slate-200/80 dark:border-slate-700/50">
@@ -310,7 +310,7 @@
                   'min-w-0 px-4 py-2.5 rounded-2xl text-sm leading-relaxed w-fit',
                   msg.role === 'user'
                     ? 'max-w-[75%] bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-br-md'
-                    : 'max-w-[calc(100%-3rem)] bg-white text-slate-700 shadow-sm border border-slate-100 rounded-bl-md dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700/50'
+                    : 'max-w-[calc(100%-3rem)] bg-white/60 text-slate-700 shadow-sm border border-slate-100 rounded-bl-md dark:bg-slate-850/60 dark:text-slate-200 dark:border-slate-800/40'
                 ]"
               >
                 <div v-if="msg.role === 'assistant' && !msg.content && loading && index === chatHistoryStore.currentMessages.length - 1" class="flex items-center gap-1.5 h-6">
@@ -331,7 +331,7 @@
 
         <!-- 输入区域 -->
         <div
-          class="flex items-center gap-2 p-3 border-t border-slate-200/80 bg-white dark:border-slate-700/50 dark:bg-slate-900"
+          class="flex items-center gap-2 p-3 border-t border-slate-200/40 bg-white/40 dark:border-slate-800/40 dark:bg-slate-950/30"
         >
           <input
             v-model="inputText"
