@@ -54,7 +54,10 @@
       <!-- 文章发布趋势 -->
       <div class="chart-card glass-card rounded-lg overflow-hidden">
         <div class="chart-header px-5 py-4 border-b border-gray-200/30">
-          <h2 class="text-base font-semibold text-gray-800">📈 文章发布趋势</h2>
+          <h2 class="text-base font-semibold text-gray-800 flex items-center gap-1.5">
+            <el-icon class="text-indigo-600"><TrendCharts /></el-icon>
+            <span>文章发布趋势</span>
+          </h2>
           <span class="text-xs text-gray-400">最近 12 个月</span>
         </div>
         <div class="chart-body p-4">
@@ -66,7 +69,10 @@
       <!-- 分类文章分布 -->
       <div class="chart-card glass-card rounded-lg overflow-hidden">
         <div class="chart-header px-5 py-4 border-b border-gray-200/30">
-          <h2 class="text-base font-semibold text-gray-800">🍩 分类文章分布</h2>
+          <h2 class="text-base font-semibold text-gray-800 flex items-center gap-1.5">
+            <el-icon class="text-emerald-600"><PieChart /></el-icon>
+            <span>分类文章分布</span>
+          </h2>
           <span class="text-xs text-gray-400">各分类占比</span>
         </div>
         <div class="chart-body p-4">
@@ -78,7 +84,10 @@
       <!-- 热门文章 TOP10 -->
       <div class="chart-card glass-card rounded-lg overflow-hidden">
         <div class="chart-header px-5 py-4 border-b border-gray-200/30">
-          <h2 class="text-base font-semibold text-gray-800">📊 热门文章 TOP10</h2>
+          <h2 class="text-base font-semibold text-gray-800 flex items-center gap-1.5">
+            <el-icon class="text-cyan-600"><DataAnalysis /></el-icon>
+            <span>热门文章 TOP10</span>
+          </h2>
           <span class="text-xs text-gray-400">按浏览量排序</span>
         </div>
         <div class="chart-body p-4">
@@ -90,7 +99,10 @@
       <!-- 互动趋势 -->
       <div class="chart-card glass-card rounded-lg overflow-hidden">
         <div class="chart-header px-5 py-4 border-b border-gray-200/30">
-          <h2 class="text-base font-semibold text-gray-800">📉 互动趋势</h2>
+          <h2 class="text-base font-semibold text-gray-800 flex items-center gap-1.5">
+            <el-icon class="text-violet-600"><DataLine /></el-icon>
+            <span>互动趋势</span>
+          </h2>
           <span class="text-xs text-gray-400">浏览 / 点赞 / 评论</span>
         </div>
         <div class="chart-body p-4">
@@ -115,7 +127,11 @@ import {
   PriceTag, 
   ChatDotRound, 
   View, 
-  Star 
+  Star,
+  TrendCharts,
+  PieChart,
+  DataAnalysis,
+  DataLine
 } from '@element-plus/icons-vue'
 import { dashboardApi } from '@/api/dashboard'
 import type { DashboardStats, DashboardChartsData } from '@/types'
