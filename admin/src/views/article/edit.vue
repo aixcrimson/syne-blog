@@ -1,5 +1,5 @@
 <template>
-  <div class="article-edit p-4 md:p-6" v-loading="loading">
+  <div class="article-edit" v-loading="loading">
     <!-- 页面头部 -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
       <div class="flex items-center gap-4">
@@ -64,9 +64,8 @@
           <el-form-item label="文章内容" prop="content">
             <MdEditor
               v-model="formData.content"
-              :preview="!isMobile"
-              :toolbars-exclude="['github']"
-              style="height: 600px"
+              :preview="isWide"
+              :toolbars-exclude="toolbarsExclude"
               class="md-editor-custom"
               @onSelect="handleSelect"
               @onUploadImg="handleUploadImg"
@@ -77,7 +76,7 @@
 
       <!-- 右侧：设置面板 -->
       <div class="w-full lg:w-80 flex-shrink-0">
-        <div class="glass-card p-4 rounded-lg lg:sticky lg:top-6">
+        <div class="glass-card p-4 rounded-lg lg:sticky lg:top-[5.5rem]">
           <h3 class="text-lg font-semibold text-gray-800 mb-4">文章设置</h3>
           
           <el-form
@@ -166,7 +165,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { ArrowLeft, View } from '@element-plus/icons-vue'
-import { MdEditor, config } from 'md-editor-v3'
+import { MdEditor, config, type ToolbarNames } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import LinkAttr from 'markdown-it-link-attributes'
 import AiWritingPanel from '@/components/AiWritingPanel.vue'
@@ -218,7 +217,33 @@ const handlePreview = () => {
 }
 
 // 响应式状态
-const { isMobile } = useResponsive()
+const { isMobile, isWide } = useResponsive()
+
+/**
+ * 工具栏排除项
+ * 桌面端仅排除 github；移动端额外排除低频且依赖大宽度的功能（分栏预览、图表、公式等），
+ * 避免窄屏下工具栏横向溢出、常用按钮被滚动隐藏
+ */
+const toolbarsExclude = computed<ToolbarNames[]>(() => {
+  const excluded: ToolbarNames[] = ['github']
+  if (isMobile.value) {
+    excluded.push(
+      'underline',
+      'strikeThrough',
+      'sub',
+      'sup',
+      'table',
+      'mermaid',
+      'katex',
+      'prettier',
+      'preview',
+      'htmlPreview',
+      'catalog',
+      'fullscreen'
+    )
+  }
+  return excluded
+})
 
 // ==================== 路由 ====================
 const route = useRoute()
@@ -612,9 +637,20 @@ onMounted(async () => {
 }
 
 /* Markdown 编辑器自定义样式 */
+/* 高度随视口自适应：小屏保底 420px，常规桌面铺满剩余视口，超高分辨率封顶 76vh */
 .md-editor-custom {
+  height: clamp(420px, calc(100vh - 24rem), 76vh);
   border-radius: 8px;
   overflow: hidden;
+}
+
+/* 移动端：无分栏预览，编辑区占更大视口比例（dvh 修正移动端浏览器地址栏占位） */
+@media (max-width: 767px) {
+  .md-editor-custom {
+    height: 60vh;
+    height: 60dvh;
+    min-height: 380px;
+  }
 }
 
 /* 修复 Tailwind preflight 导致的 Markdown 预览中列表无样式的缺陷 */

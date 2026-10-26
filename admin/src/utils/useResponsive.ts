@@ -6,7 +6,9 @@ import { ref, onMounted, onUnmounted } from 'vue'
  */
 const BREAKPOINTS = {
   /** 移动端断点 */
-  mobile: 768
+  mobile: 768,
+  /** 宽屏断点（编辑器分栏预览等需要较大宽度的场景） */
+  wide: 1280
 } as const
 
 /**
@@ -15,16 +17,19 @@ const BREAKPOINTS = {
  * 
  * @example
  * ```ts
- * const { isMobile, isDesktop } = useResponsive()
+ * const { isMobile, isDesktop, isWide } = useResponsive()
  * // 在模板中使用：v-if="isMobile"
  * ```
  */
 export function useResponsive() {
   /** 是否为移动端 (< 768px) */
   const isMobile = ref(false)
-  
+
   /** 是否为桌面端 (>= 768px) */
   const isDesktop = ref(true)
+
+  /** 是否为宽屏 (>= 1280px) */
+  const isWide = ref(false)
 
   /**
    * 更新响应式状态
@@ -33,6 +38,7 @@ export function useResponsive() {
     const width = window.innerWidth
     isMobile.value = width < BREAKPOINTS.mobile
     isDesktop.value = width >= BREAKPOINTS.mobile
+    isWide.value = width >= BREAKPOINTS.wide
   }
 
   /**
@@ -65,6 +71,7 @@ export function useResponsive() {
 
   return {
     isMobile,
-    isDesktop
+    isDesktop,
+    isWide
   }
 }
