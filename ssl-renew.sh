@@ -48,6 +48,14 @@ if [ "${1:-}" = "--deploy" ]; then
 fi
 
 # ---- 常规模式：由 cron 调用 ----
+# certbot 安装时自带的 certbot.timer 也会触发续期，但它不会把证书复制到
+# nginx/ssl、也不会重载容器里的 nginx，会导致 90 天后证书再次过期。
+# 因此这里先停掉 certbot 自带的定时器，保证续期只走本脚本这一条链路。
+if command -v systemctl >/dev/null 2>&1 && systemctl is-active --quiet certbot.timer 2>/dev/null; then
+    systemctl disable --now certbot.timer
+    echo "已停用 certbot 自带的 certbot.timer，续期统一由本脚本负责"
+fi
+
 # 未到续期窗口时 certbot 直接跳过，deploy-hook 不会执行
 certbot renew --quiet --deploy-hook "${PROJECT_DIR}/ssl-renew.sh --deploy"
 
