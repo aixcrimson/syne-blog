@@ -3,8 +3,8 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# 安装 pnpm
-RUN npm install -g pnpm@8
+# 安装 pnpm (使用 pnpm 9 以匹配 lockfileVersion 9.0)
+RUN npm install -g pnpm@9
 
 # 复制依赖文件
 COPY package.json pnpm-lock.yaml* ./

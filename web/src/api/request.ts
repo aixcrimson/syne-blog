@@ -231,35 +231,35 @@ request.interceptors.response.use(
  * 封装 GET 请求
  */
 export function get<T = any>(url: string, params?: any, config?: AxiosRequestConfig): Promise<T> {
-  return request.get(url, { params, ...config })
+  return request.get(url, { params, ...config }) as unknown as Promise<T>
 }
 
 /**
  * 封装 POST 请求
  */
 export function post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-  return request.post(url, data, config)
+  return request.post(url, data, config) as unknown as Promise<T>
 }
 
 /**
  * 封装 PUT 请求
  */
 export function put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-  return request.put(url, data, config)
+  return request.put(url, data, config) as unknown as Promise<T>
 }
 
 /**
  * 封装 DELETE 请求
  */
 export function del<T = any>(url: string, params?: any, config?: AxiosRequestConfig): Promise<T> {
-  return request.delete(url, { params, ...config })
+  return request.delete(url, { params, ...config }) as unknown as Promise<T>
 }
 
 /**
  * 封装 PATCH 请求
  */
 export function patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-  return request.patch(url, data, config)
+  return request.patch(url, data, config) as unknown as Promise<T>
 }
 
 /**
